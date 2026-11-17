@@ -1,5 +1,5 @@
 /* Bubulife 서비스워커 — 오프라인에서도 마지막 화면은 열리게 */
-const CACHE = 'bubu-v7';
+const CACHE = 'bubu-v8';
 const ASSETS = [
   './',
   './index.html',
@@ -16,6 +16,10 @@ self.addEventListener('install', (e) => {
       .then((c) => c.addAll(ASSETS).catch(() => {}))
       .then(() => self.skipWaiting())
   );
+});
+
+self.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', (e) => {

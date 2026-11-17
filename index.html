@@ -6,6 +6,7 @@
 <title>부부 할일</title>
 <meta name="description" content="세은과 찬규의 오늘 할 일 — 두 사람 카드에 딱, 실시간으로 함께.">
 <meta name="theme-color" content="#FBE049">
+<meta name="bubu-version" content="v8-touch">
 <meta name="robots" content="noindex,nofollow">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon-192.png">
@@ -100,9 +101,11 @@
        min-height:clamp(44px,5.2vw,64px);
        transition:background .22s, transform .18s;
        will-change:transform;
-       -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+       -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-user-drag:none;
+       touch-action:pan-y;   /* 세로 스크롤만 브라우저에 맡기고 가로 제스처는 우리가 받는다 */
        cursor:default}
   .row:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
+  .row-face,.row-acts,.row-acts .act{touch-action:pan-y}
   .row-face{display:flex;align-items:center;gap:clamp(5px,.8vw,12px);
             padding:clamp(7px,.95vw,14px) clamp(8px,1vw,15px);
             min-height:clamp(44px,5.2vw,64px);
@@ -758,12 +761,16 @@ function armDelete() {
 }
 
 /* ============ 드래그로 순서 바꾸기 ============ */
-const LONG_PRESS = 280;   /* 손가락: 길게 눌러 잡기 */
-const MOVE_START = 7;     /* 이만큼 움직이면 스크롤이 아니라 드래그 */
-const SWIPE_MIN = 10;     /* 이만큼 옆으로 밀면 스와이프 */
+const LONG_PRESS = 280;   /* 손가락: 길게 눌러 잡기(순서 바꾸기) */
+const MOVE_START = 7;     /* 이만큼 위아래로 움직이면 스크롤 */
+const SWIPE_MIN = 8;      /* 이만큼 옆으로 밀고, 위아래보다 뚜렷하면 스와이프 */
+const SWIPE_RATIO = 1.1;  /* |dx| > |dy| * 1.1 */
+const DRAG_CANCEL_X = 6;  /* 옆으로 이만큼만 움직여도 롱프레스(순서 바꾸기)는 취소 */
 const SWIPE_LOCK = 0.4;   /* 액션 폭의 이 비율 넘게 밀면 열린 채로 고정 */
+let gestureSwiped = false; /* 방금 손가락 제스처가 스와이프였는지 — 뒤따르는 click 을 막는 데 쓴다 */
+let swallowClick = false;  /* 탭으로 시트를 연 직후 따라오는 click 이 시트 배경을 누르지 않게 */
 
-function rowFrom(target) { return target.closest ? target.closest('.row') : null; }
+function rowFrom(target) { return target && target.closest ? target.closest('.row') : null; }
 
 /* 스와이프 열림/닫힘 */
 function closeSwipe(row) {
@@ -778,11 +785,16 @@ function closeAllSwipes(except) {
   if (!except) openSwipeId = null;
 }
 
-function onDown(e) {
-  const row = rowFrom(e.target);
-  if (!row || drag) return;
-  if (e.target.closest('.check') || e.target.closest('.card-add') || e.target.closest('.row-acts')) return;
-  if (e.button !== undefined && e.button > 0) return;
+/* 시작 — 손가락(touch)과 마우스(pointer)를 한 상태기계로 모아 다룬다.
+   손가락은 touch 이벤트로 직접 처리해야 안드로이드 크롬이 스크롤·뒤로가기 제스처를
+   가져가며 pointercancel 을 쏘는 일을 막을 수 있다. */
+function startTrack(x, y, target, source) {
+  if (drag) return;
+  const row = rowFrom(target);
+  if (!row || !target.closest) return;
+  if (target.closest('.card-add') || target.closest('.row-acts')) return;
+  /* 완료 체크에서도 옆으로 밀 수 있다. 다만 탭은 체크 버튼이 받는다(아래 upTrack) */
+  const onCheck = !!target.closest('.check');
   const id = row.dataset.id;
   if (!ST.todos[id]) return;
   const rect = row.getBoundingClientRect();
@@ -794,14 +806,16 @@ function onDown(e) {
     rowW: rect.width,
     actsW: acts ? acts.getBoundingClientRect().width : 0,
     wasOpen: row.classList.contains('open'),
-    pointerId: e.pointerId, pointerType: e.pointerType || 'mouse',
-    startX: e.clientX, startY: e.clientY, grabOffset: e.clientY - rect.top,
+    onCheck: onCheck,
+    source: source,               /* 'touch' | 'mouse' */
+    startX: x, startY: y, grabOffset: y - rect.top,
     active: false, moved: false, swipe: false, swipeBase: 0, swipeStart: 0, offset: 0, timer: null
   };
-  try { row.setPointerCapture(e.pointerId); } catch (err) {}
-  /* 손가락만 길게 눌러 잡기(마우스는 위아래로 끌 때 잡는다 — 옆으로 밀기와 섞이지 않게) */
-  if (drag.pointerType !== 'mouse') {
-    drag.timer = setTimeout(() => { if (drag && !drag.active && !drag.swipe) beginDrag(); }, LONG_PRESS);
+  if (source === 'touch') {
+    /* 손가락은 살짝 길게 눌러야 잡힌다. 옆으로 조금이라도 가면 moveTrack 에서 곧바로 취소된다 */
+    drag.timer = setTimeout(() => {
+      if (drag && drag.source === 'touch' && !drag.active && !drag.swipe && !drag.moved) beginDrag();
+    }, LONG_PRESS);
   }
 }
 function beginDrag() {
@@ -815,6 +829,7 @@ function beginDrag() {
   if (navigator.vibrate) { try { navigator.vibrate(8); } catch (e) {} }
   paintDrag(drag.startY);
 }
+
 function blockScroll(e) { if (drag && drag.active) e.preventDefault(); }
 /* 목록이 스크롤되는 상자라, 상자 위쪽·아래쪽 끝에서 저절로 스크롤되게 */
 function edgeScroll(clientY) {
@@ -823,66 +838,77 @@ function edgeScroll(clientY) {
   if (clientY < r.top + edge) list.scrollTop -= Math.min(18, (r.top + edge - clientY) / 2);
   else if (clientY > r.bottom - edge) list.scrollTop += Math.min(18, (clientY - (r.bottom - edge)) / 2);
 }
+
 function paintDrag(clientY) {
   const d = drag; if (!d || !d.list) return;
   const listTop = d.list.getBoundingClientRect().top;
   const y = clientY - d.grabOffset - (listTop - d.list.scrollTop + d.row.offsetTop);
   d.row.style.transform = 'translateY(' + y + 'px) scale(1.015)';
 }
-function onMove(e) {
-  if (!drag || e.pointerId !== drag.pointerId) return;
-  const dy = e.clientY - drag.startY, dx = e.clientX - drag.startX;
+
+function moveTrack(x, y, ev) {
+  const d = drag; if (!d) return;
+  const dx = x - d.startX, dy = y - d.startY;
   const adx = Math.abs(dx), ady = Math.abs(dy);
+
+  /* 옆으로 조금이라도 움직이면 롱프레스(순서 바꾸기)는 즉시 포기 — 스와이프를 방해하지 않게 */
+  if (d.timer && adx > DRAG_CANCEL_X) { clearTimeout(d.timer); d.timer = null; }
+
   /* 길게 잡은 뒤에도 위아래로 옮기기 전에 옆으로 밀면 스와이프로 바꿔 준다 */
-  if (drag.active && !drag.moved && adx > 16 && adx > ady * 1.5) {
-    clearTimeout(drag.timer);
-    drag.active = false;
-    drag.row.classList.remove('dragging');
-    drag.row.style.transform = '';
+  if (d.active && !d.moved && adx > 16 && adx > ady * 1.5) {
+    d.active = false;
+    d.row.classList.remove('dragging');
+    d.row.style.transform = '';
     document.body.classList.remove('is-dragging');
     window.removeEventListener('touchmove', blockScroll);
   }
-  if (!drag.active && !drag.swipe) {
-    if (adx > SWIPE_MIN && adx > ady * 1.15) {
-      /* 옆으로 밀기 → 스와이프(메모·수정·삭제 드러내기) */
-      clearTimeout(drag.timer);
-      drag.swipe = true;
-      drag.moved = true;
-      drag.swipeBase = drag.wasOpen ? -drag.actsW : 0;
-      drag.swipeStart = e.clientX;
-      drag.offset = drag.swipeBase;
-      drag.row.classList.add('swiping');
-      closeAllSwipes(drag.row);
+
+  if (!d.active && !d.swipe) {
+    if (adx > SWIPE_MIN && adx > ady * SWIPE_RATIO) {
+      /* 옆으로 밀기 → 스와이프(메모·수정·삭제 드러내기).
+         감지되는 즉시 preventDefault 로 스크롤·뒤로가기 제스처에 뺏기지 않게 고정한다. */
+      clearTimeout(d.timer); d.timer = null;
+      d.swipe = true;
+      d.moved = true;
+      gestureSwiped = true;
+      d.swipeBase = d.wasOpen ? -d.actsW : 0;
+      d.swipeStart = x;
+      d.offset = d.swipeBase;
+      d.row.classList.add('swiping');
+      closeAllSwipes(d.row);
+      if (ev && ev.cancelable) ev.preventDefault();
     } else if (ady > MOVE_START || adx > MOVE_START * 2) {
-      if (drag.pointerType === 'mouse') beginDrag();
-      else { endDrag(false); return; }   /* 손가락이 먼저 움직이면 스크롤로 넘긴다 */
+      if (d.source === 'touch') { endTrack(false); return; }   /* 손가락이 먼저 위아래로 움직이면 스크롤에 맡긴다 */
+      beginDrag();                                             /* 마우스는 끌어서 순서 바꾸기 */
     } else return;
   }
-  if (drag.swipe) {
-    const x = Math.max(-drag.actsW, Math.min(0, drag.swipeBase + (e.clientX - drag.swipeStart)));
-    drag.offset = x;
-    drag.face.style.width = Math.round(drag.rowW - Math.abs(x) * (drag.actsW ? 1 : 0)) + 'px';
+
+  if (d.swipe) {
+    if (ev && ev.cancelable) ev.preventDefault();
+    const nx = Math.max(-d.actsW, Math.min(0, d.swipeBase + (x - d.swipeStart)));
+    d.offset = nx;
+    if (d.face) d.face.style.width = Math.round(d.rowW - Math.abs(nx)) + 'px';
     return;
   }
-  drag.moved = true;
-  edgeScroll(e.clientY);
-  const list = drag.list;
-  const others = Array.from(list.querySelectorAll('.row')).filter(r => r !== drag.row);
+
+  d.moved = true;
+  edgeScroll(y);
+  const list = d.list;
+  const others = Array.from(list.querySelectorAll('.row')).filter(r => r !== d.row);
   let before = null;
   for (const r of others) {
     const rc = r.getBoundingClientRect();
-    if (e.clientY < rc.top + rc.height / 2) { before = r; break; }
+    if (y < rc.top + rc.height / 2) { before = r; break; }
   }
-  if (before !== drag.row.nextElementSibling) list.insertBefore(drag.row, before);
-  paintDrag(e.clientY);
+  if (before !== d.row.nextElementSibling) list.insertBefore(d.row, before);
+  paintDrag(y);
 }
-function onUp(e) {
-  if (!drag || (e && e.pointerId !== drag.pointerId)) return;
-  const d = drag;
-  if (d.swipe) {                       /* 스와이프 마무리: 충분히 밀었으면 열린 채로 */
+function upTrack() {
+  const d = drag; if (!d) return;
+  if (d.swipe) {                     /* 스와이프 마무리: 충분히 밀었으면 열린 채로 */
     const open = d.offset < -d.actsW * SWIPE_LOCK;
     d.row.classList.remove('swiping');
-    d.face.style.width = '';
+    if (d.face) d.face.style.width = '';
     d.row.classList.toggle('open', open);
     openSwipeId = open ? d.id : null;
     drag = null;
@@ -891,16 +917,19 @@ function onUp(e) {
   }
   const tapped = !d.active && !d.moved;
   const wasOpen = d.wasOpen;
-  endDrag(true);
+  const onCheck = d.onCheck;
+  endTrack(true);
   if (tapped) {
+    if (onCheck) return;              /* 완료 체크 탭은 체크 버튼의 click 이 처리한다 */
+    swallowClick = true;              /* 탭 뒤 따라오는 click 이 방금 열린 시트 배경을 누르지 않게 */
     if (wasOpen) { closeSwipe(d.row); return; }   /* 열린 줄을 탭하면 닫기만 */
     closeAllSwipes();
     openSheet(d.id);
   }
 }
-function endDrag(commit) {
+function endTrack(commit) {
   const d = drag; if (!d) return;
-  clearTimeout(d.timer);
+  if (d.timer) { clearTimeout(d.timer); d.timer = null; }
   window.removeEventListener('touchmove', blockScroll);
   drag = null;
   if (d.active) {
@@ -911,18 +940,67 @@ function endDrag(commit) {
   if (d.active && d.moved && commit) saveOrder(d.owner);
   else if (render.pending) render();
 }
-function onCancel(e) {
-  if (!drag || (e && e.pointerId !== drag.pointerId)) return;
-  if (drag.swipe) {
-    const d = drag; drag = null;
+function cancelTrack() {
+  const d = drag; if (!d) return;
+  if (d.timer) { clearTimeout(d.timer); d.timer = null; }
+  if (d.swipe) {
+    drag = null;
     d.row.classList.remove('swiping');
-    d.face.style.width = '';
+    if (d.face) d.face.style.width = '';
     d.row.classList.toggle('open', d.wasOpen);
     openSwipeId = d.wasOpen ? d.id : null;
     return;
   }
-  endDrag(false);
+  endTrack(false);
 }
+
+/* --- 마우스·펜 --- */
+function onDown(e) {
+  swallowClick = false;
+  if (e.pointerType === 'touch') return;          /* 손가락은 아래 touch 핸들러가 맡는다 */
+  if (e.button !== undefined && e.button > 0) return;
+  startTrack(e.clientX, e.clientY, e.target, 'mouse');
+  if (!drag || drag.source !== 'mouse') return;
+  drag.pointerId = e.pointerId;
+  try { drag.row.setPointerCapture(e.pointerId); } catch (err) {}
+}
+function onMove(e) {
+  if (!drag || drag.source !== 'mouse' || e.pointerId !== drag.pointerId) return;
+  moveTrack(e.clientX, e.clientY, e);
+}
+function onUp(e) {
+  if (!drag || drag.source !== 'mouse') return;
+  if (e && e.pointerId !== drag.pointerId) return;
+  upTrack();
+}
+function onCancel(e) {
+  if (!drag || drag.source !== 'mouse') return;
+  cancelTrack();
+}
+
+/* --- 손가락 --- */
+function onTouchStart(e) {
+  if (!e.touches || e.touches.length !== 1) { if (drag && drag.source === 'touch') cancelTrack(); return; }
+  gestureSwiped = false;
+  swallowClick = false;
+  const t = e.touches[0];
+  startTrack(t.clientX, t.clientY, e.target, 'touch');
+}
+function onTouchMove(e) {
+  if (!drag || drag.source !== 'touch') return;
+  const t = e.touches && e.touches[0]; if (!t) return;
+  moveTrack(t.clientX, t.clientY, e);   /* passive:false — 수평 판정되면 여기서 preventDefault */
+}
+function onTouchEnd(e) {
+  if (!drag || drag.source !== 'touch') return;
+  if (e.touches && e.touches.length > 0) return;
+  upTrack();
+}
+function onTouchCancel(e) {
+  if (!drag || drag.source !== 'touch') return;
+  cancelTrack();
+}
+
 async function saveOrder(owner) {
   const list = $('.rows[data-owner="' + owner + '"]');
   if (!list) { render(); return; }
@@ -949,7 +1027,22 @@ function initApp() {
   window.addEventListener('pointerup', onUp);
   window.addEventListener('pointercancel', onCancel);
 
+  /* 탭으로 시트를 연 직후 따라오는 click 은 삼킨다(시트가 곧바로 닫히지 않게) */
+  document.addEventListener('click', e => {
+    if (!swallowClick) return;
+    swallowClick = false;
+    e.preventDefault(); e.stopPropagation();
+  }, true);
+
+  /* 손가락: touch-action:pan-y 와 직접 만든 touch 핸들러로 스크롤·뒤로가기에 뺏기지 않게 */
+  board.addEventListener('touchstart', onTouchStart, { passive: true });
+  document.addEventListener('touchmove', onTouchMove, { passive: false });
+  document.addEventListener('touchend', onTouchEnd, { passive: true });
+  document.addEventListener('touchcancel', onTouchCancel, { passive: true });
+
   board.addEventListener('click', e => {
+    /* 스와이프 제스처 뒤에 따라오는 click 은 누르지 않은 것으로 친다 */
+    if (gestureSwiped) { gestureSwiped = false; e.preventDefault(); e.stopPropagation(); return; }
     const act = e.target.closest('.row-acts .act');
     if (act) {
       e.preventDefault(); e.stopPropagation();
@@ -1023,12 +1116,32 @@ function joinRoom() {
   if (!ROOM_RE.test(v)) { toast('방 코드를 확인해 주세요'); return; }
   location.search = '?room=' + encodeURIComponent(v);
 }
+let swReg = null;
 function registerSW() {
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
-    });
-  }
+  if (!('serviceWorker' in navigator)) return;
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    /* 새 버전이 화면을 넘겨받으면 새로 고침 — 단, 첫 설치이거나 방금 새로 고쳤으면 건너뛴다 */
+    if (!hadController || reloading) return;
+    const KEY = 'bubu.sw.reloadedAt';
+    const last = +(sessionStorage.getItem(KEY) || 0);
+    if (Date.now() - last < 8000) return;
+    reloading = true;
+    try { sessionStorage.setItem(KEY, String(Date.now())); } catch (e) {}
+    location.reload();
+  });
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(reg => {
+      swReg = reg;
+      if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      if (reg.update) reg.update().catch(() => {});
+    }).catch(() => {});
+  });
+  /* 앱으로 돌아올 때마다 새 버전이 있는지 조용히 확인한다 */
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && swReg && swReg.update) swReg.update().catch(() => {});
+  });
 }
 function boot() {
   if (!ROOM) {
