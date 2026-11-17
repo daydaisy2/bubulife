@@ -95,7 +95,7 @@
   .empty{margin:auto;padding:clamp(10px,1.4vw,18px) 4px;color:var(--muted);
          font-size:clamp(12px,1.6vw,20px);font-weight:700;text-align:center;line-height:1.4}
 
-  .row{--actw:clamp(46px,12.6vw,58px);
+  .row{--delw:clamp(76px,21vw,88px);   /* 스와이프로 드러나는 삭제 버튼 폭(큼직하게) */
        position:relative;display:block;flex:0 0 auto;overflow:hidden;
        background:var(--cream);border-radius:clamp(9px,1.1vw,16px);
        min-height:clamp(44px,5.2vw,64px);
@@ -112,16 +112,14 @@
             background:var(--cream);position:relative;z-index:2;border-radius:inherit;
             width:100%;
             transition:width .22s cubic-bezier(.22,.61,.36,1)}
-  .row.open .row-face{width:calc(100% - var(--actw) * 3)}
+  .row.open .row-face{width:calc(100% - var(--delw))}
   .row.swiping .row-face{transition:none}
   .row-acts{position:absolute;top:0;right:0;height:100%;display:flex;z-index:1}
-  .row-acts .act{width:var(--actw);height:100%;display:flex;flex-direction:column;
-                 align-items:center;justify-content:center;gap:.18em;border:0;color:#fff;
-                 font-weight:900;font-size:clamp(9px,1.35vw,12.5px);letter-spacing:-.04em;
+  .row-acts .act{width:var(--delw);height:100%;display:flex;flex-direction:column;
+                 align-items:center;justify-content:center;gap:.2em;border:0;color:#fff;
+                 font-weight:900;font-size:clamp(12px,1.55vw,15px);letter-spacing:-.04em;
                  line-height:1;transition:filter .12s}
-  .row-acts .act .ai{font-size:1.3em;line-height:1}
-  .row-acts .note{background:#1E1B7A}
-  .row-acts .edit{background:#8A8271}
+  .row-acts .act .ai{font-size:1.7em;line-height:1}
   .row-acts .del{background:#C0392B}
   .row-acts .act:active{filter:brightness(.9)}
   .row .ico{flex:0 0 auto;font-size:clamp(16px,2.4vw,30px);line-height:1}
@@ -200,8 +198,9 @@
   .btn-del.confirm{background:#C0392B;color:#fff}
 
   /* 메모 시트 */
-  #noteTodo{margin:-6px 0 0;font-size:clamp(12.5px,1.7vw,15px);font-weight:800;color:var(--muted);
-            letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #noteText{flex:1 1 auto;min-width:0;border:0;background:none;padding:13px 0;
+            font:inherit;font-weight:800;font-size:clamp(15px,2vw,19px);
+            letter-spacing:-.02em;color:var(--ink);outline:none}
   #noteInput{width:100%;border:2px solid var(--line);border-radius:14px;padding:12px 13px;
              background:#fff;font:inherit;font-weight:700;font-size:clamp(14px,1.9vw,18px);
              letter-spacing:-.02em;color:var(--ink);line-height:1.45;resize:vertical;
@@ -271,7 +270,7 @@
     .card-add{min-height:50px;font-size:16px}
   }
   @media (max-width:340px){
-    .row{--actw:44px;min-height:44px}
+    .row{--delw:76px;min-height:44px}
     .row-face{padding:7px 6px;gap:4px;min-height:44px}
     .row .txt{font-size:13.5px}
     .row .ico{font-size:17px}
@@ -351,7 +350,6 @@
     <div class="acts">
       <button type="submit" class="save">저장</button>
     </div>
-    <button type="button" id="delBtn" class="btn-del hidden">🗑 이 할 일 삭제</button>
   </form>
 </div>
 
@@ -359,13 +357,20 @@
   <div class="bd" data-nclose="1"></div>
   <form id="noteForm" class="panel" autocomplete="off">
     <div class="grab"></div>
-    <h2 id="noteTitle">📝 메모</h2>
-    <p id="noteTodo"></p>
-    <textarea id="noteInput" rows="4" maxlength="200" placeholder="이 할 일에 대한 메모를 적어 주세요"></textarea>
-    <div class="acts">
-      <button type="submit" class="save">메모 저장</button>
+    <h2 id="noteTitle">📝 메모 · 수정</h2>
+    <div class="seg" id="noteOwnerSeg">
+      <button type="button" data-owner="seeun">👩🏻 세은</button>
+      <button type="button" data-owner="chankyu">👨🏻 찬규</button>
     </div>
-    <button type="button" id="noteClear" class="btn-del">🧽 메모 지우기</button>
+    <div class="field">
+      <span class="ico" id="noteIcon" aria-hidden="true">👩🏻</span>
+      <input id="noteText" type="text" maxlength="80" placeholder="할 일">
+    </div>
+    <textarea id="noteInput" rows="3" maxlength="200" placeholder="메모를 적어 주세요"></textarea>
+    <div class="acts">
+      <button type="submit" class="save">저장</button>
+    </div>
+    <button type="button" id="noteDel" class="btn-del">🗑 이 할 일 삭제</button>
   </form>
 </div>
 
@@ -441,10 +446,6 @@ function rowHtml(t) {
   const note = String(t.note == null ? '' : t.note).trim();
   return '<li class="row' + (openSwipeId === t.id ? ' open' : '') + '" data-id="' + id + '" tabindex="0">' +
     '<div class="row-acts">' +
-      '<button class="act note" type="button" data-act="note" data-id="' + id + '" aria-label="메모">' +
-        '<span class="ai" aria-hidden="true">📝</span>메모</button>' +
-      '<button class="act edit" type="button" data-act="edit" data-id="' + id + '" aria-label="수정">' +
-        '<span class="ai" aria-hidden="true">✏️</span>수정</button>' +
       '<button class="act del" type="button" data-act="del" data-id="' + id + '" aria-label="삭제">' +
         '<span class="ai" aria-hidden="true">🗑</span>삭제</button>' +
     '</div>' +
@@ -533,43 +534,57 @@ function syncSheetFlag() {
   document.body.classList.toggle('sheet-open', open);
 }
 
-/* ============ 메모 시트 ============ */
-let noteDraft = null;
+/* ============ 메모 · 수정 시트 (항목을 한 번 탭하면 바로 열린다) ============ */
+let noteDraft = null;      /* 고치는 중인 할 일 id */
+let noteOwner = 'seeun';   /* 시트에서 고른 담당자 */
 function openNote(id) {
   const t = ST.todos[id]; if (!t) return;
   noteDraft = id;
-  $('#noteTodo').textContent = iconFor(t) + ' ' + t.text;
+  noteOwner = ownerOf(t);
+  $('#noteText').value = t.text || '';
   $('#noteInput').value = t.note || '';
+  paintNote();
   $('#noteSheet').classList.remove('hidden');
   syncSheetFlag();
-  setTimeout(() => { $('#noteInput').focus(); }, 120);
+  /* 바로 메모를 적을 수 있게 메모 입력란에 포커스 */
+  setTimeout(() => { const el = $('#noteInput'); if (el && noteDraft === id) el.focus(); }, 120);
+}
+function paintNote() {
+  $$('#noteOwnerSeg button').forEach(b => b.classList.toggle('on', b.dataset.owner === noteOwner));
+  $('#noteIcon').textContent = ownerIcon(noteOwner);
+  resetDelBtn();
 }
 function closeNote() {
   $('#noteSheet').classList.add('hidden');
   syncSheetFlag();
   $('#noteInput').blur();
+  $('#noteText').blur();
   noteDraft = null;
+  resetDelBtn();
 }
 async function saveNote(e) {
   if (e) e.preventDefault();
   const id = noteDraft, t = id ? ST.todos[id] : null;
   if (!t) { closeNote(); return; }
+  const text = $('#noteText').value.trim();
+  if (!text) { $('#noteText').focus(); toast('할 일을 적어 주세요'); return; }
   const note = $('#noteInput').value.trim();
-  const before = t.note || '';
-  if (before === note) { closeNote(); return; }
+  const ownerChanged = ownerOf(t) !== noteOwner;
+  if (!ownerChanged && t.text === text && (t.note || '') === note) { closeNote(); return; }
   const now = Date.now();
-  t.note = note; t.updatedAt = now;
+  const before = { text: t.text, note: t.note, owner: t.owner, icon: t.icon,
+                   order: t.order, updatedAt: t.updatedAt };
+  const body = { text: text, note: note || null, owner: noteOwner,
+                 icon: ownerIcon(noteOwner), updatedAt: now };
+  if (ownerChanged) body.order = nextOrder(noteOwner);
+  Object.assign(t, body);
   closeNote(); render();
   try {
-    await patch('todos/' + id, { note: note || null, updatedAt: now });
-    toast(note ? '메모를 저장했어요' : '메모를 지웠어요');
+    await patch('todos/' + id, body);
+    toast('저장했어요');
   } catch (err) {
-    t.note = before; render(); toast('메모를 저장하지 못했어요');
+    Object.assign(t, before); render(); toast('저장하지 못했어요');
   }
-}
-function clearNote() {
-  $('#noteInput').value = '';
-  saveNote();
 }
 
 /* ============ Firebase 연결 ============ */
@@ -672,26 +687,21 @@ async function toggle(id) {
   catch (e) { Object.assign(t, before); render(); toast('저장하지 못했어요'); }
 }
 
-/* ============ 추가 / 수정 시트 ============ */
+/* ============ 추가 시트 ============ */
 let delTimer = null;
 function resetDelBtn() {
-  const b = $('#delBtn');
+  const b = $('#noteDel'); if (!b) return;
   b.classList.remove('confirm');
   b.textContent = '🗑 이 할 일 삭제';
   clearTimeout(delTimer); delTimer = null;
 }
-function openSheet(id, owner) {
-  const t = id ? ST.todos[id] : null;
-  draft = { id: id || null, owner: t ? ownerOf(t) : (owner || lastOwner) };
-  $('#sheetTitle').textContent = t ? '할 일 수정' : '할 일 추가';
-  $('#textInput').value = t ? t.text : '';
-  $('#iconPreview').textContent = ownerIcon(draft.owner);
-  $('#delBtn').classList.toggle('hidden', !t);
-  resetDelBtn();
+function openAdd(owner) {
+  draft = { id: null, owner: owner || lastOwner };
+  $('#textInput').value = '';
   paintSheet();
   $('#sheet').classList.remove('hidden');
   syncSheetFlag();
-  setTimeout(() => { if (!t) $('#textInput').focus(); }, 120);
+  setTimeout(() => { $('#textInput').focus(); }, 120);
 }
 function paintSheet() {
   $$('#ownerSeg button').forEach(b => b.classList.toggle('on', b.dataset.owner === draft.owner));
@@ -701,7 +711,6 @@ function closeSheet() {
   $('#sheet').classList.add('hidden');
   syncSheetFlag();
   $('#textInput').blur();
-  resetDelBtn();
 }
 function nextOrder(owner) {
   const arr = todoList().filter(t => ownerOf(t) === owner);
@@ -713,28 +722,16 @@ async function saveTodo(e) {
   if (!text) { $('#textInput').focus(); toast('할 일을 적어 주세요'); return; }
   const now = Date.now();
   const icon = ownerIcon(draft.owner);
-  if (draft.id) {
-    const t = ST.todos[draft.id]; if (!t) { closeSheet(); return; }
-    const before = { ...t };
-    const ownerChanged = ownerOf(t) !== draft.owner;
-    const body = { text, icon, owner: draft.owner, updatedAt: now };
-    if (ownerChanged) body.order = nextOrder(draft.owner);
-    ST.todos[draft.id] = { ...t, ...body };
-    closeSheet(); render();
-    try { await patch('todos/' + draft.id, body); toast('수정했어요'); }
-    catch (err) { ST.todos[draft.id] = before; render(); toast('저장하지 못했어요'); }
-  } else {
-    const id = newId();
-    const obj = {
-      id, text, icon, owner: draft.owner, done: false,
-      order: nextOrder(draft.owner), createdAt: now, updatedAt: now
-    };
-    ST.todos[id] = obj;
-    lastOwner = draft.owner; localStorage.setItem('bubu.owner', lastOwner);
-    closeSheet(); render();
-    try { await put('todos/' + id, obj); toast(icon + ' 추가했어요'); }
-    catch (err) { delete ST.todos[id]; render(); toast('저장하지 못했어요'); }
-  }
+  const id = newId();
+  const obj = {
+    id, text, icon, owner: draft.owner, done: false,
+    order: nextOrder(draft.owner), createdAt: now, updatedAt: now
+  };
+  ST.todos[id] = obj;
+  lastOwner = draft.owner; localStorage.setItem('bubu.owner', lastOwner);
+  closeSheet(); render();
+  try { await put('todos/' + id, obj); toast(icon + ' 추가했어요'); }
+  catch (err) { delete ST.todos[id]; render(); toast('저장하지 못했어요'); }
 }
 async function removeTodo(id) {
   const t = ST.todos[id]; if (!t) return false;
@@ -745,12 +742,13 @@ async function removeTodo(id) {
   catch (e) { ST.todos[id] = t; render(); toast('삭제하지 못했어요'); return false; }
 }
 function armDelete() {
-  const b = $('#delBtn');
+  const b = $('#noteDel'); if (!b) return;
   if (b.classList.contains('confirm')) {
-    const id = draft.id;
+    const id = noteDraft;
     clearTimeout(delTimer); delTimer = null;
     b.classList.remove('confirm');
-    closeSheet();
+    b.textContent = '🗑 이 할 일 삭제';
+    closeNote();
     if (id) removeTodo(id);
     return;
   }
@@ -924,7 +922,7 @@ function upTrack() {
     swallowClick = true;              /* 탭 뒤 따라오는 click 이 방금 열린 시트 배경을 누르지 않게 */
     if (wasOpen) { closeSwipe(d.row); return; }   /* 열린 줄을 탭하면 닫기만 */
     closeAllSwipes();
-    openSheet(d.id);
+    openNote(d.id);                   /* 한 번 탭 → 바로 메모 · 수정 시트 */
   }
 }
 function endTrack(commit) {
@@ -1047,9 +1045,7 @@ function initApp() {
     if (act) {
       e.preventDefault(); e.stopPropagation();
       const aid = act.dataset.id;
-      if (act.dataset.act === 'note') { closeAllSwipes(); openNote(aid); }
-      else if (act.dataset.act === 'edit') { closeAllSwipes(); openSheet(aid); }
-      else if (act.dataset.act === 'del') {
+      if (act.dataset.act === 'del') {
         /* 드러난 삭제 버튼을 눌렀을 때만 지워진다 */
         const row = act.closest('.row');
         if (row && row.dataset.id === aid) closeSwipe(row);
@@ -1060,13 +1056,13 @@ function initApp() {
     const ck = e.target.closest('.check');
     if (ck) { e.preventDefault(); toggle(ck.dataset.id); return; }
     const add = e.target.closest('.card-add');
-    if (add) { e.preventDefault(); openSheet(null, add.dataset.owner); return; }
+    if (add) { e.preventDefault(); openAdd(add.dataset.owner); return; }
   });
   board.addEventListener('keydown', e => {
     if (e.key !== 'Enter' && e.key !== ' ') return;
     const row = e.target.closest('.row');
     if (!row || e.target.closest('.check')) return;
-    e.preventDefault(); openSheet(row.dataset.id);
+    e.preventDefault(); openNote(row.dataset.id);
   });
 
   /* 완료됨 */
@@ -1080,11 +1076,17 @@ function initApp() {
     if (delc) { removeTodo(delc.dataset.delc); }
   });
 
-  /* 추가·수정·메모 */
-  $('#delBtn').addEventListener('click', armDelete);
+  /* 추가·메모 · 수정 */
+  $('#noteDel').addEventListener('click', armDelete);
   $('#form').addEventListener('submit', saveTodo);
   $('#noteForm').addEventListener('submit', saveNote);
-  $('#noteClear').addEventListener('click', clearNote);
+  $('#noteOwnerSeg').addEventListener('click', e => {
+    const b = e.target.closest('button[data-owner]'); if (!b) return;
+    noteOwner = b.dataset.owner; paintNote();
+  });
+  $('#noteText').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); saveNote(); }
+  });
   $('#noteSheet').addEventListener('click', e => { if (e.target.dataset.nclose === '1') closeNote(); });
   /* 다른 데를 탭하면 열린 스와이프는 저절로 닫힌다 */
   document.addEventListener('pointerdown', e => {
