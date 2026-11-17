@@ -371,7 +371,7 @@
 /* ==== QA 스텁: Firebase 대신 메모리 저장소 ==== */
 (function () {
   const DB = 'https://bubulife-678ac-default-rtdb.firebaseio.com';
-  const store = {"todos": {"t1": {"id": "t1", "text": "약 먹기", "icon": "👩🏻", "owner": "seeun", "done": false, "order": 0, "createdAt": 1794885885375, "updatedAt": 1794885885375}, "t2": {"id": "t2", "text": "은행 다녀오기", "icon": "👨🏻", "owner": "chankyu", "done": false, "note": "통장 사본 챙기기", "order": 0, "createdAt": 1794885885376, "updatedAt": 1794885885376}, "t3": {"id": "t3", "text": "운동 30분", "icon": "👩🏻", "owner": "seeun", "done": false, "order": 1, "createdAt": 1794885885377, "updatedAt": 1794885885377}, "t4": {"id": "t4", "text": "장보기 목록 정리하고 냉장고 확인하기", "icon": "👩🏻", "owner": "seeun", "done": false, "order": 2, "createdAt": 1794885885378, "updatedAt": 1794885885378}}};
+  const store = { rooms: { qaswipev7: {"todos": {"t1": {"id": "t1", "text": "약 먹기", "icon": "👩🏻", "owner": "seeun", "done": false, "order": 0, "createdAt": 1794885885375, "updatedAt": 1794885885375}, "t2": {"id": "t2", "text": "은행 다녀오기", "icon": "👨🏻", "owner": "chankyu", "done": false, "note": "통장 사본 챙기기", "order": 0, "createdAt": 1794885885376, "updatedAt": 1794885885376}, "t3": {"id": "t3", "text": "운동 30분", "icon": "👩🏻", "owner": "seeun", "done": false, "order": 1, "createdAt": 1794885885377, "updatedAt": 1794885885377}, "t4": {"id": "t4", "text": "장보기 목록 정리하고 냉장고 확인하기", "icon": "👩🏻", "owner": "seeun", "done": false, "order": 2, "createdAt": 1794885885378, "updatedAt": 1794885885378}}} } };
   window.__qaStore = store;
   const resp = (data, ok) => ({ ok: ok !== false, status: 200, json: async () => data });
   function resolve(url) {
