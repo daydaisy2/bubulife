@@ -546,8 +546,10 @@ function openNote(id) {
   paintNote();
   $('#noteSheet').classList.remove('hidden');
   syncSheetFlag();
-  /* 바로 메모를 적을 수 있게 메모 입력란에 포커스 */
-  setTimeout(() => { const el = $('#noteInput'); if (el && noteDraft === id) el.focus(); }, 120);
+  /* 메모 입력란에는 자동 포커스를 주지 않는다(모바일에서 키보드가 화면을 가림).
+     메모칸을 직접 탭할 때만 키보드가 올라온다. */
+  $('#noteInput').blur();
+  $('#noteText').blur();
 }
 function paintNote() {
   $$('#noteOwnerSeg button').forEach(b => b.classList.toggle('on', b.dataset.owner === noteOwner));
