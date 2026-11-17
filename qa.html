@@ -1,0 +1,1035 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>부부 할일</title>
+<meta name="description" content="세은과 찬규의 오늘 할 일 — 두 사람 카드에 딱, 실시간으로 함께.">
+<meta name="theme-color" content="#FBE049">
+<meta name="robots" content="noindex,nofollow">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="부부 할일">
+<style>
+  :root{
+    --yellow:#FBE049;
+    --yellow-deep:#F3D22F;
+    --white:#FFFFFF;
+    --cream:#FDF8E7;
+    --cream-line:#F3ECD6;
+    --navy:#1E1B7A;
+    --mint:#DFF2DD;
+    --green:#2F6B33;
+    --green-text:#3F7A46;
+    --ink:#20201C;
+    --muted:#8A8674;
+    --line:#EFEAD6;
+    --pad: clamp(10px, 1.6vw, 26px);
+    --gap: clamp(8px, 1.4vw, 20px);
+    --radius: clamp(14px, 1.9vw, 24px);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%}
+  body{
+    height:100vh; height:100dvh;
+    background:var(--yellow);
+    color:var(--ink);
+    font-family:"Pretendard","Apple SD Gothic Neo",-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    -webkit-text-size-adjust:100%;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    overflow:hidden;
+    overscroll-behavior:none;
+  }
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+  .hidden{display:none !important}
+
+  /* ---------- app ---------- */
+  #app{height:100%;min-height:0;display:flex;flex-direction:column;
+       gap:var(--gap);padding:var(--pad);overflow:hidden}
+  .top{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;
+       padding:0 clamp(2px,.6vw,6px)}
+  .top h1{margin:0;display:flex;align-items:center;gap:.22em;
+          font-size:clamp(19px,3vw,34px);font-weight:900;letter-spacing:-.03em;line-height:1.1}
+  .mark{width:1.04em;height:1.04em;border-radius:.3em;color:#fff;display:inline-grid;place-items:center;
+        background:linear-gradient(#3DB552,#2C9B44);box-shadow:0 1px 3px rgba(60,50,0,.18)}
+  .mark svg{width:72%;height:72%;display:block}
+  .top-right{display:flex;align-items:center;gap:clamp(6px,.9vw,12px);flex:0 0 auto}
+  .dot{width:clamp(7px,.9vw,11px);aspect-ratio:1;border-radius:50%;background:#B9B39A;opacity:.85;
+       transition:background .3s}
+  .dot.live{background:#2E9E52}
+  .dot.warn{background:#D08A17}
+  .dot.off{background:#A9A497}
+
+  .board{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:1fr 1fr;
+         gap:var(--gap);align-items:stretch}
+
+  /* ---------- card ---------- */
+  .card{background:var(--white);border-radius:var(--radius);padding:clamp(8px,1.25vw,18px);
+        box-shadow:0 8px 22px rgba(112,86,0,.13), 0 1px 0 rgba(255,255,255,.9) inset;
+        display:flex;flex-direction:column;gap:clamp(6px,1vw,12px);min-width:0;min-height:0;overflow:hidden}
+  .card-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:6px}
+  .who{display:flex;align-items:center;gap:clamp(5px,.75vw,10px);min-width:0}
+  .avatar{display:grid;place-items:center;flex:0 0 auto;
+          width:clamp(24px,3.2vw,42px);height:clamp(24px,3.2vw,42px);border-radius:50%;
+          background:#F8E7D8;font-size:clamp(14px,1.85vw,25px);line-height:1}
+  .card[data-owner="chankyu"] .avatar{background:#E6F0E2}
+  .name{font-size:clamp(14px,2.05vw,26px);font-weight:900;letter-spacing:-.03em;white-space:nowrap;
+        overflow:hidden;text-overflow:ellipsis}
+  .ratio{font-size:clamp(12px,1.65vw,22px);font-weight:900;color:#5C5947;letter-spacing:-.02em;flex:0 0 auto}
+  .bar{flex:0 0 auto;height:clamp(5px,.8vw,9px);border-radius:999px;background:#EDE9D8;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;border-radius:999px;background:var(--navy);
+         transition:width .35s cubic-bezier(.2,.8,.2,1)}
+
+  .rows{list-style:none;margin:0;padding:0 2px 0 0;position:relative;
+        display:flex;flex-direction:column;gap:clamp(5px,.75vw,10px);
+        flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+        -webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .rows::-webkit-scrollbar{width:6px}
+  .rows::-webkit-scrollbar-thumb{background:#E7E1CB;border-radius:999px}
+  .rows::-webkit-scrollbar-track{background:transparent}
+  .empty{margin:auto;padding:clamp(10px,1.4vw,18px) 4px;color:var(--muted);
+         font-size:clamp(12px,1.6vw,20px);font-weight:700;text-align:center;line-height:1.4}
+
+  .row{--actw:clamp(46px,12.6vw,58px);
+       position:relative;display:block;flex:0 0 auto;overflow:hidden;
+       background:var(--cream);border-radius:clamp(9px,1.1vw,16px);
+       min-height:clamp(44px,5.2vw,64px);
+       transition:background .22s, transform .18s;
+       will-change:transform;
+       -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+       cursor:default}
+  .row:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
+  .row-face{display:flex;align-items:center;gap:clamp(5px,.8vw,12px);
+            padding:clamp(7px,.95vw,14px) clamp(8px,1vw,15px);
+            min-height:clamp(44px,5.2vw,64px);
+            background:var(--cream);position:relative;z-index:2;border-radius:inherit;
+            transition:transform .22s cubic-bezier(.22,.61,.36,1)}
+  .row.open .row-face{transform:translateX(calc(var(--actw) * -3))}
+  .row.swiping .row-face{transition:none}
+  .row-acts{position:absolute;top:0;right:0;height:100%;display:flex;z-index:1}
+  .row-acts .act{width:var(--actw);height:100%;display:flex;flex-direction:column;
+                 align-items:center;justify-content:center;gap:.18em;border:0;color:#fff;
+                 font-weight:900;font-size:clamp(9px,1.35vw,12.5px);letter-spacing:-.04em;
+                 line-height:1;transition:filter .12s}
+  .row-acts .act .ai{font-size:1.3em;line-height:1}
+  .row-acts .note{background:#1E1B7A}
+  .row-acts .edit{background:#8A8271}
+  .row-acts .del{background:#C0392B}
+  .row-acts .act:active{filter:brightness(.9)}
+  .row .ico{flex:0 0 auto;font-size:clamp(16px,2.4vw,30px);line-height:1}
+  .row .body{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:.12em}
+  .row .txt{min-width:0;font-size:clamp(14px,2.15vw,27px);font-weight:900;
+            letter-spacing:-.035em;line-height:1.2;
+            display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+            overflow-wrap:anywhere;word-break:keep-all}
+  .row .note-line{display:block;font-size:clamp(10.5px,1.55vw,16px);font-weight:700;
+                  color:#8C8672;letter-spacing:-.02em;line-height:1.25;
+                  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .check{flex:0 0 auto;width:clamp(24px,3.2vw,36px);height:clamp(24px,3.2vw,36px);border-radius:50%;
+         border:2px solid #E7E1CB;background:#fff;display:grid;place-items:center;
+         transition:background .18s,border-color .18s,transform .12s}
+  .check .tick{font-size:clamp(12px,1.75vw,20px);line-height:1;color:#fff;font-weight:900;opacity:0;transition:opacity .15s}
+  .check:active{transform:scale(.92)}
+  .row.dragging{z-index:6;box-shadow:0 12px 26px rgba(60,50,0,.22);opacity:.97;transition:none}
+  body.is-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
+  body.is-dragging .row{transition:none}
+
+  /* 큰 추가 버튼 */
+  .card-add{flex:0 0 auto;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+            min-height:clamp(46px,6.2vw,58px);border-radius:clamp(12px,1.4vw,16px);
+            background:linear-gradient(180deg,#FDEC86,var(--yellow));
+            color:#2A2510;font-weight:900;font-size:clamp(15px,1.95vw,20px);letter-spacing:-.03em;
+            box-shadow:0 2px 0 #E9C92C, 0 5px 14px rgba(120,95,0,.16);
+            transition:transform .1s, box-shadow .1s}
+  .card-add .plus{font-size:1.3em;line-height:1;font-weight:900;margin-top:-.06em}
+  .card-add:active{transform:translateY(2px);box-shadow:0 0 0 #E9C92C, 0 2px 6px rgba(120,95,0,.14)}
+
+  /* ---------- 완료됨 바 ---------- */
+  .done-bar{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:.45em;
+            width:fit-content;margin:0 auto;padding:clamp(7px,1vw,11px) clamp(18px,2.2vw,26px);
+            background:#fff;border-radius:999px;font-weight:900;color:var(--green);
+            font-size:clamp(14px,1.7vw,18px);letter-spacing:-.02em;
+            box-shadow:0 6px 18px rgba(112,86,0,.16);transition:opacity .2s,transform .1s}
+  .done-bar .count{background:var(--mint);border-radius:999px;padding:.15em .6em;font-size:.92em;min-width:1.9em;text-align:center}
+  .done-bar .chev{color:#9A9784;font-size:.8em;transition:transform .2s}
+  .done-bar.zero{opacity:.72}
+  .done-bar:active{transform:translateY(1px)}
+
+  /* ---------- sheet (공통) ---------- */
+  .sheet{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center}
+  .sheet .bd{position:absolute;inset:0;background:rgba(60,48,0,.34);backdrop-filter:blur(2px);
+             animation:fade .18s ease}
+  .panel{position:relative;width:min(560px,100%);max-height:92vh;max-height:92dvh;overflow:auto;
+         background:#fff;border-radius:clamp(20px,3vw,28px) clamp(20px,3vw,28px) 0 0;
+         padding:clamp(14px,2vw,22px) clamp(14px,2vw,22px) calc(clamp(14px,2vw,22px) + env(safe-area-inset-bottom));
+         display:flex;flex-direction:column;gap:clamp(10px,1.4vw,16px);
+         box-shadow:0 -8px 30px rgba(80,60,0,.18);animation:rise .22s cubic-bezier(.2,.8,.2,1)}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @keyframes rise{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+  .grab{width:44px;height:5px;border-radius:999px;background:#E9E3CC;margin:-4px auto 0}
+  .panel h2{margin:0;font-size:clamp(16px,2vw,22px);font-weight:900;letter-spacing:-.03em}
+
+  /* 추가·수정 */
+  .seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#F7F2DF;border-radius:14px;padding:5px}
+  .seg button{padding:11px 6px;border-radius:11px;font-weight:900;font-size:clamp(13px,1.7vw,17px);color:#6E6A58}
+  .seg button.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(120,95,0,.12)}
+  .field{display:flex;align-items:center;gap:10px;border:2px solid var(--line);border-radius:14px;
+         padding:0 13px;background:#fff;transition:border-color .15s}
+  .field:focus-within{border-color:var(--navy)}
+  .field .ico{font-size:clamp(20px,2.6vw,26px);line-height:1;flex:0 0 auto}
+  #textInput{flex:1 1 auto;min-width:0;border:0;background:none;padding:14px 0;
+             font-size:clamp(15px,2vw,19px);font-weight:800;letter-spacing:-.02em;color:var(--ink);outline:none}
+  .hint{margin:-4px 0 0;font-size:12.5px;font-weight:700;color:var(--muted);text-align:center}
+  .acts{display:flex;gap:8px;align-items:center}
+  .acts .save{flex:1;background:var(--navy);color:#fff;border-radius:14px;min-height:52px;
+              font-weight:900;font-size:clamp(15px,1.9vw,19px);letter-spacing:-.02em}
+  .acts .save:active{transform:translateY(1px)}
+  .btn-del{width:100%;min-height:50px;border-radius:14px;background:#FDECEA;color:#C0392B;
+           font-weight:900;font-size:clamp(14px,1.8vw,17px);letter-spacing:-.02em;
+           display:flex;align-items:center;justify-content:center;gap:6px;
+           transition:background .15s,color .15s}
+  .btn-del:active{transform:translateY(1px)}
+  .btn-del.confirm{background:#C0392B;color:#fff}
+
+  /* 메모 시트 */
+  #noteTodo{margin:-6px 0 0;font-size:clamp(12.5px,1.7vw,15px);font-weight:800;color:var(--muted);
+            letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #noteInput{width:100%;border:2px solid var(--line);border-radius:14px;padding:12px 13px;
+             background:#fff;font:inherit;font-weight:700;font-size:clamp(14px,1.9vw,18px);
+             letter-spacing:-.02em;color:var(--ink);line-height:1.45;resize:vertical;
+             min-height:112px;outline:none;transition:border-color .15s}
+  #noteInput:focus{border-color:var(--navy)}
+
+  /* 완료됨 시트 */
+  .done-panel{max-height:72vh;max-height:72dvh}
+  .done-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .done-head h2{display:flex;align-items:center;gap:.4em}
+  .done-head .count{background:var(--mint);color:var(--green);border-radius:999px;
+                    font-size:.82em;padding:.12em .62em}
+  .x-btn{width:36px;height:36px;border-radius:50%;background:#F5F1E2;color:#75715F;
+         font-weight:900;font-size:15px;display:grid;place-items:center;flex:0 0 auto}
+  .done-list{display:flex;flex-direction:column;gap:8px;min-height:60px}
+  .crow{display:flex;align-items:center;gap:8px;background:#F1F8EF;border-radius:12px;
+        padding:9px 10px;min-height:48px}
+  .crow .who-tag{flex:0 0 auto;font-size:11px;font-weight:900;color:#5E755A;background:#E3EFE0;
+                 padding:3px 8px;border-radius:999px;letter-spacing:-.02em}
+  .crow .ico{flex:0 0 auto;font-size:17px;line-height:1}
+  .crow .txt{flex:1 1 auto;min-width:0;font-size:clamp(13.5px,1.75vw,16px);font-weight:800;
+             color:var(--green-text);letter-spacing:-.03em;line-height:1.25;
+             text-decoration:line-through;text-decoration-color:#69A46C;text-decoration-thickness:2px;
+             overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .crow .un{flex:0 0 auto;width:30px;height:30px;border-radius:50%;background:var(--green);
+            display:grid;place-items:center;color:#fff;font-size:14px;font-weight:900}
+  .crow .un .tick{line-height:1}
+  .crow .x{flex:0 0 auto;width:30px;height:30px;border-radius:50%;color:#A8A594;font-size:15px;
+           display:grid;place-items:center;font-weight:900}
+  .crow .x:active{background:#E7E2CF}
+  .done-list .empty{margin:16px auto;text-align:center}
+
+  /* ---------- gate ---------- */
+  .gate{height:100%;display:grid;place-items:center;padding:24px}
+  .gate-card{background:#fff;border-radius:24px;padding:26px 22px;text-align:center;max-width:380px;
+             box-shadow:0 12px 30px rgba(112,86,0,.16)}
+  .gate-card .ge{font-size:40px;line-height:1}
+  .gate-card h1{margin:8px 0 4px;font-size:22px;font-weight:900;letter-spacing:-.03em}
+  .gate-card p{margin:0 0 16px;color:var(--muted);font-size:14px;font-weight:700}
+  .gate-row{display:flex;gap:8px}
+  .gate-row input{flex:1;min-width:0;padding:11px 12px;border-radius:12px;border:2px solid var(--line);font:inherit;font-weight:700}
+  .gate-row button{background:var(--navy);color:#fff;border-radius:12px;padding:0 16px;font-weight:900}
+
+  /* ---------- toast ---------- */
+  .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);
+         background:rgba(32,30,20,.92);color:#fff;padding:10px 16px;border-radius:999px;
+         font-size:13.5px;font-weight:800;z-index:60;animation:fade .16s ease;white-space:nowrap;max-width:90vw;
+         overflow:hidden;text-overflow:ellipsis}
+
+  /* 시트가 열려 있으면 토스트는 위로 (아래 버튼을 가리지 않게) */
+  body.sheet-open .toast{bottom:auto;top:calc(14px + env(safe-area-inset-top));animation:none}
+
+  /* ---------- 작은 화면 ---------- */
+  @media (max-width:430px){
+    :root{--pad:10px;--gap:8px}
+    .row-face{padding:8px 7px;min-height:48px;gap:5px}
+    .row{min-height:48px}
+    .row .txt{font-size:14.5px;line-height:1.22;-webkit-line-clamp:3}
+    .row .note-line{font-size:11.5px}
+    .row .ico{font-size:19px}
+    .check{width:24px;height:24px;border-width:2px}
+    .card{padding:8px 8px 9px;gap:6px;border-radius:16px}
+    .avatar{width:27px;height:27px;font-size:15px}
+    .name{font-size:15px}
+    .ratio{font-size:13px}
+    .top h1{font-size:20px}
+    .card-add{min-height:50px;font-size:16px}
+  }
+  @media (max-width:340px){
+    .row{--actw:44px;min-height:44px}
+    .row-face{padding:7px 6px;gap:4px;min-height:44px}
+    .row .txt{font-size:13.5px}
+    .row .ico{font-size:17px}
+    .check{width:22px;height:22px}
+    .name{font-size:14px}
+  }
+
+  /* ---------- 폰 세로 화면: 위(세은) / 아래(찬규) 절반 분할 ---------- */
+  @media (max-width:760px) and (orientation:portrait){
+    #app{gap:8px;padding:8px 10px}
+    .board{grid-template-columns:1fr;grid-template-rows:1fr 1fr;gap:8px}
+    .card{padding:8px 9px 9px;gap:6px;border-radius:18px}
+    .card-add{min-height:52px}
+    .done-bar{padding:8px 22px;font-size:15px}
+  }
+  @media (min-width:900px){
+    .row .txt{-webkit-line-clamp:2}
+  }
+</style>
+</head>
+<body>
+
+<div id="gate" class="gate hidden">
+  <div class="gate-card">
+    <div class="ge">✅</div>
+    <h1>부부 할일</h1>
+    <p>초대 링크로 들어오면 바로 시작할 수 있어요.</p>
+    <div class="gate-row">
+      <input id="roomInput" placeholder="방 코드" autocomplete="off" spellcheck="false">
+      <button id="roomGo" type="button">들어가기</button>
+    </div>
+  </div>
+</div>
+
+<div id="app" class="app hidden">
+  <header class="top">
+    <h1><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.6 9.6 18.2 20 6.6"/></svg></span> 부부 할일</h1>
+    <div class="top-right">
+      <i id="dot" class="dot" title="연결 중"></i>
+    </div>
+  </header>
+  <main id="board" class="board"></main>
+  <button id="doneBar" class="done-bar zero" type="button" aria-haspopup="dialog">
+    <span>✅ 완료됨</span>
+    <span id="doneBarCount" class="count">0</span>
+    <span class="chev" aria-hidden="true">▲</span>
+  </button>
+</div>
+
+<div id="doneSheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="doneTitle">
+  <div class="bd" data-dclose="1"></div>
+  <div class="panel done-panel">
+    <div class="grab"></div>
+    <div class="done-head">
+      <h2 id="doneTitle">✅ 완료됨 <span id="doneCount" class="count">0</span></h2>
+      <button type="button" id="doneClose" class="x-btn" aria-label="닫기">✕</button>
+    </div>
+    <div id="doneList" class="done-list"></div>
+    <p class="hint">체크를 누르면 다시 할 일로 돌아가고, ✕ 를 누르면 지워져요</p>
+  </div>
+</div>
+
+<div id="sheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="bd" data-close="1"></div>
+  <form id="form" class="panel" autocomplete="off">
+    <div class="grab"></div>
+    <h2 id="sheetTitle">할 일 추가</h2>
+    <div class="seg" id="ownerSeg">
+      <button type="button" data-owner="seeun">👩🏻 세은</button>
+      <button type="button" data-owner="chankyu">👨🏻 찬규</button>
+    </div>
+    <div class="field">
+      <span class="ico" id="iconPreview" aria-hidden="true">👩🏻</span>
+      <input id="textInput" type="text" placeholder="할 일을 입력해 주세요" maxlength="80" enterkeyhint="done">
+    </div>
+    <p class="hint">담당자 아이콘이 그대로 붙어요</p>
+    <div class="acts">
+      <button type="submit" class="save">저장</button>
+    </div>
+    <button type="button" id="delBtn" class="btn-del hidden">🗑 이 할 일 삭제</button>
+  </form>
+</div>
+
+<div id="noteSheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="noteTitle">
+  <div class="bd" data-nclose="1"></div>
+  <form id="noteForm" class="panel" autocomplete="off">
+    <div class="grab"></div>
+    <h2 id="noteTitle">📝 메모</h2>
+    <p id="noteTodo"></p>
+    <textarea id="noteInput" rows="4" maxlength="200" placeholder="이 할 일에 대한 메모를 적어 주세요"></textarea>
+    <div class="acts">
+      <button type="submit" class="save">메모 저장</button>
+    </div>
+    <button type="button" id="noteClear" class="btn-del">🧽 메모 지우기</button>
+  </form>
+</div>
+
+<script>
+'use strict';
+/* ============ 설정 ============ */
+const DB = 'https://bubulife-678ac-default-rtdb.firebaseio.com';
+const ROOM_RE = /^[A-Za-z0-9_-]{8,64}$/;
+const OWNER = {
+  seeun:   { name: '세은', emoji: '👩🏻' },
+  chankyu: { name: '찬규', emoji: '👨🏻' }
+};
+const OWNER_ORDER = ['seeun', 'chankyu'];
+
+
+const params = new URLSearchParams(location.search);
+let ROOM = (params.get('room') || 'qaswipev7').trim();
+if (!ROOM_RE.test(ROOM)) {
+  const saved = localStorage.getItem('bubu.room') || '';
+  ROOM = ROOM_RE.test(saved) ? saved : '';
+}
+
+const ST = { todos: {} };
+let es = null, retry = 0, pollTimer = null, gotSnapshot = false;
+let drag = null;
+let draft = { id: null, owner: 'seeun' };
+let lastOwner = localStorage.getItem('bubu.owner') || 'seeun';
+if (!OWNER[lastOwner]) lastOwner = 'seeun';
+
+/* ============ 도우미 ============ */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function objEntries(o) { return Object.entries(o || {}).filter(([, v]) => v && typeof v === 'object'); }
+function todoList() { return objEntries(ST.todos).map(([id, t]) => ({ id, ...t })); }
+function newId() { return 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function toast(msg) {
+  const old = $('.toast'); if (old) old.remove();
+  const el = document.createElement('div');
+  el.className = 'toast'; el.textContent = msg;
+  document.body.appendChild(el);
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => el.remove(), 2200);
+}
+/* 할 일 아이콘 = 담당자 아이콘 (섹션 헤더 아바타와 통일) */
+function ownerIcon(owner) { return (OWNER[owner] || OWNER.seeun).emoji; }
+function iconFor(t) { return ownerIcon(ownerOf(t)); }
+function ownerOf(t) { return OWNER[t.owner] ? t.owner : 'seeun'; }
+function sortTodos(arr) {
+  return arr.slice().sort((a, b) => {
+    const ao = typeof a.order === 'number' ? a.order : Number.MAX_SAFE_INTEGER;
+    const bo = typeof b.order === 'number' ? b.order : Number.MAX_SAFE_INTEGER;
+    if (ao !== bo) return ao - bo;
+    return (a.createdAt || 0) - (b.createdAt || 0);
+  });
+}
+function openTodos(owner) {   /* 카드에 보이는 것 = 아직 안 한 일 */
+  return sortTodos(todoList().filter(t => ownerOf(t) === owner && !t.done));
+}
+function doneTodos() {
+  return todoList().filter(t => t.done)
+    .sort((a, b) => (b.doneAt || b.updatedAt || 0) - (a.doneAt || a.updatedAt || 0));
+}
+
+/* ============ 그리기 ============ */
+function rowHtml(t) {
+  const id = esc(t.id);
+  const note = String(t.note == null ? '' : t.note).trim();
+  return '<li class="row" data-id="' + id + '" tabindex="0">' +
+    '<div class="row-acts">' +
+      '<button class="act note" type="button" data-act="note" data-id="' + id + '" aria-label="메모">' +
+        '<span class="ai" aria-hidden="true">📝</span>메모</button>' +
+      '<button class="act edit" type="button" data-act="edit" data-id="' + id + '" aria-label="수정">' +
+        '<span class="ai" aria-hidden="true">✏️</span>수정</button>' +
+      '<button class="act del" type="button" data-act="del" data-id="' + id + '" aria-label="삭제">' +
+        '<span class="ai" aria-hidden="true">🗑</span>삭제</button>' +
+    '</div>' +
+    '<div class="row-face">' +
+      '<span class="ico">' + esc(iconFor(t)) + '</span>' +
+      '<span class="body">' +
+        '<span class="txt">' + esc(t.text) + '</span>' +
+        (note ? '<span class="note-line">📝 ' + esc(note) + '</span>' : '') +
+      '</span>' +
+      '<button class="check" type="button" data-id="' + id + '" aria-label="완료">' +
+        '<span class="tick">✓</span></button>' +
+    '</div>' +
+  '</li>';
+}
+function cardHtml(owner) {
+  const info = OWNER[owner];
+  const all = todoList().filter(t => ownerOf(t) === owner);
+  const open = openTodos(owner);
+  const doneN = all.length - open.length;
+  const pct = all.length ? Math.round(doneN / all.length * 100) : 0;
+  const emptyMsg = all.length
+    ? '남은 할 일이 없어요 🎉<br>완료됨에서 다시 꺼낼 수 있어요'
+    : '아직 할 일이 없어요';
+  return '<section class="card" data-owner="' + owner + '">' +
+    '<div class="card-head">' +
+      '<span class="who"><span class="avatar">' + info.emoji + '</span><span class="name">' + info.name + '</span></span>' +
+      '<span class="ratio">' + doneN + '/' + all.length + '</span>' +
+    '</div>' +
+    '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
+    '<ul class="rows" data-owner="' + owner + '">' +
+      (open.length ? open.map(rowHtml).join('') : '<li class="empty">' + emptyMsg + '</li>') +
+    '</ul>' +
+    '<button class="card-add" type="button" data-owner="' + owner + '">' +
+      '<span class="plus" aria-hidden="true">+</span> 할 일 추가</button>' +
+  '</section>';
+}
+function render() {
+  if (drag && drag.active) { render.pending = true; return; }
+  render.pending = false;
+  $('#board').innerHTML = OWNER_ORDER.map(cardHtml).join('');
+  paintDoneBar();
+  if (doneOpen()) paintDoneList();
+}
+/* 다른 기기의 연속 업데이트(순서 바꾸기 등)는 한 번에 모은 뒤 그린다 */
+let renderTimer = null;
+function scheduleRender() {
+  if (renderTimer) return;
+  renderTimer = setTimeout(() => { renderTimer = null; render(); }, 80);
+}
+
+/* ============ 완료됨 ============ */
+function doneOpen() { return !$('#doneSheet').classList.contains('hidden'); }
+function paintDoneBar() {
+  const n = doneTodos().length;
+  $('#doneBarCount').textContent = n;
+  $('#doneCount').textContent = n;
+  $('#doneBar').classList.toggle('zero', n === 0);
+}
+function paintDoneList() {
+  const arr = doneTodos();
+  const box = $('#doneList');
+  $('#doneCount').textContent = arr.length;
+  if (!arr.length) { box.innerHTML = '<p class="empty">아직 완료한 일이 없어요</p>'; return; }
+  box.innerHTML = arr.map(t =>
+    '<div class="crow" data-id="' + esc(t.id) + '">' +
+      '<span class="who-tag">' + esc(OWNER[ownerOf(t)].name) + '</span>' +
+      '<span class="ico">' + esc(iconFor(t)) + '</span>' +
+      '<span class="txt">' + esc(t.text) + '</span>' +
+      '<button class="un" type="button" data-un="' + esc(t.id) + '" aria-label="완료 취소"><span class="tick">✓</span></button>' +
+      '<button class="x" type="button" data-delc="' + esc(t.id) + '" aria-label="삭제">✕</button>' +
+    '</div>'
+  ).join('');
+}
+function openDone() {
+  paintDoneList();
+  $('#doneSheet').classList.remove('hidden');
+  syncSheetFlag();
+}
+function closeDone() {
+  $('#doneSheet').classList.add('hidden');
+  syncSheetFlag();
+}
+function syncSheetFlag() {
+  const open = !$('#sheet').classList.contains('hidden') || !$('#doneSheet').classList.contains('hidden') ||
+               !$('#noteSheet').classList.contains('hidden');
+  document.body.classList.toggle('sheet-open', open);
+}
+
+/* ============ 메모 시트 ============ */
+let noteDraft = null;
+function openNote(id) {
+  const t = ST.todos[id]; if (!t) return;
+  noteDraft = id;
+  $('#noteTodo').textContent = iconFor(t) + ' ' + t.text;
+  $('#noteInput').value = t.note || '';
+  $('#noteSheet').classList.remove('hidden');
+  syncSheetFlag();
+  setTimeout(() => { $('#noteInput').focus(); }, 120);
+}
+function closeNote() {
+  $('#noteSheet').classList.add('hidden');
+  syncSheetFlag();
+  $('#noteInput').blur();
+  noteDraft = null;
+}
+async function saveNote(e) {
+  if (e) e.preventDefault();
+  const id = noteDraft, t = id ? ST.todos[id] : null;
+  if (!t) { closeNote(); return; }
+  const note = $('#noteInput').value.trim();
+  const before = t.note || '';
+  if (before === note) { closeNote(); return; }
+  const now = Date.now();
+  t.note = note; t.updatedAt = now;
+  closeNote(); render();
+  try {
+    await patch('todos/' + id, { note: note || null, updatedAt: now });
+    toast(note ? '메모를 저장했어요' : '메모를 지웠어요');
+  } catch (err) {
+    t.note = before; render(); toast('메모를 저장하지 못했어요');
+  }
+}
+function clearNote() {
+  $('#noteInput').value = '';
+  saveNote();
+}
+
+/* ============ Firebase 연결 ============ */
+const roomUrl = () => DB + '/rooms/' + ROOM + '.json';
+const nodeUrl = p => DB + '/rooms/' + ROOM + '/' + p + '.json';
+function setLive(state) {
+  const el = $('#dot'); if (!el) return;
+  el.className = 'dot ' + state;
+  el.title = state === 'live' ? '실시간 연결됨' : state === 'warn' ? '다시 연결 중' : state === 'off' ? '오프라인' : '연결 중';
+}
+function connect() {
+  if (es) { try { es.close(); } catch (e) {} es = null; }
+  setLive(retry ? 'warn' : 'connecting');
+  try { es = new EventSource(roomUrl()); } catch (e) { setLive('off'); return; }
+
+  es.addEventListener('put', ev => {
+    let m; try { m = JSON.parse(ev.data); } catch (e) { return; }
+    if (m.path === '/' || m.path === '') {
+      ST.todos = (m.data && m.data.todos) || {};
+      gotSnapshot = true;
+    } else setAt(m.path, m.data);
+    retry = 0; setLive('live'); stopPolling(); scheduleRender();
+  });
+  es.addEventListener('patch', ev => {
+    let m; try { m = JSON.parse(ev.data); } catch (e) { return; }
+    Object.entries(m.data || {}).forEach(([k, v]) => setAt((m.path === '/' ? '' : m.path) + '/' + k, v));
+    gotSnapshot = true; setLive('live'); scheduleRender();
+  });
+  es.addEventListener('cancel', () => { setLive('warn'); reconnect(); });
+  es.addEventListener('auth_revoked', () => { setLive('off'); });
+  es.onopen = () => { retry = 0; setLive('live'); stopPolling(); if (!gotSnapshot) syncNow(true); };
+  es.onerror = () => { setLive(navigator.onLine ? 'warn' : 'off'); reconnect(); startPolling(); };
+}
+function reconnect() {
+  if (es) { try { es.close(); } catch (e) {} es = null; }
+  retry = Math.min(retry + 1, 6);
+  const wait = Math.min(1000 * Math.pow(1.7, retry), 15000);
+  setTimeout(() => { if (!es) connect(); }, wait);
+}
+function setAt(path, data) {
+  const segs = String(path).split('/').filter(Boolean);
+  if (!segs.length) {
+    ST.todos = (data && data.todos) || {};
+    return;
+  }
+  let obj = ST;
+  for (let i = 0; i < segs.length - 1; i++) {
+    if (!obj[segs[i]] || typeof obj[segs[i]] !== 'object') obj[segs[i]] = {};
+    obj = obj[segs[i]];
+  }
+  const last = segs[segs.length - 1];
+  if (data === null || data === undefined) delete obj[last];
+  else obj[last] = data;
+}
+function startPolling() {
+  if (pollTimer) return;
+  pollTimer = setInterval(() => { if (!es) syncNow(true); }, 8000);
+}
+function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
+async function syncNow(quiet) {
+  try {
+    const r = await fetch(roomUrl(), { cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = (await r.json()) || {};
+    ST.todos = d.todos || {};
+    gotSnapshot = true;
+    if (!es) setLive('live');
+    render(); stopPolling();
+  } catch (e) {
+    if (!quiet) toast('연결을 확인해 주세요');
+    setLive(navigator.onLine ? 'warn' : 'off');
+  }
+}
+async function put(path, val) {
+  const r = await fetch(nodeUrl(path), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(val) });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+async function patch(path, val) {
+  const r = await fetch(nodeUrl(path), { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(val) });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+async function del(path) {
+  const r = await fetch(nodeUrl(path), { method: 'DELETE' });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return true;
+}
+
+/* ============ 체크 / 완료 취소 ============ */
+async function toggle(id) {
+  const t = ST.todos[id]; if (!t) return;
+  const now = Date.now();
+  const before = { done: !!t.done, doneAt: t.doneAt || null, updatedAt: t.updatedAt };
+  const nextDone = !t.done;
+  const next = { done: nextDone, doneAt: nextDone ? now : null, updatedAt: now };
+  Object.assign(t, next);
+  render();
+  try { await patch('todos/' + id, next); toast(nextDone ? '완료했어요' : '다시 할 일로 옮겼어요'); }
+  catch (e) { Object.assign(t, before); render(); toast('저장하지 못했어요'); }
+}
+
+/* ============ 추가 / 수정 시트 ============ */
+let delTimer = null;
+function resetDelBtn() {
+  const b = $('#delBtn');
+  b.classList.remove('confirm');
+  b.textContent = '🗑 이 할 일 삭제';
+  clearTimeout(delTimer); delTimer = null;
+}
+function openSheet(id, owner) {
+  const t = id ? ST.todos[id] : null;
+  draft = { id: id || null, owner: t ? ownerOf(t) : (owner || lastOwner) };
+  $('#sheetTitle').textContent = t ? '할 일 수정' : '할 일 추가';
+  $('#textInput').value = t ? t.text : '';
+  $('#iconPreview').textContent = ownerIcon(draft.owner);
+  $('#delBtn').classList.toggle('hidden', !t);
+  resetDelBtn();
+  paintSheet();
+  $('#sheet').classList.remove('hidden');
+  syncSheetFlag();
+  setTimeout(() => { if (!t) $('#textInput').focus(); }, 120);
+}
+function paintSheet() {
+  $$('#ownerSeg button').forEach(b => b.classList.toggle('on', b.dataset.owner === draft.owner));
+  $('#iconPreview').textContent = ownerIcon(draft.owner);
+}
+function closeSheet() {
+  $('#sheet').classList.add('hidden');
+  syncSheetFlag();
+  $('#textInput').blur();
+  resetDelBtn();
+}
+function nextOrder(owner) {
+  const arr = todoList().filter(t => ownerOf(t) === owner);
+  return arr.length ? Math.max(...arr.map(t => typeof t.order === 'number' ? t.order : 0)) + 1 : 0;
+}
+async function saveTodo(e) {
+  if (e) e.preventDefault();
+  const text = $('#textInput').value.trim();
+  if (!text) { $('#textInput').focus(); toast('할 일을 적어 주세요'); return; }
+  const now = Date.now();
+  const icon = ownerIcon(draft.owner);
+  if (draft.id) {
+    const t = ST.todos[draft.id]; if (!t) { closeSheet(); return; }
+    const before = { ...t };
+    const ownerChanged = ownerOf(t) !== draft.owner;
+    const body = { text, icon, owner: draft.owner, updatedAt: now };
+    if (ownerChanged) body.order = nextOrder(draft.owner);
+    ST.todos[draft.id] = { ...t, ...body };
+    closeSheet(); render();
+    try { await patch('todos/' + draft.id, body); toast('수정했어요'); }
+    catch (err) { ST.todos[draft.id] = before; render(); toast('저장하지 못했어요'); }
+  } else {
+    const id = newId();
+    const obj = {
+      id, text, icon, owner: draft.owner, done: false,
+      order: nextOrder(draft.owner), createdAt: now, updatedAt: now
+    };
+    ST.todos[id] = obj;
+    lastOwner = draft.owner; localStorage.setItem('bubu.owner', lastOwner);
+    closeSheet(); render();
+    try { await put('todos/' + id, obj); toast(icon + ' 추가했어요'); }
+    catch (err) { delete ST.todos[id]; render(); toast('저장하지 못했어요'); }
+  }
+}
+async function removeTodo(id) {
+  const t = ST.todos[id]; if (!t) return false;
+  delete ST.todos[id];
+  render();
+  try { await del('todos/' + id); toast('삭제했어요'); return true; }
+  catch (e) { ST.todos[id] = t; render(); toast('삭제하지 못했어요'); return false; }
+}
+function armDelete() {
+  const b = $('#delBtn');
+  if (b.classList.contains('confirm')) {
+    const id = draft.id;
+    clearTimeout(delTimer); delTimer = null;
+    b.classList.remove('confirm');
+    closeSheet();
+    if (id) removeTodo(id);
+    return;
+  }
+  b.classList.add('confirm');
+  b.textContent = '한 번 더 누르면 삭제돼요';
+  clearTimeout(delTimer);
+  delTimer = setTimeout(resetDelBtn, 3500);
+}
+
+/* ============ 드래그로 순서 바꾸기 ============ */
+const LONG_PRESS = 280;   /* 손가락: 길게 눌러 잡기 */
+const MOUSE_HOLD = 90;    /* 마우스: 살짝 누르고 끌기 */
+const MOVE_START = 7;     /* 이만큼 움직이면 스크롤이 아니라 드래그 */
+const SWIPE_MIN = 10;     /* 이만큼 옆으로 밀면 스와이프 */
+const SWIPE_LOCK = 0.4;   /* 액션 폭의 이 비율 넘게 밀면 열린 채로 고정 */
+
+function rowFrom(target) { return target.closest ? target.closest('.row') : null; }
+
+/* 스와이프 열림/닫힘 */
+function closeSwipe(row) {
+  if (!row) return;
+  const face = row.querySelector('.row-face');
+  if (face) { row.classList.remove('swiping'); face.style.transform = ''; }
+  row.classList.remove('open');
+}
+function closeAllSwipes(except) {
+  $$('.row.open, .row.swiping').forEach(r => { if (r !== except) closeSwipe(r); });
+}
+
+function onDown(e) {
+  const row = rowFrom(e.target);
+  if (!row || drag) return;
+  if (e.target.closest('.check') || e.target.closest('.card-add') || e.target.closest('.row-acts')) return;
+  if (e.button !== undefined && e.button > 0) return;
+  const id = row.dataset.id;
+  if (!ST.todos[id]) return;
+  const rect = row.getBoundingClientRect();
+  const acts = row.querySelector('.row-acts');
+  drag = {
+    id, row, list: row.parentElement,
+    owner: row.closest('.rows').dataset.owner,
+    face: row.querySelector('.row-face'),
+    actsW: acts ? acts.getBoundingClientRect().width : 0,
+    wasOpen: row.classList.contains('open'),
+    pointerId: e.pointerId, pointerType: e.pointerType || 'mouse',
+    startX: e.clientX, startY: e.clientY, grabOffset: e.clientY - rect.top,
+    active: false, moved: false, swipe: false, swipeBase: 0, swipeStart: 0, offset: 0, timer: null
+  };
+  try { row.setPointerCapture(e.pointerId); } catch (err) {}
+  drag.timer = setTimeout(() => { if (drag && !drag.active && !drag.swipe) beginDrag(); },
+    drag.pointerType === 'mouse' ? MOUSE_HOLD : LONG_PRESS);
+}
+function beginDrag() {
+  if (!drag || drag.active) return;
+  clearTimeout(drag.timer);
+  if (drag.wasOpen) { closeSwipe(drag.row); drag.wasOpen = false; }
+  drag.active = true;
+  drag.row.classList.add('dragging');
+  document.body.classList.add('is-dragging');
+  window.addEventListener('touchmove', blockScroll, { passive: false });
+  if (navigator.vibrate) { try { navigator.vibrate(8); } catch (e) {} }
+  paintDrag(drag.startY);
+}
+function blockScroll(e) { if (drag && drag.active) e.preventDefault(); }
+/* 목록이 스크롤되는 상자라, 상자 위쪽·아래쪽 끝에서 저절로 스크롤되게 */
+function edgeScroll(clientY) {
+  const list = drag && drag.list; if (!list) return;
+  const r = list.getBoundingClientRect(), edge = 46;
+  if (clientY < r.top + edge) list.scrollTop -= Math.min(18, (r.top + edge - clientY) / 2);
+  else if (clientY > r.bottom - edge) list.scrollTop += Math.min(18, (clientY - (r.bottom - edge)) / 2);
+}
+function paintDrag(clientY) {
+  const d = drag; if (!d || !d.list) return;
+  const listTop = d.list.getBoundingClientRect().top;
+  const y = clientY - d.grabOffset - (listTop - d.list.scrollTop + d.row.offsetTop);
+  d.row.style.transform = 'translateY(' + y + 'px) scale(1.015)';
+}
+function onMove(e) {
+  if (!drag || e.pointerId !== drag.pointerId) return;
+  const dy = e.clientY - drag.startY, dx = e.clientX - drag.startX;
+  const adx = Math.abs(dx), ady = Math.abs(dy);
+  if (!drag.active && !drag.swipe) {
+    if (adx > SWIPE_MIN && adx > ady * 1.15) {
+      /* 옆으로 밀기 → 스와이프(메모·수정·삭제 드러내기) */
+      clearTimeout(drag.timer);
+      drag.swipe = true;
+      drag.moved = true;
+      drag.swipeBase = drag.wasOpen ? -drag.actsW : 0;
+      drag.swipeStart = e.clientX;
+      drag.offset = drag.swipeBase;
+      drag.row.classList.add('swiping');
+      closeAllSwipes(drag.row);
+    } else if (ady > MOVE_START || adx > MOVE_START * 2) {
+      if (drag.pointerType === 'mouse') beginDrag();
+      else { endDrag(false); return; }   /* 손가락이 먼저 움직이면 스크롤로 넘긴다 */
+    } else return;
+  }
+  if (drag.swipe) {
+    const x = Math.max(-drag.actsW, Math.min(0, drag.swipeBase + (e.clientX - drag.swipeStart)));
+    drag.offset = x;
+    drag.face.style.transform = 'translateX(' + x + 'px)';
+    return;
+  }
+  drag.moved = true;
+  edgeScroll(e.clientY);
+  const list = drag.list;
+  const others = Array.from(list.querySelectorAll('.row')).filter(r => r !== drag.row);
+  let before = null;
+  for (const r of others) {
+    const rc = r.getBoundingClientRect();
+    if (e.clientY < rc.top + rc.height / 2) { before = r; break; }
+  }
+  if (before !== drag.row.nextElementSibling) list.insertBefore(drag.row, before);
+  paintDrag(e.clientY);
+}
+function onUp(e) {
+  if (!drag || (e && e.pointerId !== drag.pointerId)) return;
+  const d = drag;
+  if (d.swipe) {                       /* 스와이프 마무리: 충분히 밀었으면 열린 채로 */
+    const open = d.offset < -d.actsW * SWIPE_LOCK;
+    d.row.classList.remove('swiping');
+    d.face.style.transform = '';
+    d.row.classList.toggle('open', open);
+    drag = null;
+    if (open && navigator.vibrate) { try { navigator.vibrate(6); } catch (err) {} }
+    return;
+  }
+  const tapped = !d.active && !d.moved;
+  const wasOpen = d.wasOpen;
+  endDrag(true);
+  if (tapped) {
+    if (wasOpen) { closeSwipe(d.row); return; }   /* 열린 줄을 탭하면 닫기만 */
+    closeAllSwipes();
+    openSheet(d.id);
+  }
+}
+function endDrag(commit) {
+  const d = drag; if (!d) return;
+  clearTimeout(d.timer);
+  window.removeEventListener('touchmove', blockScroll);
+  drag = null;
+  if (d.active) {
+    d.row.classList.remove('dragging');
+    d.row.style.transform = '';
+    document.body.classList.remove('is-dragging');
+  }
+  if (d.active && d.moved && commit) saveOrder(d.owner);
+  else if (render.pending) render();
+}
+function onCancel(e) {
+  if (!drag || (e && e.pointerId !== drag.pointerId)) return;
+  if (drag.swipe) {
+    const d = drag; drag = null;
+    d.row.classList.remove('swiping');
+    d.face.style.transform = '';
+    d.row.classList.toggle('open', d.wasOpen);
+    return;
+  }
+  endDrag(false);
+}
+async function saveOrder(owner) {
+  const list = $('.rows[data-owner="' + owner + '"]');
+  if (!list) { render(); return; }
+  const ids = Array.from(list.querySelectorAll('.row')).map(r => r.dataset.id);
+  const jobs = [];
+  ids.forEach((id, i) => {
+    const t = ST.todos[id]; if (!t) return;
+    if (t.order !== i) {
+      t.order = i; t.updatedAt = Date.now();
+      jobs.push(patch('todos/' + id, { order: i, updatedAt: t.updatedAt }));
+    }
+  });
+  render();
+  if (!jobs.length) return;
+  try { await Promise.all(jobs); toast('순서를 저장했어요'); }
+  catch (e) { toast('순서를 저장하지 못했어요'); }
+}
+
+/* ============ 이벤트 ============ */
+function initApp() {
+  const board = $('#board');
+  board.addEventListener('pointerdown', onDown);
+  window.addEventListener('pointermove', onMove, { passive: false });
+  window.addEventListener('pointerup', onUp);
+  window.addEventListener('pointercancel', onCancel);
+
+  board.addEventListener('click', e => {
+    const act = e.target.closest('.row-acts .act');
+    if (act) {
+      e.preventDefault(); e.stopPropagation();
+      const aid = act.dataset.id;
+      if (act.dataset.act === 'note') { closeAllSwipes(); openNote(aid); }
+      else if (act.dataset.act === 'edit') { closeAllSwipes(); openSheet(aid); }
+      else if (act.dataset.act === 'del') {
+        /* 드러난 삭제 버튼을 눌렀을 때만 지워진다 */
+        const row = act.closest('.row');
+        if (row && row.dataset.id === aid) closeSwipe(row);
+        removeTodo(aid);
+      }
+      return;
+    }
+    const ck = e.target.closest('.check');
+    if (ck) { e.preventDefault(); toggle(ck.dataset.id); return; }
+    const add = e.target.closest('.card-add');
+    if (add) { e.preventDefault(); openSheet(null, add.dataset.owner); return; }
+  });
+  board.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const row = e.target.closest('.row');
+    if (!row || e.target.closest('.check')) return;
+    e.preventDefault(); openSheet(row.dataset.id);
+  });
+
+  /* 완료됨 */
+  $('#doneBar').addEventListener('click', openDone);
+  $('#doneClose').addEventListener('click', closeDone);
+  $('#doneSheet').addEventListener('click', e => { if (e.target.dataset.dclose === '1') closeDone(); });
+  $('#doneList').addEventListener('click', e => {
+    const un = e.target.closest('[data-un]');
+    if (un) { toggle(un.dataset.un); return; }
+    const delc = e.target.closest('[data-delc]');
+    if (delc) { removeTodo(delc.dataset.delc); }
+  });
+
+  /* 추가·수정·메모 */
+  $('#delBtn').addEventListener('click', armDelete);
+  $('#form').addEventListener('submit', saveTodo);
+  $('#noteForm').addEventListener('submit', saveNote);
+  $('#noteClear').addEventListener('click', clearNote);
+  $('#noteSheet').addEventListener('click', e => { if (e.target.dataset.nclose === '1') closeNote(); });
+  /* 다른 데를 탭하면 열린 스와이프는 저절로 닫힌다 */
+  document.addEventListener('pointerdown', e => {
+    if (!e.target || !e.target.closest || !e.target.closest('.row')) closeAllSwipes();
+  }, true);
+  $('#ownerSeg').addEventListener('click', e => {
+    const b = e.target.closest('button[data-owner]'); if (!b) return;
+    draft.owner = b.dataset.owner; paintSheet();
+  });
+  $('#sheet').addEventListener('click', e => { if (e.target.dataset.close === '1') closeSheet(); });
+  $('#textInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); saveTodo(); }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeSheet(); closeDone(); closeNote(); }
+  });
+
+  $('#roomGo').addEventListener('click', joinRoom);
+  $('#roomInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); joinRoom(); } });
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) { if (!es) syncNow(true); render(); }
+  });
+
+  registerSW();
+}
+function joinRoom() {
+  const v = $('#roomInput').value.trim();
+  if (!ROOM_RE.test(v)) { toast('방 코드를 확인해 주세요'); return; }
+  location.search = '?room=' + encodeURIComponent(v);
+}
+function registerSW() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+}
+function boot() {
+  if (!ROOM) {
+    $('#gate').classList.remove('hidden');
+    $('#app').classList.add('hidden');
+    initApp();
+    return;
+  }
+  localStorage.setItem('bubu.room', ROOM);
+  $('#gate').classList.add('hidden');
+  $('#app').classList.remove('hidden');
+  initApp();
+  render();
+  connect();
+  setInterval(() => { if (!es) syncNow(true); }, 20000);
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
+</script>
+</body>
+</html>
