@@ -523,16 +523,63 @@ function openDone() {
   paintDoneList();
   $('#doneSheet').classList.remove('hidden');
   syncSheetFlag();
+  pushSheetHistory();
 }
 function closeDone() {
   $('#doneSheet').classList.add('hidden');
   syncSheetFlag();
+  settleSheetHistory();
 }
 function syncSheetFlag() {
   const open = !$('#sheet').classList.contains('hidden') || !$('#doneSheet').classList.contains('hidden') ||
                !$('#noteSheet').classList.contains('hidden');
   document.body.classList.toggle('sheet-open', open);
 }
+
+/* ============ 안드로이드 뒤로가기 — 열린 시트만 닫기 ============
+   시트를 열 때 히스토리를 하나 쌓고, 뒤로가기(popstate)에서는 앱을 나가지 않고
+   열려 있는 시트만 닫는다. X·배경·저장으로 직접 닫았을 때는 쌓아 둔 히스토리를 정리한다. */
+let sheetHistPushed = false;   /* 이 시트를 위해 쌓아 둔 히스토리 엔트리가 남아 있는지 */
+let sheetHistUrl = '';         /* 쌓을 때의 주소 — 그 사이 다른 주소로 이동했는지 비교용 */
+let sheetSelfBack = false;     /* 정리를 위해 우리가 부른 history.back() 표시 */
+function anySheetOpen() {
+  return !$('#sheet').classList.contains('hidden') ||
+         !$('#noteSheet').classList.contains('hidden') ||
+         !$('#doneSheet').classList.contains('hidden');
+}
+function pushSheetHistory() {
+  if (sheetHistPushed) return;
+  try {
+    history.pushState({ appModal: true }, '');
+    sheetHistPushed = true;
+    sheetHistUrl = location.href;
+  } catch (e) {}
+}
+function settleSheetHistory() {
+  if (!sheetHistPushed) return;
+  /* 바로 다음 틱에 다른 시트가 이어서 열렸다면 그 시트가 이 엔트리를 그대로 쓴다 */
+  setTimeout(() => {
+    if (!sheetHistPushed) return;   /* 이미 정리됐거나 뒤로가기로 소비됨 */
+    if (anySheetOpen()) return;
+    sheetHistPushed = false;
+    if (location.href !== sheetHistUrl) return;   /* 그 사이 방 코드 등으로 이동했으면 건드리지 않는다 */
+    if (history.state && history.state.appModal) {
+      sheetSelfBack = true;
+      try { history.back(); } catch (e) { sheetSelfBack = false; }
+    }
+  }, 0);
+}
+function closeTopSheet() {
+  if (!$('#noteSheet').classList.contains('hidden')) closeNote();
+  else if (!$('#sheet').classList.contains('hidden')) closeSheet();
+  else if (!$('#doneSheet').classList.contains('hidden')) closeDone();
+}
+window.addEventListener('popstate', () => {
+  if (sheetSelfBack) { sheetSelfBack = false; return; }   /* 정리용 back() — 무시 */
+  if (!anySheetOpen()) return;
+  sheetHistPushed = false;    /* 엔트리는 방금 소비됐다 */
+  closeTopSheet();            /* flag가 false라 settleSheetHistory는 히스토리를 건드리지 않는다 */
+});
 
 /* ============ 메모 · 수정 시트 (항목을 한 번 탭하면 바로 열린다) ============ */
 let noteDraft = null;      /* 고치는 중인 할 일 id */
@@ -546,6 +593,7 @@ function openNote(id) {
   paintNote();
   $('#noteSheet').classList.remove('hidden');
   syncSheetFlag();
+  pushSheetHistory();
   /* 메모 입력란에는 자동 포커스를 주지 않는다(모바일에서 키보드가 화면을 가림).
      메모칸을 직접 탭할 때만 키보드가 올라온다. */
   $('#noteInput').blur();
@@ -559,6 +607,7 @@ function paintNote() {
 function closeNote() {
   $('#noteSheet').classList.add('hidden');
   syncSheetFlag();
+  settleSheetHistory();
   $('#noteInput').blur();
   $('#noteText').blur();
   noteDraft = null;
@@ -703,6 +752,7 @@ function openAdd(owner) {
   paintSheet();
   $('#sheet').classList.remove('hidden');
   syncSheetFlag();
+  pushSheetHistory();
   setTimeout(() => { $('#textInput').focus(); }, 120);
 }
 function paintSheet() {
@@ -712,6 +762,7 @@ function paintSheet() {
 function closeSheet() {
   $('#sheet').classList.add('hidden');
   syncSheetFlag();
+  settleSheetHistory();
   $('#textInput').blur();
 }
 function nextOrder(owner) {
