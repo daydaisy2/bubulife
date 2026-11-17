@@ -124,10 +124,6 @@
   .row-acts .act:active{filter:brightness(.9)}
   .row .ico{flex:0 0 auto;font-size:clamp(16px,2.4vw,30px);line-height:1}
   .row .body{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:.12em}
-  /* 제목 줄 = 제목 텍스트 + 오늘할일 알약 (알약은 제목 바로 오른쪽) */
-  .row .title-line{display:flex;align-items:center;flex-wrap:nowrap;gap:.14em .34em;min-width:0;max-width:100%}
-  .row .title-line .txt{flex:0 1 auto;max-width:100%}
-  .row .title-line .today-pill{flex:0 0 auto}
   .row .txt{min-width:0;font-size:clamp(14px,2.15vw,27px);font-weight:900;
             letter-spacing:-.035em;line-height:1.2;
             display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
@@ -510,13 +506,11 @@ function rowHtml(t) {
     '<div class="row-face">' +
       '<span class="ico">' + esc(iconFor(t)) + '</span>' +
       '<span class="body">' +
-        '<span class="title-line">' +
-          '<span class="txt">' + esc(t.text) + '</span>' +
-          '<button class="today-pill' + (t.today ? ' on' : '') + '" type="button" data-today="' + id + '"' +
-            ' aria-pressed="' + (t.today ? 'true' : 'false') + '" aria-label="오늘 할 일로 표시">오늘할일</button>' +
-        '</span>' +
+        '<span class="txt">' + esc(t.text) + '</span>' +
         (note ? '<span class="note-line">📝 ' + esc(note) + '</span>' : '') +
       '</span>' +
+      '<button class="today-pill' + (t.today ? ' on' : '') + '" type="button" data-today="' + id + '"' +
+        ' aria-pressed="' + (t.today ? 'true' : 'false') + '" aria-label="오늘 할 일로 표시">오늘할일</button>' +
       '<button class="check" type="button" data-id="' + id + '" aria-label="완료">' +
         '<span class="tick">✓</span></button>' +
     '</div>' +
