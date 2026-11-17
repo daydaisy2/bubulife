@@ -207,6 +207,33 @@
              min-height:112px;outline:none;transition:border-color .15s}
   #noteInput:focus{border-color:var(--navy)}
 
+  /* 수정 요청 메모 */
+  .memo-btn{position:relative;flex:0 0 auto;width:34px;height:34px;border-radius:12px;display:grid;place-items:center;
+            background:rgba(255,255,255,.7);font-size:15px;line-height:1;color:var(--navy);
+            transition:background .18s,color .18s}
+  .memo-btn.has{background:var(--navy);color:#fff}
+  .memo-btn:active{transform:translateY(1px)}
+  .memo-cnt{position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;
+            background:#E8603C;color:#fff;font-size:9.5px;font-weight:900;line-height:17px;text-align:center;
+            border:1.5px solid var(--yellow)}
+  #memoInput{width:100%;border:2px solid var(--line);border-radius:14px;padding:12px 13px;background:#fff;
+             font:inherit;font-weight:700;font-size:clamp(14px,1.9vw,18px);letter-spacing:-.02em;color:var(--ink);
+             line-height:1.45;resize:vertical;min-height:96px;outline:none;transition:border-color .15s}
+  #memoInput:focus{border-color:var(--navy)}
+  .btn-add{width:100%;min-height:46px;border-radius:14px;background:#F5F1E2;color:var(--navy);
+           font-weight:900;font-size:clamp(13px,1.7vw,16px);letter-spacing:-.02em}
+  .btn-add:active{transform:translateY(1px)}
+  .memo-list{display:flex;flex-direction:column;gap:7px}
+  .memo-row{display:flex;align-items:flex-start;gap:8px;background:var(--cream);border-radius:14px;padding:10px 11px}
+  .memo-row .mx{flex:1 1 auto;min-width:0;font-size:clamp(13px,1.7vw,16px);font-weight:800;color:#3A382E;
+                line-height:1.45;letter-spacing:-.02em;white-space:pre-line;word-break:break-word}
+  .memo-del{flex:0 0 auto;width:26px;height:26px;border-radius:9px;background:#FBEAE7;color:#C0392B;
+            font-size:12px;font-weight:900;display:grid;place-items:center}
+  .memo-empty{margin:14px auto;text-align:center;font-size:13px;font-weight:800;color:var(--muted);line-height:1.6}
+  .acts .ghost{flex:0 0 auto;padding:0 16px;min-height:52px;border-radius:14px;background:var(--cream);
+               color:#6E6A58;font-weight:900;font-size:clamp(13px,1.7vw,16px)}
+  .acts .ghost.confirm{background:#C0392B;color:#fff}
+
   /* 완료됨 시트 */
   .done-panel{max-height:72vh;max-height:72dvh}
   .done-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -289,6 +316,16 @@
   @media (min-width:900px){
     .row .txt{-webkit-line-clamp:2}
   }
+
+  /* 오늘할일 알약 */
+  .today-pill{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+              height:26px;padding:0 9px;border-radius:999px;border:1.5px solid #E7E1C8;
+              background:rgba(255,255,255,.6);color:#ADA78D;font-size:10.5px;font-weight:900;
+              letter-spacing:-.03em;white-space:nowrap;line-height:1;text-align:center;
+              transition:background .16s,color .16s,border-color .16s,box-shadow .16s}
+  .today-pill.on{background:#231F78;border-color:rgba(255,255,255,.55);color:#FBE049;
+                 box-shadow:0 4px 10px rgba(35,31,120,.28)}
+  .today-pill:active{transform:scale(.96)}
 </style>
 </head>
 <body>
@@ -310,6 +347,7 @@
     <h1><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.6 9.6 18.2 20 6.6"/></svg></span> 부부 할일</h1>
     <div class="top-right">
       <i id="dot" class="dot" title="연결 중"></i>
+      <button id="memoBtn" class="memo-btn" type="button" aria-label="수정 요청 메모">📝<span class="memo-cnt hidden" id="memoCnt">0</span></button>
     </div>
   </header>
   <main id="board" class="board"></main>
@@ -372,6 +410,22 @@
     </div>
     <button type="button" id="noteDel" class="btn-del">🗑 이 할 일 삭제</button>
   </form>
+</div>
+
+<div id="memoSheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="memoTitle">
+  <div class="bd" data-mclose="1"></div>
+  <div class="panel memo-panel">
+    <div class="grab"></div>
+    <h2 id="memoTitle">📝 두두에게 보낼 수정 요청</h2>
+    <textarea id="memoInput" rows="3" maxlength="300" placeholder="예: 완료됨 목록 글자가 조금 작아요"></textarea>
+    <button type="button" class="btn-add" id="memoAdd">＋ 메모 추가</button>
+    <div class="memo-list" id="memoList"></div>
+    <p class="hint">메모는 이 기기에만 저장되고, 앱을 닫아도 그대로 남아요</p>
+    <div class="acts">
+      <button type="button" class="save" id="memoCopy">📋 전체 복사</button>
+      <button type="button" class="ghost" id="memoClear">🗑 비우기</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -455,6 +509,8 @@ function rowHtml(t) {
         '<span class="txt">' + esc(t.text) + '</span>' +
         (note ? '<span class="note-line">📝 ' + esc(note) + '</span>' : '') +
       '</span>' +
+      '<button class="today-pill' + (t.today ? ' on' : '') + '" type="button" data-today="' + id + '"' +
+        ' aria-pressed="' + (t.today ? 'true' : 'false') + '" aria-label="오늘 할 일로 표시">오늘할일</button>' +
       '<button class="check" type="button" data-id="' + id + '" aria-label="완료">' +
         '<span class="tick">✓</span></button>' +
     '</div>' +
@@ -532,7 +588,7 @@ function closeDone() {
 }
 function syncSheetFlag() {
   const open = !$('#sheet').classList.contains('hidden') || !$('#doneSheet').classList.contains('hidden') ||
-               !$('#noteSheet').classList.contains('hidden');
+               !$('#noteSheet').classList.contains('hidden') || !$('#memoSheet').classList.contains('hidden');
   document.body.classList.toggle('sheet-open', open);
 }
 
@@ -545,6 +601,7 @@ let sheetSelfBack = false;     /* 정리를 위해 우리가 부른 history.back
 function anySheetOpen() {
   return !$('#sheet').classList.contains('hidden') ||
          !$('#noteSheet').classList.contains('hidden') ||
+         !$('#memoSheet').classList.contains('hidden') ||
          !$('#doneSheet').classList.contains('hidden');
 }
 function pushSheetHistory() {
@@ -570,7 +627,8 @@ function settleSheetHistory() {
   }, 0);
 }
 function closeTopSheet() {
-  if (!$('#noteSheet').classList.contains('hidden')) closeNote();
+  if (!$('#memoSheet').classList.contains('hidden')) closeMemo();
+  else if (!$('#noteSheet').classList.contains('hidden')) closeNote();
   else if (!$('#sheet').classList.contains('hidden')) closeSheet();
   else if (!$('#doneSheet').classList.contains('hidden')) closeDone();
 }
@@ -725,6 +783,24 @@ async function del(path) {
   return true;
 }
 
+/* ============ 오늘할일 표시 ============ */
+async function toggleToday(id) {
+  const t = ST.todos[id]; if (!t) return;
+  const before = { today: !!t.today, updatedAt: t.updatedAt };
+  const nextToday = !t.today;
+  const next = { today: nextToday, updatedAt: Date.now() };
+  Object.assign(t, next);
+  render();
+  try {
+    await patch('todos/' + id, next);
+    toast(nextToday ? '오늘 할 일로 표시했어요' : '오늘표시를 꺼어요');
+  } catch (e) {
+    Object.assign(t, before);
+    render();
+    toast('저장하지 못했어요');
+  }
+}
+
 /* ============ 체크 / 완료 취소 ============ */
 async function toggle(id) {
   const t = ST.todos[id]; if (!t) return;
@@ -843,7 +919,7 @@ function startTrack(x, y, target, source) {
   if (drag) return;
   const row = rowFrom(target);
   if (!row || !target.closest) return;
-  if (target.closest('.card-add') || target.closest('.row-acts')) return;
+  if (target.closest('.card-add') || target.closest('.row-acts') || target.closest('.today-pill')) return;
   /* 완료 체크에서도 옆으로 밀 수 있다. 다만 탭은 체크 버튼이 받는다(아래 upTrack) */
   const onCheck = !!target.closest('.check');
   const id = row.dataset.id;
@@ -1072,6 +1148,85 @@ async function saveOrder(owner) {
   catch (e) { toast('순서를 저장하지 못했어요'); }
 }
 
+/* ============ 📝 수정 요청 메모 (이 기기에만 저장) ============
+   고치고 싶은 곳을 그때그때 적어 두고, [전체 복사]로 피클 채팅에 붙여넣을 수 있게 한다. */
+const MEMO_KEY = 'bubulife.memos.v1';
+let MEMOS = loadMemos();
+function loadMemos() {
+  try {
+    const a = JSON.parse(localStorage.getItem(MEMO_KEY) || '[]');
+    return Array.isArray(a) ? a.filter(x => x && x.text) : [];
+  } catch (e) { return []; }
+}
+function saveMemos() {
+  try { localStorage.setItem(MEMO_KEY, JSON.stringify(MEMOS)); } catch (e) {}
+  paintMemoBadge();
+}
+function paintMemoBadge() {
+  const b = $('#memoBtn'), c = $('#memoCnt');
+  if (!b || !c) return;
+  const n = MEMOS.length;
+  b.classList.toggle('has', n > 0);
+  c.textContent = n > 9 ? '9+' : String(n);
+  c.classList.toggle('hidden', n === 0);
+  b.setAttribute('aria-label', n ? '수정 요청 메모 ' + n + '개' : '수정 요청 메모');
+}
+function memoRows() {
+  if (!MEMOS.length) return '<p class="memo-empty">아직 적어 둔 요청이 없어요<br>고치고 싶은 곳을 그때그때 적어 두세요</p>';
+  return MEMOS.map(m =>
+    '<div class="memo-row"><span class="mx">' + esc(m.text) + '</span>' +
+    '<button type="button" class="memo-del" data-mdel="' + esc(m.id) + '" aria-label="삭제">✕</button></div>').join('');
+}
+function paintMemoList() {
+  const box = $('#memoList');
+  if (box) box.innerHTML = memoRows();
+}
+async function copyText(t) {
+  if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(t); return; }
+  const ta = document.createElement('textarea');
+  ta.value = t; ta.setAttribute('readonly', '');
+  ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+  document.body.appendChild(ta);
+  ta.select(); ta.setSelectionRange(0, t.length);
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+  ta.remove();
+  if (!ok) throw new Error('copy failed');
+}
+function openMemo() {
+  paintMemoList();
+  resetMemoClear();
+  $('#memoInput').value = '';
+  $('#memoSheet').classList.remove('hidden');
+  syncSheetFlag();
+  pushSheetHistory();
+}
+function closeMemo() {
+  $('#memoSheet').classList.add('hidden');
+  syncSheetFlag();
+  settleSheetHistory();
+  $('#memoInput').blur();
+  resetMemoClear();
+}
+function addMemo() {
+  const inp = $('#memoInput');
+  const v = inp.value.trim();
+  if (!v) { toast('요청 내용을 적어 주세요'); inp.focus(); return; }
+  MEMOS.push({ id: newId() + 'm', text: v, at: Date.now() });
+  saveMemos();
+  inp.value = '';
+  paintMemoList();
+  toast('메모를 추가했어요');
+  inp.focus();
+}
+let memoClearTimer = null;
+function resetMemoClear() {
+  const b = $('#memoClear'); if (!b) return;
+  b.classList.remove('confirm');
+  b.textContent = '🗑 비우기';
+  clearTimeout(memoClearTimer); memoClearTimer = null;
+}
+
 /* ============ 이벤트 ============ */
 function initApp() {
   const board = $('#board');
@@ -1110,6 +1265,8 @@ function initApp() {
     }
     const ck = e.target.closest('.check');
     if (ck) { e.preventDefault(); toggle(ck.dataset.id); return; }
+    const td = e.target.closest('.today-pill');
+    if (td) { e.preventDefault(); e.stopPropagation(); toggleToday(td.dataset.today); return; }
     const add = e.target.closest('.card-add');
     if (add) { e.preventDefault(); openAdd(add.dataset.owner); return; }
   });
@@ -1156,8 +1313,45 @@ function initApp() {
     if (e.key === 'Enter') { e.preventDefault(); saveTodo(); }
   });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeSheet(); closeDone(); closeNote(); }
+    if (e.key === 'Escape') { closeSheet(); closeDone(); closeNote(); closeMemo(); }
   });
+
+  /* 📝 수정 요청 메모 */
+  $('#memoBtn').addEventListener('click', openMemo);
+  $('#memoSheet').addEventListener('click', e => { if (e.target.dataset.mclose === '1') closeMemo(); });
+  $('#memoAdd').addEventListener('click', addMemo);
+  $('#memoInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); addMemo(); }
+  });
+  $('#memoList').addEventListener('click', e => {
+    const b = e.target.closest('[data-mdel]'); if (!b) return;
+    MEMOS = MEMOS.filter(x => x.id !== b.dataset.mdel);
+    saveMemos();
+    paintMemoList();
+  });
+  $('#memoCopy').addEventListener('click', async () => {
+    if (!MEMOS.length) { toast('복사할 메모가 없어요'); return; }
+    const text = '부부 할일 수정 요청:\n' + MEMOS.map(m => '- ' + m.text).join('\n');
+    try { await copyText(text); toast('복사했어요! 피클 채팅에 붙여넣기 해 주세요'); }
+    catch (err) { toast('복사하지 못했어요 — 메모를 길게 눌러 복사해 주세요'); }
+  });
+  $('#memoClear').addEventListener('click', e => {
+    if (!MEMOS.length) { toast('비울 메모가 없어요'); return; }
+    const btn = e.currentTarget;
+    if (!btn.classList.contains('confirm')) {
+      btn.classList.add('confirm');
+      btn.textContent = '정말 비울까요?';
+      clearTimeout(memoClearTimer);
+      memoClearTimer = setTimeout(resetMemoClear, 4000);
+      return;
+    }
+    MEMOS = [];
+    saveMemos();
+    paintMemoList();
+    resetMemoClear();
+    toast('메모를 모두 지웠어요');
+  });
+  paintMemoBadge();
 
   $('#roomGo').addEventListener('click', joinRoom);
   $('#roomInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); joinRoom(); } });
@@ -1200,7 +1394,18 @@ function registerSW() {
     if (!document.hidden && swReg && swReg.update) swReg.update().catch(() => {});
   });
 }
+/* 폰에서 가로로 돌아가지 않게 — 홈 화면에 설치한 앱에서먼 실제로 걸리고,
+   일반 브라우저 탭에서는 보안상 거부되지만 예외 없이 조용히 넘어간다 */
+function lockPortrait() {
+  try {
+    if (screen.orientation && typeof screen.orientation.lock === 'function') {
+      const p = screen.orientation.lock('portrait-primary');
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    }
+  } catch (e) {}
+}
 function boot() {
+  lockPortrait();
   if (!ROOM) {
     $('#gate').classList.remove('hidden');
     $('#app').classList.add('hidden');
