@@ -815,7 +815,6 @@ function armDelete() {
 
 /* ============ 드래그로 순서 바꾸기 ============ */
 const LONG_PRESS = 280;   /* 손가락: 길게 눌러 잡기 */
-const MOUSE_HOLD = 90;    /* 마우스: 살짝 누르고 끌기 */
 const MOVE_START = 7;     /* 이만큼 움직이면 스크롤이 아니라 드래그 */
 const SWIPE_MIN = 10;     /* 이만큼 옆으로 밀면 스와이프 */
 const SWIPE_LOCK = 0.4;   /* 액션 폭의 이 비율 넘게 밀면 열린 채로 고정 */
@@ -854,8 +853,10 @@ function onDown(e) {
     active: false, moved: false, swipe: false, swipeBase: 0, swipeStart: 0, offset: 0, timer: null
   };
   try { row.setPointerCapture(e.pointerId); } catch (err) {}
-  drag.timer = setTimeout(() => { if (drag && !drag.active && !drag.swipe) beginDrag(); },
-    drag.pointerType === 'mouse' ? MOUSE_HOLD : LONG_PRESS);
+  /* 손가락만 길게 눌러 잡기(마우스는 위아래로 끌 때 잡는다 — 옆으로 밀기와 섞이지 않게) */
+  if (drag.pointerType !== 'mouse') {
+    drag.timer = setTimeout(() => { if (drag && !drag.active && !drag.swipe) beginDrag(); }, LONG_PRESS);
+  }
 }
 function beginDrag() {
   if (!drag || drag.active) return;
@@ -886,6 +887,15 @@ function onMove(e) {
   if (!drag || e.pointerId !== drag.pointerId) return;
   const dy = e.clientY - drag.startY, dx = e.clientX - drag.startX;
   const adx = Math.abs(dx), ady = Math.abs(dy);
+  /* 길게 잡은 뒤에도 위아래로 옮기기 전에 옆으로 밀면 스와이프로 바꿔 준다 */
+  if (drag.active && !drag.moved && adx > 16 && adx > ady * 1.5) {
+    clearTimeout(drag.timer);
+    drag.active = false;
+    drag.row.classList.remove('dragging');
+    drag.row.style.transform = '';
+    document.body.classList.remove('is-dragging');
+    window.removeEventListener('touchmove', blockScroll);
+  }
   if (!drag.active && !drag.swipe) {
     if (adx > SWIPE_MIN && adx > ady * 1.15) {
       /* 옆으로 밀기 → 스와이프(메모·수정·삭제 드러내기) */
