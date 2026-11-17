@@ -85,46 +85,58 @@ ul{list-style:none}
 .tab .n{font-size:11px;font-weight:700;color:var(--muted)}
 .tab.is-on .n{color:var(--ink-2)}
 
-/* ---------- filters ---------- */
-.filters{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
-.chiprow{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
-.chiprow::-webkit-scrollbar{display:none}
-.chip{
-  flex:0 0 auto;padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:700;
-  color:var(--muted);background:transparent;min-height:32px;
+/* ---------- todo board ---------- */
+.board-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.sec{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:13px 12px 8px;min-width:0;
 }
-.chip.on{background:var(--bg-2);color:var(--ink)}
-.chip .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:middle}
-
-/* ---------- list ---------- */
-.list{display:flex;flex-direction:column;gap:9px}
-.todo{
-  display:flex;align-items:flex-start;gap:11px;background:var(--card);border:1px solid var(--line);
-  border-radius:16px;padding:14px;
+.sec-head{display:flex;align-items:center;gap:8px}
+.sec-head .avatar{
+  width:27px;height:27px;border-radius:50%;display:grid;place-items:center;font-size:14px;line-height:1;flex:0 0 auto;
 }
-.todo.is-done{background:#FCFBF8;border-color:var(--line-soft)}
-.todo.is-done .todo-title{text-decoration:line-through;color:var(--muted)}
-.check{
-  width:24px;height:24px;border-radius:50%;border:1.6px solid #D5CFC2;background:#fff;flex:0 0 auto;
-  display:grid;place-items:center;color:#fff;margin-top:1px;
+.sec.both .avatar{background:var(--both-bg)}
+.sec.seeun .avatar{background:var(--seeun-bg)}
+.sec.chankyu .avatar{background:var(--chankyu-bg)}
+.sec-head b{font-size:13px;font-weight:800;letter-spacing:-.2px;white-space:nowrap}
+.sec-head .cnt{margin-left:auto;font-size:11.5px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.pbar{height:4px;border-radius:2px;background:var(--bg-2);margin:9px 0 10px;overflow:hidden}
+.pbar i{display:block;height:100%;border-radius:2px;background:var(--ink);transition:width .2s}
+.row{
+  display:flex;align-items:center;gap:6px;background:#FAF7ED;border-radius:11px;
+  padding:9px 8px;margin-bottom:6px;min-height:38px;
 }
-.check svg{opacity:0}
-.todo.is-done .check{background:var(--ink);border-color:var(--ink)}
-.todo.is-done .check svg{opacity:1}
-.todo-main{flex:1;min-width:0}
-.todo-title{font-size:14.5px;font-weight:700;word-break:keep-all;overflow-wrap:anywhere}
-.todo-meta{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:7px}
-.tag{font-size:11px;font-weight:700;padding:3px 8px;border-radius:8px;white-space:nowrap}
-.tag.seeun{background:var(--seeun-bg);color:var(--seeun)}
-.tag.chankyu{background:var(--chankyu-bg);color:var(--chankyu)}
-.tag.both{background:var(--both-bg);color:var(--both)}
-.tag.cat{background:var(--bg-2);color:#6B665D;font-weight:600}
-.tag.due{background:var(--cream);color:var(--cream-ink)}
-.tag.due.today{background:var(--ink);color:#fff}
-.tag.due.late{background:var(--danger-bg);color:var(--danger)}
-.todo-memo{font-size:12.5px;color:var(--muted);margin-top:8px;white-space:pre-wrap;word-break:break-word}
-.star{width:30px;height:30px;flex:0 0 auto;color:#DAD4C6;font-size:15px;line-height:1;margin-top:-2px}
-.star.on{color:#C99A2E}
+.row .ico{font-size:13.5px;line-height:1;flex:0 0 auto}
+.row .t{
+  flex:1;min-width:0;font-size:13px;font-weight:600;line-height:1.35;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.row .d{flex:0 0 auto;font-size:9.5px;font-weight:800;color:#A79C87;font-variant-numeric:tabular-nums}
+.row .d.late{color:var(--danger)}
+.row .ck{
+  width:20px;height:20px;border-radius:50%;border:1.8px solid #E0D9CB;background:#fff;flex:0 0 auto;
+  display:grid;place-items:center;color:#fff;
+}
+.row .ck svg{opacity:0}
+.row.done{background:#DCF2DF}
+.row.done .t{color:#2F7D4F;text-decoration:line-through}
+.row.done .d{color:#4E8F68}
+.row.done .ck{background:#2F7D4F;border-color:#2F7D4F}
+.row.done .ck svg{opacity:1}
+.sec-empty{font-size:11.5px;color:#B4AEA2;padding:4px 2px 8px}
+.sec-add{
+  margin-top:2px;font-size:11.5px;font-weight:700;color:#A79C87;padding:7px 2px 6px;display:flex;align-items:center;gap:4px;
+}
+.sec-add:active{color:var(--ink)}
+@media (min-width:520px){
+  .board-grid{grid-template-columns:1fr 1fr}
+  .sec.both{grid-column:1 / -1}
+}
+@media (min-width:760px){
+  .app{max-width:880px}
+  .board-grid{grid-template-columns:repeat(3,1fr)}
+  .sec.both{grid-column:auto}
+}
 .done-head{
   width:100%;display:flex;align-items:center;gap:8px;margin:18px 0 10px;
   font-size:12.5px;font-weight:700;color:var(--muted);padding:6px 2px;
@@ -132,6 +144,7 @@ ul{list-style:none}
 .done-head .line{flex:1;height:1px;background:var(--line)}
 .done-head .caret{transition:transform .15s;font-size:11px}
 .done-head.open .caret{transform:rotate(180deg)}
+.done-list{display:flex;flex-direction:column;gap:6px}
 .empty{
   text-align:center;padding:36px 18px;background:var(--card);border:1px solid var(--line);
   border-radius:var(--r);color:var(--muted);font-size:13px;line-height:1.7;
@@ -313,6 +326,14 @@ input[type=date],input[type=time]{font-size:14px;padding:12px 10px}
 .cat-seg{display:flex;flex-wrap:wrap;gap:6px}
 .cat-seg button{height:38px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:12.5px;font-weight:700;color:var(--ink-2)}
 .cat-seg button.on{background:var(--bg-2);border-color:transparent;color:var(--ink)}
+.emoji-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.emoji-row::-webkit-scrollbar{display:none}
+.emoji-row button{
+  flex:0 0 auto;height:40px;min-width:40px;padding:0 8px;border-radius:11px;border:1px solid var(--line);
+  background:#fff;font-size:16px;font-weight:700;color:var(--muted);
+}
+.emoji-row button.on{background:var(--bg-2);border-color:transparent;color:var(--ink)}
+.emoji-row button[data-icon=""]{font-size:12.5px;padding:0 12px}
 .star-toggle{
   height:48px;border-radius:12px;border:1px solid var(--line);background:#fff;font-size:13.5px;font-weight:700;
   color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;overflow:hidden;width:100%;
@@ -415,25 +436,12 @@ input[type=date],input[type=time]{font-size:14px;padding:12px 10px}
 
   <main>
     <section id="view-todos" class="view">
-      <div class="filters">
-        <div class="chiprow" id="ownerFilter">
-          <button class="chip on" data-act="filter-owner" data-owner="all">전체</button>
-          <button class="chip" data-act="filter-owner" data-owner="seeun"><span class="dot" style="background:#9B7BE8"></span>세은</button>
-          <button class="chip" data-act="filter-owner" data-owner="chankyu"><span class="dot" style="background:#6BA5E8"></span>찬규</button>
-          <button class="chip" data-act="filter-owner" data-owner="both"><span class="dot" style="background:#4FBF95"></span>같이</button>
-        </div>
-        <div class="chiprow" id="statusFilter">
-          <button class="chip on" data-act="filter-status" data-status="all">전체</button>
-          <button class="chip" data-act="filter-status" data-status="active">할 일</button>
-          <button class="chip" data-act="filter-status" data-status="done">완료</button>
-        </div>
-      </div>
-      <ul id="todoActive" class="list"></ul>
+      <div class="board-grid" id="boardCols"></div>
       <div id="doneWrap">
         <button class="done-head" data-act="toggle-done-open" id="doneHead">
           <span>완료</span><span id="doneCount">0</span><span class="line"></span><span class="caret">▼</span>
         </button>
-        <ul id="todoDone" class="list hidden"></ul>
+        <div id="todoDone" class="done-list hidden"></div>
       </div>
     </section>
 
@@ -487,6 +495,25 @@ input[type=date],input[type=time]{font-size:14px;padding:12px 10px}
             <button type="button" data-owner="seeun"><i style="background:#9B7BE8"></i>세은</button>
             <button type="button" data-owner="chankyu"><i style="background:#6BA5E8"></i>찬규</button>
             <button type="button" data-owner="both"><i style="background:#4FBF95"></i>같이</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>아이콘</label>
+          <div class="emoji-row" id="tdIcon">
+            <button type="button" data-icon="" class="on">자동</button>
+            <button type="button" data-icon="🛒">🛒</button>
+            <button type="button" data-icon="🧹">🧹</button>
+            <button type="button" data-icon="🧺">🧺</button>
+            <button type="button" data-icon="💍">💍</button>
+            <button type="button" data-icon="✈️">✈️</button>
+            <button type="button" data-icon="📄">📄</button>
+            <button type="button" data-icon="🏥">🏥</button>
+            <button type="button" data-icon="🍳">🍳</button>
+            <button type="button" data-icon="🏃">🏃</button>
+            <button type="button" data-icon="💳">💳</button>
+            <button type="button" data-icon="🎁">🎁</button>
+            <button type="button" data-icon="📞">📞</button>
+            <button type="button" data-icon="📌">📌</button>
           </div>
         </div>
         <div class="field">
@@ -766,52 +793,86 @@ function renderHero() {
   }).join('') + (evs.length > 3 ? `<div class="hev"><i style="background:transparent"></i><b></b><span>+${evs.length - 3}개 더</span></div>` : '') : '';
 }
 
-function ownerOK(t) { return ui.owner === 'all' || t.owner === ui.owner; }
+function ownerOK(t) { return true; }
 
-function todoCard(t) {
-  const o = OWNERS[t.owner] || OWNERS.both;
-  const c = CATS[t.cat] || CATS.etc;
-  return `<li class="todo ${t.done ? 'is-done' : ''}" data-id="${t.id}">
-    <button class="check" data-act="toggle" data-id="${t.id}" aria-label="${t.done ? '완료 취소' : '완료 표시'}">
-      <svg viewBox="0 0 24 24" width="14" height="14"><path d="M5 12.6l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+/* 아이콘: 직접 고른 값이 있으면 그걸, 없으면 제목으로 추측 */
+const ICON_RULES = [
+  [/장보|마트|쇼핑|구매|사오|사기|사야/, '🛒'],
+  [/청소|닦|걸레|빨래|세탁|설거지|정리정돈/, '🧹'],
+  [/분리수거|쓰레기|수거/, '🧹'],
+  [/여행|항공|숙소|비행|몰디브|공항|티켓/, '✈️'],
+  [/결혼|예식|웨딩|신혼|드레스|예복|정장|스드메|본식/, '💍'],
+  [/서류|계약|신고|제출|민원|신청|확인서|계좌|세금/, '📄'],
+  [/병원|치과|진료|검진|예약|약국|주사/, '🏥'],
+  [/요리|밥|아침|저녁|식사|반찬|장보기 후/, '🍳'],
+  [/운동|헬스|산책|러닝|요가|필라/, '🏃'],
+  [/납부|관리비|카드|보험|적금|이자|월세/, '💳'],
+  [/선물|생일|기념일|축하/, '🎁'],
+  [/전화|연락|문의|통화/, '📞'],
+  [/강아지|고양이|반려|산책하기/, '🐶']
+];
+function detectIcon(text) {
+  const s = String(text || '');
+  for (const [re, ico] of ICON_RULES) if (re.test(s)) return ico;
+  return '📌';
+}
+function iconFor(t) { return t.icon || detectIcon(t.text); }
+
+function dueChip(t) {
+  if (!t.due) return '';
+  const d = diffDays(t.due);
+  if (d === 0) return '<span class="d">오늘</span>';
+  if (d < 0) return `<span class="d late">${Math.abs(d)}일 지남</span>`;
+  if (d <= 9) return `<span class="d">D-${d}</span>`;
+  const p = parseISO(t.due);
+  return `<span class="d">${p.getMonth() + 1}/${p.getDate()}</span>`;
+}
+
+function rowHtml(t) {
+  return `<div class="row ${t.done ? 'done' : ''}">
+    <span class="ico">${iconFor(t)}</span>
+    <span class="t" data-act="edit-todo" data-id="${t.id}">${esc(t.text)}</span>
+    ${dueChip(t)}
+    <button class="ck" data-act="toggle" data-id="${t.id}" aria-label="${t.done ? '완료 취소' : '완료 표시'}">
+      <svg viewBox="0 0 24 24" width="12" height="12"><path d="M5 12.6l4.3 4.3L19 7" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
-    <div class="todo-main" data-act="edit-todo" data-id="${t.id}">
-      <div class="todo-title">${esc(t.text)}</div>
-      <div class="todo-meta">
-        <span class="tag ${t.owner}">${o.name}</span>
-        <span class="tag cat">${c.name}</span>
-        ${dueBadge(t)}
-      </div>
-      ${t.memo ? `<div class="todo-memo">${esc(t.memo)}</div>` : ''}
-    </div>
-    <button class="star ${t.important ? 'on' : ''}" data-act="star" data-id="${t.id}" aria-label="중요 표시">★</button>
-  </li>`;
+  </div>`;
 }
 
 function renderTodos() {
-  const active = upcomingTodos().filter(ownerOK);
-  const done = doneTodos().filter(ownerOK);
-  const showDone = ui.status === 'all' || ui.status === 'done';
-  const showActive = ui.status === 'all' || ui.status === 'active';
+  const all = todoList();
+  const AV = { both: '💑', seeun: '👩🏻', chankyu: '👨🏻' };
+  const order = ['both', 'seeun', 'chankyu'];
 
-  const a = $('#todoActive');
-  if (showActive) {
-    a.innerHTML = active.length ? active.map(todoCard).join('')
-      : `<li class="empty"><span class="big">🌱</span>${ui.owner === 'all' ? '아직 할 일이 없어요.' : '이 담당의 할 일이 없어요.'}</li>`;
-  } else { a.innerHTML = ''; }
+  $('#boardCols').innerHTML = order.map(k => {
+    const mine = all.filter(t => (t.owner || 'both') === k);
+    const active = mine.filter(t => !t.done).sort(todoSort);
+    const doneN = mine.length - active.length;
+    const pct = mine.length ? Math.round(doneN / mine.length * 100) : 0;
+    const rows = active.length
+      ? active.map(rowHtml).join('')
+      : `<div class="sec-empty">할 일이 없어요</div>`;
+    return `<section class="sec ${k}">
+      <div class="sec-head">
+        <span class="avatar">${AV[k]}</span>
+        <b>${OWNERS[k].name} 할 일</b>
+        <span class="cnt">${doneN}/${mine.length}</span>
+      </div>
+      <div class="pbar"><i style="width:${pct}%"></i></div>
+      ${rows}
+      <button class="sec-add" data-act="add-todo-owner" data-owner="${k}">＋ 추가</button>
+    </section>`;
+  }).join('');
 
-  $('#doneWrap').classList.toggle('hidden', !showDone);
+  const done = doneTodos();
   $('#doneCount').textContent = done.length;
-  const doneOpen = ui.doneOpen || ui.status === 'done';
+  const doneOpen = ui.doneOpen;
   $('#doneHead').classList.toggle('open', doneOpen);
   const dw = $('#todoDone');
   dw.classList.toggle('hidden', !doneOpen);
   dw.innerHTML = doneOpen
-    ? (done.length ? done.map(todoCard).join('') : `<li class="empty" style="padding:22px"><span class="big">☑️</span>완료한 일이 아직 없어요.</li>`)
+    ? (done.length ? done.map(rowHtml).join('') : `<div class="empty" style="padding:22px"><span class="big">☑️</span>완료한 일이 아직 없어요.</div>`)
     : '';
-
-  $$('#ownerFilter .chip').forEach(b => b.classList.toggle('on', b.dataset.owner === ui.owner));
-  $$('#statusFilter .chip').forEach(b => b.classList.toggle('on', b.dataset.status === ui.status));
 }
 
 function renderCal() {
@@ -1238,10 +1299,15 @@ async function del(path) {
 }
 
 /* ---------------- todo / event forms ---------------- */
-function openTodoSheet(id, date) {
-  draft = { kind: 'todo', id: id || null, owner: 'both', cat: 'etc', important: false, unit: 10000 };
+function openTodoSheet(id, date, owner) {
+  draft = { kind: 'todo', id: id || null, owner: owner || 'both', cat: 'etc', important: false, unit: 10000, icon: '' };
   const t = id ? ST.todos[id] : null;
-  if (t) { draft.owner = t.owner || 'both'; draft.cat = t.cat || 'etc'; draft.important = !!t.important; }
+  if (t) {
+    draft.owner = t.owner || 'both';
+    draft.cat = t.cat || 'etc';
+    draft.important = !!t.important;
+    draft.icon = t.icon || '';
+  }
   $('#todoTitle').textContent = t ? '할 일 수정' : '할 일 추가';
   $('#tdText').value = t ? (t.text || '') : '';
   $('#tdDue').value = t ? (t.due || '') : (date || '');
@@ -1249,6 +1315,7 @@ function openTodoSheet(id, date) {
   $('#tdDelete').classList.toggle('hidden', !t);
   syncOwnerSeg('#tdOwner', draft.owner);
   $$('#tdCat button').forEach(b => b.classList.toggle('on', b.dataset.cat === draft.cat));
+  $$('#tdIcon button').forEach(b => b.classList.toggle('on', (b.dataset.icon || '') === (draft.icon || '')));
   syncStar();
   showPane('sheetTodo');
   setTimeout(() => { if (!t) $('#tdText').focus(); }, 250);
@@ -1270,6 +1337,7 @@ async function saveTodo() {
     text,
     owner: draft.owner,
     cat: draft.cat,
+    icon: draft.icon || '',
     due: $('#tdDue').value || '',
     important: !!draft.important,
     memo: $('#tdMemo').value.trim(),
@@ -1465,7 +1533,8 @@ document.addEventListener('click', async (ev) => {
     case 'delete-todo': await deleteTodo(draft.id); break;
     case 'edit-event': openEventSheet(id); break;
     case 'delete-event': await deleteEvent(draft.id); break;
-    case 'add-todo': openTodoSheet(null, el.dataset.date); break;
+    case 'add-todo': openTodoSheet(null, el.dataset.date, el.dataset.owner); break;
+    case 'add-todo-owner': openTodoSheet(null, null, el.dataset.owner); break;
     case 'add-event': openEventSheet(null, el.dataset.date); break;
     case 'edit-nw': openNwSheet(); break;
     case 'pick': ui.selected = el.dataset.date; ui.cursor = el.dataset.date; renderMonth(); break;
@@ -1503,6 +1572,11 @@ $('#tdCat').addEventListener('click', e => {
   const b = e.target.closest('button[data-cat]'); if (!b) return;
   draft.cat = b.dataset.cat;
   $$('#tdCat button').forEach(x => x.classList.toggle('on', x.dataset.cat === draft.cat));
+});
+$('#tdIcon').addEventListener('click', e => {
+  const b = e.target.closest('button[data-icon]'); if (!b) return;
+  draft.icon = b.dataset.icon || '';
+  $$('#tdIcon button').forEach(x => x.classList.toggle('on', (x.dataset.icon || '') === draft.icon));
 });
 $('#evAllDay').addEventListener('change', syncAllDay);
 
