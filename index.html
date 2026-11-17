@@ -1273,7 +1273,8 @@ function initApp() {
   board.addEventListener('keydown', e => {
     if (e.key !== 'Enter' && e.key !== ' ') return;
     const row = e.target.closest('.row');
-    if (!row || e.target.closest('.check')) return;
+    /* 완료 동그라미·오늘할일 알약의 Enter/Space 는 각자 버튼이 처리한다 */
+    if (!row || e.target.closest('.check') || e.target.closest('.today-pill')) return;
     e.preventDefault(); openNote(row.dataset.id);
   });
 
