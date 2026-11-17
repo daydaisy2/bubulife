@@ -960,7 +960,9 @@ function onDown(e) {
   startTrack(e.clientX, e.clientY, e.target, 'mouse');
   if (!drag || drag.source !== 'mouse') return;
   drag.pointerId = e.pointerId;
-  try { drag.row.setPointerCapture(e.pointerId); } catch (err) {}
+  /* 완료 체크에서 시작한 누름은 캡처하지 않는다 — 캡처하면 mouseup 이 줄로 바뀌어
+     체크 버튼의 click 이 사라진다(데스크톱에서 완료 토글이 안 되던 원인). */
+  if (!drag.onCheck) { try { drag.row.setPointerCapture(e.pointerId); } catch (err) {} }
 }
 function onMove(e) {
   if (!drag || drag.source !== 'mouse' || e.pointerId !== drag.pointerId) return;
