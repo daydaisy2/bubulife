@@ -388,6 +388,7 @@ if (!ROOM_RE.test(ROOM)) {
 const ST = { todos: {} };
 let es = null, retry = 0, pollTimer = null, gotSnapshot = false;
 let drag = null;
+let openSwipeId = null;   /* 스와이프로 열어 둔 항목 — 다시 그려도 열린 채로 유지 */
 let draft = { id: null, owner: 'seeun' };
 let lastOwner = localStorage.getItem('bubu.owner') || 'seeun';
 if (!OWNER[lastOwner]) lastOwner = 'seeun';
@@ -435,7 +436,7 @@ function doneTodos() {
 function rowHtml(t) {
   const id = esc(t.id);
   const note = String(t.note == null ? '' : t.note).trim();
-  return '<li class="row" data-id="' + id + '" tabindex="0">' +
+  return '<li class="row' + (openSwipeId === t.id ? ' open' : '') + '" data-id="' + id + '" tabindex="0">' +
     '<div class="row-acts">' +
       '<button class="act note" type="button" data-act="note" data-id="' + id + '" aria-label="메모">' +
         '<span class="ai" aria-hidden="true">📝</span>메모</button>' +
@@ -734,6 +735,7 @@ async function saveTodo(e) {
 }
 async function removeTodo(id) {
   const t = ST.todos[id]; if (!t) return false;
+  if (openSwipeId === id) openSwipeId = null;
   delete ST.todos[id];
   render();
   try { await del('todos/' + id); toast('삭제했어요'); return true; }
@@ -769,9 +771,11 @@ function closeSwipe(row) {
   const face = row.querySelector('.row-face');
   if (face) { row.classList.remove('swiping'); face.style.width = ''; }
   row.classList.remove('open');
+  if (row.dataset.id === openSwipeId) openSwipeId = null;
 }
 function closeAllSwipes(except) {
   $$('.row.open, .row.swiping').forEach(r => { if (r !== except) closeSwipe(r); });
+  if (!except) openSwipeId = null;
 }
 
 function onDown(e) {
@@ -880,6 +884,7 @@ function onUp(e) {
     d.row.classList.remove('swiping');
     d.face.style.width = '';
     d.row.classList.toggle('open', open);
+    openSwipeId = open ? d.id : null;
     drag = null;
     if (open && navigator.vibrate) { try { navigator.vibrate(6); } catch (err) {} }
     return;
@@ -913,6 +918,7 @@ function onCancel(e) {
     d.row.classList.remove('swiping');
     d.face.style.width = '';
     d.row.classList.toggle('open', d.wasOpen);
+    openSwipeId = d.wasOpen ? d.id : null;
     return;
   }
   endDrag(false);
