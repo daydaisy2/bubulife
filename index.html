@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>세은찬규</title>
+<title>부부 할일</title>
 <meta name="description" content="세은과 찬규의 오늘 할 일 — 두 사람 카드에 딱, 실시간으로 함께.">
 <meta name="theme-color" content="#FBE049">
 <meta name="robots" content="noindex,nofollow">
@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="세은찬규">
+<meta name="apple-mobile-web-app-title" content="부부 할일">
 <style>
   :root{
     --yellow:#FBE049;
@@ -94,20 +94,41 @@
   .empty{margin:auto;padding:clamp(10px,1.4vw,18px) 4px;color:var(--muted);
          font-size:clamp(12px,1.6vw,20px);font-weight:700;text-align:center;line-height:1.4}
 
-  .row{display:flex;align-items:center;gap:clamp(5px,.8vw,12px);flex:0 0 auto;
+  .row{--actw:clamp(46px,12.6vw,58px);
+       position:relative;display:block;flex:0 0 auto;overflow:hidden;
        background:var(--cream);border-radius:clamp(9px,1.1vw,16px);
-       padding:clamp(7px,.95vw,14px) clamp(8px,1vw,15px);
        min-height:clamp(44px,5.2vw,64px);
        transition:background .22s, transform .18s;
        will-change:transform;
        -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
        cursor:default}
   .row:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
+  .row-face{display:flex;align-items:center;gap:clamp(5px,.8vw,12px);
+            padding:clamp(7px,.95vw,14px) clamp(8px,1vw,15px);
+            min-height:clamp(44px,5.2vw,64px);
+            background:var(--cream);position:relative;z-index:2;border-radius:inherit;
+            transition:transform .22s cubic-bezier(.22,.61,.36,1)}
+  .row.open .row-face{transform:translateX(calc(var(--actw) * -3))}
+  .row.swiping .row-face{transition:none}
+  .row-acts{position:absolute;top:0;right:0;height:100%;display:flex;z-index:1}
+  .row-acts .act{width:var(--actw);height:100%;display:flex;flex-direction:column;
+                 align-items:center;justify-content:center;gap:.18em;border:0;color:#fff;
+                 font-weight:900;font-size:clamp(9px,1.35vw,12.5px);letter-spacing:-.04em;
+                 line-height:1;transition:filter .12s}
+  .row-acts .act .ai{font-size:1.3em;line-height:1}
+  .row-acts .note{background:#1E1B7A}
+  .row-acts .edit{background:#8A8271}
+  .row-acts .del{background:#C0392B}
+  .row-acts .act:active{filter:brightness(.9)}
   .row .ico{flex:0 0 auto;font-size:clamp(16px,2.4vw,30px);line-height:1}
-  .row .txt{flex:1 1 auto;min-width:0;font-size:clamp(14px,2.15vw,27px);font-weight:900;
+  .row .body{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:.12em}
+  .row .txt{min-width:0;font-size:clamp(14px,2.15vw,27px);font-weight:900;
             letter-spacing:-.035em;line-height:1.2;
             display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
             overflow-wrap:anywhere;word-break:keep-all}
+  .row .note-line{display:block;font-size:clamp(10.5px,1.55vw,16px);font-weight:700;
+                  color:#8C8672;letter-spacing:-.02em;line-height:1.25;
+                  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .check{flex:0 0 auto;width:clamp(24px,3.2vw,36px);height:clamp(24px,3.2vw,36px);border-radius:50%;
          border:2px solid #E7E1CB;background:#fff;display:grid;place-items:center;
          transition:background .18s,border-color .18s,transform .12s}
@@ -174,6 +195,15 @@
   .btn-del:active{transform:translateY(1px)}
   .btn-del.confirm{background:#C0392B;color:#fff}
 
+  /* 메모 시트 */
+  #noteTodo{margin:-6px 0 0;font-size:clamp(12.5px,1.7vw,15px);font-weight:800;color:var(--muted);
+            letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #noteInput{width:100%;border:2px solid var(--line);border-radius:14px;padding:12px 13px;
+             background:#fff;font:inherit;font-weight:700;font-size:clamp(14px,1.9vw,18px);
+             letter-spacing:-.02em;color:var(--ink);line-height:1.45;resize:vertical;
+             min-height:112px;outline:none;transition:border-color .15s}
+  #noteInput:focus{border-color:var(--navy)}
+
   /* 완료됨 시트 */
   .done-panel{max-height:72vh;max-height:72dvh}
   .done-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -223,8 +253,10 @@
   /* ---------- 작은 화면 ---------- */
   @media (max-width:430px){
     :root{--pad:10px;--gap:8px}
-    .row{padding:8px 7px;min-height:48px;gap:5px}
+    .row-face{padding:8px 7px;min-height:48px;gap:5px}
+    .row{min-height:48px}
     .row .txt{font-size:14.5px;line-height:1.22;-webkit-line-clamp:3}
+    .row .note-line{font-size:11.5px}
     .row .ico{font-size:19px}
     .check{width:24px;height:24px;border-width:2px}
     .card{padding:8px 8px 9px;gap:6px;border-radius:16px}
@@ -235,7 +267,8 @@
     .card-add{min-height:50px;font-size:16px}
   }
   @media (max-width:340px){
-    .row{padding:7px 6px;gap:4px}
+    .row{--actw:44px;min-height:44px}
+    .row-face{padding:7px 6px;gap:4px;min-height:44px}
     .row .txt{font-size:13.5px}
     .row .ico{font-size:17px}
     .check{width:22px;height:22px}
@@ -260,7 +293,7 @@
 <div id="gate" class="gate hidden">
   <div class="gate-card">
     <div class="ge">✅</div>
-    <h1>세은찬규</h1>
+    <h1>부부 할일</h1>
     <p>초대 링크로 들어오면 바로 시작할 수 있어요.</p>
     <div class="gate-row">
       <input id="roomInput" placeholder="방 코드" autocomplete="off" spellcheck="false">
@@ -271,7 +304,7 @@
 
 <div id="app" class="app hidden">
   <header class="top">
-    <h1><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.6 9.6 18.2 20 6.6"/></svg></span> 세은찬규</h1>
+    <h1><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.6 9.6 18.2 20 6.6"/></svg></span> 부부 할일</h1>
     <div class="top-right">
       <i id="dot" class="dot" title="연결 중"></i>
     </div>
@@ -315,6 +348,20 @@
       <button type="submit" class="save">저장</button>
     </div>
     <button type="button" id="delBtn" class="btn-del hidden">🗑 이 할 일 삭제</button>
+  </form>
+</div>
+
+<div id="noteSheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="noteTitle">
+  <div class="bd" data-nclose="1"></div>
+  <form id="noteForm" class="panel" autocomplete="off">
+    <div class="grab"></div>
+    <h2 id="noteTitle">📝 메모</h2>
+    <p id="noteTodo"></p>
+    <textarea id="noteInput" rows="4" maxlength="200" placeholder="이 할 일에 대한 메모를 적어 주세요"></textarea>
+    <div class="acts">
+      <button type="submit" class="save">메모 저장</button>
+    </div>
+    <button type="button" id="noteClear" class="btn-del">🧽 메모 지우기</button>
   </form>
 </div>
 
@@ -385,11 +432,26 @@ function doneTodos() {
 
 /* ============ 그리기 ============ */
 function rowHtml(t) {
-  return '<li class="row" data-id="' + esc(t.id) + '" tabindex="0">' +
-    '<span class="ico">' + esc(iconFor(t)) + '</span>' +
-    '<span class="txt">' + esc(t.text) + '</span>' +
-    '<button class="check" type="button" data-id="' + esc(t.id) + '" aria-label="완료">' +
-      '<span class="tick">✓</span></button>' +
+  const id = esc(t.id);
+  const note = String(t.note == null ? '' : t.note).trim();
+  return '<li class="row" data-id="' + id + '" tabindex="0">' +
+    '<div class="row-acts">' +
+      '<button class="act note" type="button" data-act="note" data-id="' + id + '" aria-label="메모">' +
+        '<span class="ai" aria-hidden="true">📝</span>메모</button>' +
+      '<button class="act edit" type="button" data-act="edit" data-id="' + id + '" aria-label="수정">' +
+        '<span class="ai" aria-hidden="true">✏️</span>수정</button>' +
+      '<button class="act del" type="button" data-act="del" data-id="' + id + '" aria-label="삭제">' +
+        '<span class="ai" aria-hidden="true">🗑</span>삭제</button>' +
+    '</div>' +
+    '<div class="row-face">' +
+      '<span class="ico">' + esc(iconFor(t)) + '</span>' +
+      '<span class="body">' +
+        '<span class="txt">' + esc(t.text) + '</span>' +
+        (note ? '<span class="note-line">📝 ' + esc(note) + '</span>' : '') +
+      '</span>' +
+      '<button class="check" type="button" data-id="' + id + '" aria-label="완료">' +
+        '<span class="tick">✓</span></button>' +
+    '</div>' +
   '</li>';
 }
 function cardHtml(owner) {
@@ -461,8 +523,48 @@ function closeDone() {
   syncSheetFlag();
 }
 function syncSheetFlag() {
-  const open = !$('#sheet').classList.contains('hidden') || !$('#doneSheet').classList.contains('hidden');
+  const open = !$('#sheet').classList.contains('hidden') || !$('#doneSheet').classList.contains('hidden') ||
+               !$('#noteSheet').classList.contains('hidden');
   document.body.classList.toggle('sheet-open', open);
+}
+
+/* ============ 메모 시트 ============ */
+let noteDraft = null;
+function openNote(id) {
+  const t = ST.todos[id]; if (!t) return;
+  noteDraft = id;
+  $('#noteTodo').textContent = iconFor(t) + ' ' + t.text;
+  $('#noteInput').value = t.note || '';
+  $('#noteSheet').classList.remove('hidden');
+  syncSheetFlag();
+  setTimeout(() => { $('#noteInput').focus(); }, 120);
+}
+function closeNote() {
+  $('#noteSheet').classList.add('hidden');
+  syncSheetFlag();
+  $('#noteInput').blur();
+  noteDraft = null;
+}
+async function saveNote(e) {
+  if (e) e.preventDefault();
+  const id = noteDraft, t = id ? ST.todos[id] : null;
+  if (!t) { closeNote(); return; }
+  const note = $('#noteInput').value.trim();
+  const before = t.note || '';
+  if (before === note) { closeNote(); return; }
+  const now = Date.now();
+  t.note = note; t.updatedAt = now;
+  closeNote(); render();
+  try {
+    await patch('todos/' + id, { note: note || null, updatedAt: now });
+    toast(note ? '메모를 저장했어요' : '메모를 지웠어요');
+  } catch (err) {
+    t.note = before; render(); toast('메모를 저장하지 못했어요');
+  }
+}
+function clearNote() {
+  $('#noteInput').value = '';
+  saveNote();
 }
 
 /* ============ Firebase 연결 ============ */
@@ -656,30 +758,49 @@ function armDelete() {
 const LONG_PRESS = 280;   /* 손가락: 길게 눌러 잡기 */
 const MOUSE_HOLD = 90;    /* 마우스: 살짝 누르고 끌기 */
 const MOVE_START = 7;     /* 이만큼 움직이면 스크롤이 아니라 드래그 */
+const SWIPE_MIN = 10;     /* 이만큼 옆으로 밀면 스와이프 */
+const SWIPE_LOCK = 0.4;   /* 액션 폭의 이 비율 넘게 밀면 열린 채로 고정 */
 
 function rowFrom(target) { return target.closest ? target.closest('.row') : null; }
+
+/* 스와이프 열림/닫힘 */
+function closeSwipe(row) {
+  if (!row) return;
+  const face = row.querySelector('.row-face');
+  if (face) { row.classList.remove('swiping'); face.style.transform = ''; }
+  row.classList.remove('open');
+}
+function closeAllSwipes(except) {
+  $$('.row.open, .row.swiping').forEach(r => { if (r !== except) closeSwipe(r); });
+}
 
 function onDown(e) {
   const row = rowFrom(e.target);
   if (!row || drag) return;
-  if (e.target.closest('.check') || e.target.closest('.card-add')) return;
+  if (e.target.closest('.check') || e.target.closest('.card-add') || e.target.closest('.row-acts')) return;
   if (e.button !== undefined && e.button > 0) return;
   const id = row.dataset.id;
   if (!ST.todos[id]) return;
   const rect = row.getBoundingClientRect();
+  const acts = row.querySelector('.row-acts');
   drag = {
     id, row, list: row.parentElement,
     owner: row.closest('.rows').dataset.owner,
+    face: row.querySelector('.row-face'),
+    actsW: acts ? acts.getBoundingClientRect().width : 0,
+    wasOpen: row.classList.contains('open'),
     pointerId: e.pointerId, pointerType: e.pointerType || 'mouse',
     startX: e.clientX, startY: e.clientY, grabOffset: e.clientY - rect.top,
-    active: false, moved: false, timer: null
+    active: false, moved: false, swipe: false, swipeBase: 0, swipeStart: 0, offset: 0, timer: null
   };
   try { row.setPointerCapture(e.pointerId); } catch (err) {}
-  drag.timer = setTimeout(() => { if (drag && !drag.active) beginDrag(); },
+  drag.timer = setTimeout(() => { if (drag && !drag.active && !drag.swipe) beginDrag(); },
     drag.pointerType === 'mouse' ? MOUSE_HOLD : LONG_PRESS);
 }
 function beginDrag() {
   if (!drag || drag.active) return;
+  clearTimeout(drag.timer);
+  if (drag.wasOpen) { closeSwipe(drag.row); drag.wasOpen = false; }
   drag.active = true;
   drag.row.classList.add('dragging');
   document.body.classList.add('is-dragging');
@@ -704,11 +825,28 @@ function paintDrag(clientY) {
 function onMove(e) {
   if (!drag || e.pointerId !== drag.pointerId) return;
   const dy = e.clientY - drag.startY, dx = e.clientX - drag.startX;
-  if (!drag.active) {
-    if (Math.abs(dy) > MOVE_START || Math.abs(dx) > MOVE_START * 2) {
+  const adx = Math.abs(dx), ady = Math.abs(dy);
+  if (!drag.active && !drag.swipe) {
+    if (adx > SWIPE_MIN && adx > ady * 1.15) {
+      /* 옆으로 밀기 → 스와이프(메모·수정·삭제 드러내기) */
+      clearTimeout(drag.timer);
+      drag.swipe = true;
+      drag.moved = true;
+      drag.swipeBase = drag.wasOpen ? -drag.actsW : 0;
+      drag.swipeStart = e.clientX;
+      drag.offset = drag.swipeBase;
+      drag.row.classList.add('swiping');
+      closeAllSwipes(drag.row);
+    } else if (ady > MOVE_START || adx > MOVE_START * 2) {
       if (drag.pointerType === 'mouse') beginDrag();
       else { endDrag(false); return; }   /* 손가락이 먼저 움직이면 스크롤로 넘긴다 */
     } else return;
+  }
+  if (drag.swipe) {
+    const x = Math.max(-drag.actsW, Math.min(0, drag.swipeBase + (e.clientX - drag.swipeStart)));
+    drag.offset = x;
+    drag.face.style.transform = 'translateX(' + x + 'px)';
+    return;
   }
   drag.moved = true;
   edgeScroll(e.clientY);
@@ -725,9 +863,23 @@ function onMove(e) {
 function onUp(e) {
   if (!drag || (e && e.pointerId !== drag.pointerId)) return;
   const d = drag;
+  if (d.swipe) {                       /* 스와이프 마무리: 충분히 밀었으면 열린 채로 */
+    const open = d.offset < -d.actsW * SWIPE_LOCK;
+    d.row.classList.remove('swiping');
+    d.face.style.transform = '';
+    d.row.classList.toggle('open', open);
+    drag = null;
+    if (open && navigator.vibrate) { try { navigator.vibrate(6); } catch (err) {} }
+    return;
+  }
   const tapped = !d.active && !d.moved;
+  const wasOpen = d.wasOpen;
   endDrag(true);
-  if (tapped) openSheet(d.id);
+  if (tapped) {
+    if (wasOpen) { closeSwipe(d.row); return; }   /* 열린 줄을 탭하면 닫기만 */
+    closeAllSwipes();
+    openSheet(d.id);
+  }
 }
 function endDrag(commit) {
   const d = drag; if (!d) return;
@@ -744,6 +896,13 @@ function endDrag(commit) {
 }
 function onCancel(e) {
   if (!drag || (e && e.pointerId !== drag.pointerId)) return;
+  if (drag.swipe) {
+    const d = drag; drag = null;
+    d.row.classList.remove('swiping');
+    d.face.style.transform = '';
+    d.row.classList.toggle('open', d.wasOpen);
+    return;
+  }
   endDrag(false);
 }
 async function saveOrder(owner) {
@@ -773,6 +932,20 @@ function initApp() {
   window.addEventListener('pointercancel', onCancel);
 
   board.addEventListener('click', e => {
+    const act = e.target.closest('.row-acts .act');
+    if (act) {
+      e.preventDefault(); e.stopPropagation();
+      const aid = act.dataset.id;
+      if (act.dataset.act === 'note') { closeAllSwipes(); openNote(aid); }
+      else if (act.dataset.act === 'edit') { closeAllSwipes(); openSheet(aid); }
+      else if (act.dataset.act === 'del') {
+        /* 드러난 삭제 버튼을 눌렀을 때만 지워진다 */
+        const row = act.closest('.row');
+        if (row && row.dataset.id === aid) closeSwipe(row);
+        removeTodo(aid);
+      }
+      return;
+    }
     const ck = e.target.closest('.check');
     if (ck) { e.preventDefault(); toggle(ck.dataset.id); return; }
     const add = e.target.closest('.card-add');
@@ -796,9 +969,16 @@ function initApp() {
     if (delc) { removeTodo(delc.dataset.delc); }
   });
 
-  /* 추가·수정 */
+  /* 추가·수정·메모 */
   $('#delBtn').addEventListener('click', armDelete);
   $('#form').addEventListener('submit', saveTodo);
+  $('#noteForm').addEventListener('submit', saveNote);
+  $('#noteClear').addEventListener('click', clearNote);
+  $('#noteSheet').addEventListener('click', e => { if (e.target.dataset.nclose === '1') closeNote(); });
+  /* 다른 데를 탭하면 열린 스와이프는 저절로 닫힌다 */
+  document.addEventListener('pointerdown', e => {
+    if (!e.target || !e.target.closest || !e.target.closest('.row')) closeAllSwipes();
+  }, true);
   $('#ownerSeg').addEventListener('click', e => {
     const b = e.target.closest('button[data-owner]'); if (!b) return;
     draft.owner = b.dataset.owner; paintSheet();
@@ -807,7 +987,9 @@ function initApp() {
   $('#textInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); saveTodo(); }
   });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeSheet(); closeDone(); } });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeSheet(); closeDone(); closeNote(); }
+  });
 
   $('#roomGo').addEventListener('click', joinRoom);
   $('#roomInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); joinRoom(); } });
