@@ -245,6 +245,17 @@ ul{list-style:none}
   width:100%;height:44px;border-radius:12px;border:1px solid var(--line);background:#fff;
   font-size:13px;font-weight:700;color:var(--ink);
 }
+.nw-people{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.nw-person{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 13px 12px}
+.nw-person .np-head{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.nw-person .np-name{font-size:11.5px;font-weight:800;padding:2.5px 8px;border-radius:7px}
+.nw-person.seeun .np-name{background:var(--seeun-bg);color:var(--seeun)}
+.nw-person.chankyu .np-name{background:var(--chankyu-bg);color:var(--chankyu)}
+.nw-person .np-net{font-size:17px;font-weight:800;letter-spacing:-.4px;line-height:1.2}
+.nw-person .np-net.neg{color:var(--danger)}
+.nw-person .np-split{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.6;font-variant-numeric:tabular-nums}
+.npf{background:var(--bg-2);border-radius:14px;padding:12px 12px 10px;margin-bottom:10px}
+.npf-head{margin-bottom:8px}
 .hist{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line-soft)}
 .hist:first-of-type{border-top:0;padding-top:2px}
 .hist .hm{width:70px;flex:0 0 auto;font-size:12px;font-weight:700;color:var(--ink-2)}
@@ -317,9 +328,10 @@ input[type=date],input[type=time]{font-size:14px;padding:12px 10px}
 .unit-seg{width:100%;display:grid;grid-template-columns:1fr 1fr}
 .unit-seg button{padding:8px 0;min-height:36px}
 .nw-calc{
-  background:var(--bg-2);border-radius:12px;padding:12px 14px;font-size:13.5px;font-weight:700;color:var(--ink-2);
+  background:var(--bg-2);border-radius:12px;padding:12px 14px;font-size:13.5px;font-weight:700;color:var(--ink-2);line-height:1.7;
 }
 .nw-calc b{font-size:16px;font-weight:800;color:var(--ink)}
+.nw-calc .sub{display:block;font-size:11.5px;font-weight:600;color:var(--muted)}
 
 /* ---------- footer / gate / toast ---------- */
 .foot{margin:24px 0 4px;text-align:center}
@@ -564,13 +576,31 @@ input[type=date],input[type=time]{font-size:14px;padding:12px 10px}
             <button type="button" data-unit="1">원</button>
           </div>
         </div>
-        <div class="field">
-          <label>총 자산</label>
-          <input id="nwAssets" type="number" inputmode="numeric" min="0" step="any" placeholder="예: 45000" aria-label="총 자산">
+        <div class="npf">
+          <div class="npf-head"><span class="tag seeun">세은</span></div>
+          <div class="grid2">
+            <div class="field" style="margin:0">
+              <label>자산</label>
+              <input id="nwSeeunAssets" type="number" inputmode="numeric" min="0" step="any" placeholder="0" aria-label="세은 자산">
+            </div>
+            <div class="field" style="margin:0">
+              <label>부채</label>
+              <input id="nwSeeunDebt" type="number" inputmode="numeric" min="0" step="any" placeholder="0" aria-label="세은 부채">
+            </div>
+          </div>
         </div>
-        <div class="field">
-          <label>총 부채</label>
-          <input id="nwDebt" type="number" inputmode="numeric" min="0" step="any" placeholder="예: 32660" aria-label="총 부채">
+        <div class="npf">
+          <div class="npf-head"><span class="tag chankyu">찬규</span></div>
+          <div class="grid2">
+            <div class="field" style="margin:0">
+              <label>자산</label>
+              <input id="nwChankyuAssets" type="number" inputmode="numeric" min="0" step="any" placeholder="0" aria-label="찬규 자산">
+            </div>
+            <div class="field" style="margin:0">
+              <label>부채</label>
+              <input id="nwChankyuDebt" type="number" inputmode="numeric" min="0" step="any" placeholder="0" aria-label="찬규 부채">
+            </div>
+          </div>
         </div>
         <div class="field">
           <label>기준일</label>
@@ -580,7 +610,7 @@ input[type=date],input[type=time]{font-size:14px;padding:12px 10px}
           <label>메모 (선택)</label>
           <input id="nwNote" type="text" maxlength="80" placeholder="예: 11월 정기 업데이트" aria-label="메모">
         </div>
-        <div class="nw-calc" id="nwCalc">순자산 <b>0원</b></div>
+        <div class="nw-calc" id="nwCalc">부부 순자산 <b>0원</b></div>
         <div class="sheet-actions">
           <button type="submit" class="primary">저장</button>
         </div>
@@ -654,7 +684,7 @@ function koreanWon(n) {
   if (eok) parts.push(num(eok) + '억');
   if (man) parts.push(num(man) + '만');
   if (won || !parts.length) parts.push(num(won));
-  return (neg ? '-' : '') + parts.join(' ') + '원';
+  return (neg ? '-' : '') + parts.join(' ') + (won === 0 && n > 0 ? ' 원' : '원');
 }
 function koreanShort(n) {
   const neg = n < 0; n = Math.abs(Math.round(n || 0));
@@ -938,8 +968,8 @@ function renderNetworth() {
     box.innerHTML = `
       <div class="nw-card">
         <div class="nw-eyebrow">부부 순자산</div>
-        <div class="nw-amount" style="color:#B4AEA2;font-size:24px;letter-spacing:-.6px">업데이트 대기 중</div>
-        <div class="nw-note">엑셀 파일을 보내주시면 제가 읽어서 순자산을 채워 둘게요.<br>직접 고치셔도 됩니다.</div>
+        <div class="nw-amount" style="color:#B4AEA2;font-size:23px;letter-spacing:-.6px">업데이트 대기 중</div>
+        <div class="nw-note">엑셀 파일을 보내주시면 제가 읽어서 세은·찬규 순자산을 채워 둘게요.<br>직접 고치셔도 됩니다.</div>
         <div class="nw-actions"><button class="nw-btn" data-act="edit-nw">순자산 입력하기</button></div>
       </div>`;
     return;
@@ -948,6 +978,13 @@ function renderNetworth() {
   const net = Number(current.netWorth || 0);
   const assets = Number(current.totalAssets || 0);
   const debt = Number(current.totalDebt || 0);
+  const person = (key) => {
+    const p = current[key];
+    if (!p) return null;
+    const a = Number(p.assets || 0), d = Number(p.debt || 0);
+    return { a, d, net: Number(p.net != null ? p.net : a - d) };
+  };
+  const s = person('seeun'), c = person('chankyu');
 
   const rows = hist.length > 1 ? (() => {
     const asc = hist.slice().reverse();
@@ -966,31 +1003,48 @@ function renderNetworth() {
     }).reverse().join('');
   })() : '';
 
+  const personCard = (key, label) => {
+    const p = key === 'seeun' ? s : c;
+    if (!p) return '';
+    return `<div class="nw-person ${key}">
+      <div class="np-head"><span class="np-name">${label}</span></div>
+      <div class="np-net ${p.net < 0 ? 'neg' : ''}">${koreanShort(p.net)}</div>
+      <div class="np-split">자산 ${koreanWon(p.a)}<br>부채 ${koreanWon(p.d)}</div>
+    </div>`;
+  };
+
   box.innerHTML = `
     <div class="nw-card">
       <div class="nw-eyebrow">부부 순자산</div>
       <div class="nw-amount ${net < 0 ? 'neg' : ''}">${koreanShort(net)}<small>원</small></div>
       <div class="nw-raw">${num(net)}원</div>
       <div class="nw-split">
-        <div><span>총 자산</span><b>${koreanShort(assets)}</b></div>
-        <div><span>총 부채</span><b>${koreanShort(debt)}</b></div>
+        <div><span>총 자산</span><b>${koreanWon(assets)}</b></div>
+        <div><span>총 부채</span><b>${koreanWon(debt)}</b></div>
       </div>
       <div class="nw-meta"><span>${current.asOf ? current.asOf + ' 기준' : '기준일 없음'}</span></div>
       ${current.note ? `<div class="nw-note">${esc(current.note)}</div>` : ''}
       <div class="nw-actions"><button class="nw-btn" data-act="edit-nw">순자산 수정</button></div>
     </div>
+    ${(s || c) ? `<div class="nw-people">${personCard('seeun', '세은')}${personCard('chankyu', '찬규')}</div>` : ''}
     ${hist.length > 1 ? `<div class="panel"><div class="panel-head"><b>월별 추이</b></div>${rows}</div>` : ''}`;
 }
 
 function openNwSheet() {
   const { current } = nwData();
   draft = { kind: 'nw', id: null, owner: 'both', cat: 'etc', important: false, unit: 10000 };
-  const a = current ? Number(current.totalAssets || 0) : 0;
-  const d = current ? Number(current.totalDebt || 0) : 0;
-  const useMan = !current ? true : (a % 10000 === 0 && d % 10000 === 0);
+  const sA = current && current.seeun ? Number(current.seeun.assets || 0) : 0;
+  const sD = current && current.seeun ? Number(current.seeun.debt || 0) : 0;
+  const cA = current && current.chankyu ? Number(current.chankyu.assets || 0) : 0;
+  const cD = current && current.chankyu ? Number(current.chankyu.debt || 0) : 0;
+  const all = [sA, sD, cA, cD];
+  const useMan = all.every(v => v % 10000 === 0);
   draft.unit = useMan ? 10000 : 1;
-  $('#nwAssets').value = current ? String(useMan ? a / 10000 : a) : '';
-  $('#nwDebt').value = current ? String(useMan ? d / 10000 : d) : '';
+  const conv = v => v ? String(useMan ? v / 10000 : v) : '';
+  $('#nwSeeunAssets').value = conv(sA);
+  $('#nwSeeunDebt').value = conv(sD);
+  $('#nwChankyuAssets').value = conv(cA);
+  $('#nwChankyuDebt').value = conv(cD);
   $('#nwAsOf').value = current && current.asOf ? current.asOf : todayISO();
   $('#nwNote').value = current && current.note ? current.note : '';
   $$('#nwUnit button').forEach(b => b.classList.toggle('on', Number(b.dataset.unit) === draft.unit));
@@ -999,19 +1053,33 @@ function openNwSheet() {
 }
 
 function syncNwCalc() {
-  const a = Number($('#nwAssets').value || 0) * draft.unit;
-  const d = Number($('#nwDebt').value || 0) * draft.unit;
-  $('#nwCalc').innerHTML = `순자산 <b>${koreanWon(a - d)}</b>`;
+  const u = draft.unit;
+  const sA = Number($('#nwSeeunAssets').value || 0) * u;
+  const sD = Number($('#nwSeeunDebt').value || 0) * u;
+  const cA = Number($('#nwChankyuAssets').value || 0) * u;
+  const cD = Number($('#nwChankyuDebt').value || 0) * u;
+  $('#nwCalc').innerHTML = `부부 순자산 <b>${koreanWon((sA - sD) + (cA - cD))}</b>`
+    + `<span class="sub">세은 ${koreanShort(sA - sD)} · 찬규 ${koreanShort(cA - cD)}</span>`;
 }
 
 async function saveNetworth() {
-  const a = Math.round(Number($('#nwAssets').value || 0) * draft.unit);
-  const d = Math.round(Number($('#nwDebt').value || 0) * draft.unit);
-  if (!a && !d) { toast('총 자산과 부채를 입력해 주세요'); return; }
+  const u = draft.unit;
+  const sA = Math.round(Number($('#nwSeeunAssets').value || 0) * u);
+  const sD = Math.round(Number($('#nwSeeunDebt').value || 0) * u);
+  const cA = Math.round(Number($('#nwChankyuAssets').value || 0) * u);
+  const cD = Math.round(Number($('#nwChankyuDebt').value || 0) * u);
+  if (!sA && !sD && !cA && !cD) { toast('세은·찬규의 자산과 부채를 입력해 주세요'); return; }
   const asOf = $('#nwAsOf').value || todayISO();
   const note = $('#nwNote').value.trim();
   const now = Date.now();
-  const cur = { netWorth: a - d, totalAssets: a, totalDebt: d, asOf, note, updatedAt: now };
+  const cur = {
+    seeun: { assets: sA, debt: sD, net: sA - sD },
+    chankyu: { assets: cA, debt: cD, net: cA - cD },
+    totalAssets: sA + cA,
+    totalDebt: sD + cD,
+    netWorth: (sA - sD) + (cA - cD),
+    asOf, note, updatedAt: now
+  };
   const key = asOf.slice(0, 7);
 
   ST.networth = ST.networth || {};
@@ -1444,15 +1512,15 @@ $('#nwUnit').addEventListener('click', e => {
   if (next === draft.unit) return;
   const conv = (v) => {
     const n = Number(v || 0);
-    return n ? String(next === 10000 ? Math.round(n / 10000 * 100) / 100 : Math.round(n * 10000)) : '';
+    if (!n) return '';
+    return next === 10000 ? String(Math.round(n / 10000 * 100) / 100) : String(Math.round(n * 10000));
   };
-  $('#nwAssets').value = conv($('#nwAssets').value);
-  $('#nwDebt').value = conv($('#nwDebt').value);
+  ['#nwSeeunAssets', '#nwSeeunDebt', '#nwChankyuAssets', '#nwChankyuDebt'].forEach(sel => { $(sel).value = conv($(sel).value); });
   draft.unit = next;
   $$('#nwUnit button').forEach(x => x.classList.toggle('on', Number(x.dataset.unit) === next));
   syncNwCalc();
 });
-['#nwAssets', '#nwDebt'].forEach(sel => $(sel).addEventListener('input', syncNwCalc));
+['#nwSeeunAssets', '#nwSeeunDebt', '#nwChankyuAssets', '#nwChankyuDebt'].forEach(sel => $(sel).addEventListener('input', syncNwCalc));
 
 $('#todoForm').addEventListener('submit', e => { e.preventDefault(); saveTodo(); });
 $('#eventForm').addEventListener('submit', e => { e.preventDefault(); saveEvent(); });
