@@ -306,10 +306,10 @@
       <button type="button" data-owner="chankyu">👨🏻 찬규</button>
     </div>
     <div class="field">
-      <span class="ico" id="iconPreview" aria-hidden="true">📌</span>
+      <span class="ico" id="iconPreview" aria-hidden="true">👩🏻</span>
       <input id="textInput" type="text" placeholder="할 일을 입력해 주세요" maxlength="80" enterkeyhint="done">
     </div>
-    <p class="hint">제목에 맞춰 아이콘이 자동으로 붙어요</p>
+    <p class="hint">담당자 아이콘이 그대로 붙어요</p>
     <div class="acts">
       <button type="submit" class="save">저장</button>
     </div>
@@ -328,27 +328,6 @@ const OWNER = {
 };
 const OWNER_ORDER = ['seeun', 'chankyu'];
 
-/* 제목 키워드 → 아이콘. 긴 키워드가 많이 걸린 쪽이 이기고, 같으면 위쪽 규칙이 이긴다. */
-const ICON_RULES = [
-  ['♻️', ['분리수거','쓰레기','재활용','음식물','종량제','폐기','헌옷']],
-  ['✈️', ['신혼여행','여행','항공','비행기','공항','숙소','호텔','몰디브','캐리어','패킹','체크인','짐']],
-  ['💍', ['예식','결혼','웨딩','본식','드레스','정장','청첩장','청첩','체크리스트','스드메','신부','신랑','예물','축의금','주례']],
-  ['🛒', ['장보기','장보','마트','식재료','구매','쇼핑','시장','코스트코','이마트','생필품','반찬거리']],
-  ['🧹', ['청소','청소기','필터','먼지','걸레','대청소','욕실','화장실','정리','수납']],
-  ['🧺', ['세탁','빨래','건조기','널기','다림질','옷장']],
-  ['🍽️', ['설거지','식기','그릇','식세기']],
-  ['🍳', ['요리','식사','밥','반찬','아침','점심','저녁','레시피','도시락']],
-  ['🏥', ['병원','약','진료','검진','치과','처방','접종','한의원','산부인과','건강']],
-  ['💳', ['은행','세금','납부','이체','카드값','관리비','월세','보험','대출','공과금','송금','자동이체','환급','연말정산']],
-  ['📑', ['서류','계약','신고','증명서','신청','제출','등기','도장','인감','확인서','반납']],
-  ['📞', ['전화','문의','연락','통화','예약']],
-  ['📦', ['선물','택배','배송','주문','반품','교환','포장']],
-  ['🏃', ['운동','헬스','산책','요가','스트레칭','달리기','조깅','수영','팔뚝','계단']],
-  ['🌱', ['반려견','반려묘','반려','식물','화분','강아지','고양이','물주기']],
-  ['🚗', ['자동차','차량','주유','세차','정비','엔진오일','타이어','검사']],
-  ['💌', ['편지','엽서','감사','축하','인사']]
-];
-const ICON_DEFAULT = '📌';
 
 const params = new URLSearchParams(location.search);
 let ROOM = (params.get('room') || '').trim();
@@ -383,17 +362,9 @@ function toast(msg) {
   clearTimeout(toast._t);
   toast._t = setTimeout(() => el.remove(), 2200);
 }
-function guessIcon(text) {
-  const s = String(text || '');
-  let best = ICON_DEFAULT, bestScore = 0;
-  for (const [em, words] of ICON_RULES) {
-    let score = 0;
-    for (const w of words) if (s.includes(w)) score += w.length;
-    if (score > bestScore) { bestScore = score; best = em; }
-  }
-  return best;
-}
-function iconFor(t) { return guessIcon(t.text); }
+/* 할 일 아이콘 = 담당자 아이콘 (섹션 헤더 아바타와 통일) */
+function ownerIcon(owner) { return (OWNER[owner] || OWNER.seeun).emoji; }
+function iconFor(t) { return ownerIcon(ownerOf(t)); }
 function ownerOf(t) { return OWNER[t.owner] ? t.owner : 'seeun'; }
 function sortTodos(arr) {
   return arr.slice().sort((a, b) => {
@@ -606,7 +577,7 @@ function openSheet(id, owner) {
   draft = { id: id || null, owner: t ? ownerOf(t) : (owner || lastOwner) };
   $('#sheetTitle').textContent = t ? '할 일 수정' : '할 일 추가';
   $('#textInput').value = t ? t.text : '';
-  $('#iconPreview').textContent = t ? iconFor(t) : ICON_DEFAULT;
+  $('#iconPreview').textContent = ownerIcon(draft.owner);
   $('#delBtn').classList.toggle('hidden', !t);
   resetDelBtn();
   paintSheet();
@@ -616,6 +587,7 @@ function openSheet(id, owner) {
 }
 function paintSheet() {
   $$('#ownerSeg button').forEach(b => b.classList.toggle('on', b.dataset.owner === draft.owner));
+  $('#iconPreview').textContent = ownerIcon(draft.owner);
 }
 function closeSheet() {
   $('#sheet').classList.add('hidden');
@@ -632,7 +604,7 @@ async function saveTodo(e) {
   const text = $('#textInput').value.trim();
   if (!text) { $('#textInput').focus(); toast('할 일을 적어 주세요'); return; }
   const now = Date.now();
-  const icon = guessIcon(text);
+  const icon = ownerIcon(draft.owner);
   if (draft.id) {
     const t = ST.todos[draft.id]; if (!t) { closeSheet(); return; }
     const before = { ...t };
@@ -829,9 +801,6 @@ function initApp() {
   $('#ownerSeg').addEventListener('click', e => {
     const b = e.target.closest('button[data-owner]'); if (!b) return;
     draft.owner = b.dataset.owner; paintSheet();
-  });
-  $('#textInput').addEventListener('input', e => {
-    $('#iconPreview').textContent = guessIcon(e.target.value);
   });
   $('#sheet').addEventListener('click', e => { if (e.target.dataset.close === '1') closeSheet(); });
   $('#textInput').addEventListener('keydown', e => {
