@@ -407,7 +407,7 @@
   .srow{--rh:clamp(64px,9vw,80px);height:var(--rh);flex:0 0 auto;display:flex;align-items:center;
         gap:clamp(7px,1vw,12px);background:#fff;border-radius:16px;
         padding:0 6px 0 clamp(9px,1.2vw,14px);position:relative;
-        box-shadow:0 2px 8px rgba(112,86,0,.10);transition:box-shadow .16s;will-change:transform}
+        box-shadow:0 2px 8px rgba(112,86,0,.10);transition:box-shadow .16s}
   .srow .sno{flex:0 0 auto;min-width:1.4em;text-align:center;font-size:12px;font-weight:900;color:#B6AF8C}
   .srow .sico{flex:0 0 auto;font-size:clamp(19px,2.6vw,25px);line-height:1}
   .srow .stxt{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
@@ -426,10 +426,15 @@
               font-size:clamp(15px,4vw,18px);font-weight:900;line-height:1;letter-spacing:-3px;
               touch-action:none;cursor:grab;-webkit-user-select:none;user-select:none;
               -webkit-touch-callout:none;transition:background .14s,color .14s}
+  .srow .shan,.srow .shan *{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  .sort-list{overscroll-behavior:contain;-webkit-overflow-scrolling:auto;touch-action:pan-y}
   .srow .shan:active{background:#F1EBCE;color:#6A6650}
-  .srow.drag{box-shadow:0 16px 30px rgba(60,50,0,.26);z-index:60;transition:none;background:#FFFDF2;opacity:.98}
+  /* 끄는 동안: 무거운 그림자·전환·필터를 끄고 합성 레이어 이동만 남긴다 */
+  .srow.drag{box-shadow:0 8px 18px rgba(60,50,0,.18);z-index:60;transition:none;background:#FFFDF2;
+             opacity:.98;will-change:transform}
   .srow.drag .shan{background:var(--yellow);color:#4A4426;cursor:grabbing}
-  body.is-sorting{cursor:grabbing;-webkit-user-select:none;user-select:none}
+  .srow-ph{will-change:transform}
+  body.is-sorting{cursor:grabbing;-webkit-user-select:none;user-select:none;overscroll-behavior:none}
   body.is-sorting .srow{transition:none}
   @media (max-width:430px){
     .sort-pill .sl{display:none}
@@ -1588,7 +1593,7 @@ function daySections() {
     const d = (today + i) % 7;
     out.push({ key: DOW_KEYS[d], ko: DOW_KO[d] });
   }
-  out.push({ key: 'next', ko: '다음주' });
+  out.push({ key: 'next', ko: '다음주 이후' });
   return out;
 }
 function secKeys() { return [''].concat(sortSecs.map(s => s.key)); }
@@ -1657,25 +1662,192 @@ function closeSort(commit) {
   if (commit !== false) commitSort();
 }
 
-/* --- 끌기: 행은 position:fixed 로 손가락을 따라가고, 자리 표시만 옮긴다 --- */
-function sortSecAt(list, y) {
-  const secs = Array.from(list.children).filter(el => el.classList.contains('sgrp'));
-  if (!secs.length) return null;
-  for (const s of secs) {
-    const r = s.getBoundingClientRect();
-    if (y >= r.top && y <= r.bottom) return s;
-  }
-  return y < secs[0].getBoundingClientRect().top ? secs[0] : secs[secs.length - 1];
+/* --- 끌기: 위치는 시작할 때 한 번만 재고, 끄는 동안에는 GPU transform 만 움직인다 ---
+   · 좌표는 모두 '목록 내용(content) 기준'이라 스크롤해도 그대로 쓸 수 있다.
+   · 이동 중에는 DOM 을 읽지도(getBoundingClientRect) 고치지도(insertBefore) 않는다.
+   · 자리 표시(placeholder)는 시작할 때 한 번만 끼워 넣고, 끄는 동안에는 transform 으로만 옮긴다.
+   · 실제 순서·요일 반영은 손을 뗄 때(pointerup/touchend) 한 번만 한다. */
+const SORT_GAP_FALLBACK = 8;
+let sortRaf = 0;
+
+/* 끄는 동안에는 브라우저 스크롤·당겨서 새로고침에 제스처를 뺏기지 않는다 */
+function sortBlockTouch(e) {
+  const d = sortDrag; if (!d) return;
+  if (e.cancelable) e.preventDefault();
+  const t = e.touches && e.touches[0];
+  if (t) sortQueue(t.clientY);        /* 포인터 이벤트가 끊겨도 손가락을 따라간다 */
 }
+
+/* 시작 시 1회 측정 — 행마다 top/height 를 내용 좌표로 캐시한다 */
+function sortMeasure(d) {
+  const list = d.list;
+  const lr = list.getBoundingClientRect();
+  const st = list.scrollTop;
+  d.listRect = { top: lr.top, bottom: lr.bottom };
+  d.maxScroll = Math.max(0, list.scrollHeight - list.clientHeight);
+  d.scroll = st; d.startScroll = st;
+  d.rowH = d.row.getBoundingClientRect().height;
+  const secs = [];
+  let gap = SORT_GAP_FALLBACK;
+  Array.from(list.children).forEach(secEl => {
+    if (!secEl.classList.contains('sgrp')) return;
+    const rowsEl = secEl.querySelector('.sgrp-rows');
+    const rr = rowsEl ? rowsEl.getBoundingClientRect() : null;
+    const items = [];
+    if (rowsEl) Array.from(rowsEl.children).forEach(el => {
+      if (el === d.row) return;                 /* 끌고 있는 행은 흐름에서 빠져 있다 */
+      if (!el.classList.contains('srow') && !el.classList.contains('srow-ph')) return;
+      const r = el.getBoundingClientRect();
+      items.push({ el, id: el.dataset.id || '', isPh: el === d.ph,
+                   top: r.top - lr.top + st, h: r.height, dy: 0 });
+    });
+    secs.push({ key: secEl.dataset.group || '', el: secEl, rowsEl,
+                rowsTop: rr ? rr.top - lr.top + st : 0, boxH: rr ? rr.height : SORT_EMPTY_H,
+                items });
+  });
+  /* 같은 칸 안 두 행의 윗변 차이에서 행 사이 간격을 얻는다 */
+  for (const s of secs) {
+    if (s.items.length > 1) {
+      const g = s.items[1].top - s.items[0].top - s.items[0].h;
+      if (g > 0) { gap = g; break; }
+    }
+  }
+  d.secs = secs;
+  d.rowH = d.rowH || (secs[0] && secs[0].items[0] ? secs[0].items[0].h : 72);
+  d.rowAdv = d.rowH + gap;
+  /* 칸과 칸 사이 여백(앞 칸 마지막 행 아래 ~ 이 칸 첫 행 위) */
+  d.sep = secs.map((s, i) => {
+    if (i === 0) return 0;
+    const p = secs[i - 1];
+    const pn = p.items.length;
+    const prevBottom = pn ? p.rowsTop + (pn - 1) * d.rowAdv + d.rowH
+                          : p.rowsTop + (pn === 0 ? p.boxH : 0);
+    return Math.max(0, s.rowsTop - prevBottom);
+  });
+  /* 끌던 행을 뺀 상태의 칸별 id 순서 + 행별 측정값 */
+  d.baseIds = [];
+  d.rows = {};
+  secs.forEach((s, si) => {
+    const ids = [];
+    s.items.forEach((it, j) => {
+      if (it.isPh) { d.phSec = si; d.phIdx = j; d.phTop0 = it.top; return; }
+      it.el.style.willChange = 'transform';
+      d.rows[it.id] = it;
+      ids.push(it.id);
+    });
+    d.baseIds.push(ids);
+  });
+}
+
+/* 칸별 행 수 → 각 칸 첫 행의 내용 좌표 */
+function sortTopsFor(d, counts) {
+  const tops = [];
+  for (let s = 0; s < d.secs.length; s++) {
+    if (s === 0) { tops[0] = d.secs[0].rowsTop; continue; }
+    const p = d.secs[s - 1];
+    const pn = counts[s - 1];
+    const bottom = tops[s - 1] + (pn ? (pn - 1) * d.rowAdv + d.rowH
+                                     : (p.items.length === 0 ? p.boxH : d.rowH));
+    tops[s] = bottom + d.sep[s];
+  }
+  return tops;
+}
+
+/* 끌리는 행의 중심(내용 좌표) → 놓일 자리 [칸, 그 칸 안 순번] — 계산만, DOM 읽기 없음 */
+function sortTarget(d, centerY) {
+  if (!d.baseCounts) {
+    d.baseCounts = d.baseIds.map(a => a.length);
+    d.baseTops = sortTopsFor(d, d.baseCounts);
+  }
+  const counts = d.baseCounts, tops = d.baseTops;
+  for (let s = 0; s < d.secs.length; s++) {
+    const n = counts[s];
+    if (!n) {
+      const top = tops[s];
+      const h = d.secs[s].items.length === 0 ? d.secs[s].boxH : d.rowH;
+      if (centerY < top + h) return [s, 0];
+      continue;
+    }
+    for (let j = 0; j < n; j++) {
+      if (centerY < tops[s] + j * d.rowAdv + d.rowH / 2) return [s, j];
+    }
+  }
+  const last = d.secs.length - 1;
+  return [last, counts[last]];
+}
+
+/* 자리 표시와 밀려나는 행을 transform 으로만 옮긴다 */
+function sortPlace(d, ts, ti) {
+  if (ts == null || !d.secs[ts]) return;
+  const counts = d.baseIds.map(a => a.length);
+  counts[ts] += 1;
+  const tops = sortTopsFor(d, counts);
+  for (let s = 0; s < d.secs.length; s++) {
+    const base = d.baseIds[s], n = counts[s];
+    for (let j = 0; j < n; j++) {
+      const id = (s === ts) ? (j === ti ? d.id : base[j < ti ? j : j - 1]) : base[j];
+      if (!id) continue;
+      const top = tops[s] + j * d.rowAdv;
+      if (id === d.id) { d.phTop = top; continue; }
+      const it = d.rows[id]; if (!it) continue;
+      const dy = Math.round((top - it.top) * 10) / 10;
+      if (it.dy !== dy) {
+        it.dy = dy;
+        it.el.style.transform = dy ? 'translate3d(0,' + dy + 'px,0)' : '';
+      }
+    }
+  }
+  if (d.ph) {
+    const pdy = Math.round((d.phTop - d.phTop0) * 10) / 10;
+    if (d.pdy !== pdy) {
+      d.pdy = pdy;
+      d.ph.style.transform = pdy ? 'translate3d(0,' + pdy + 'px,0)' : '';
+    }
+  }
+}
+
+/* 한 프레임: 끌리는 행 이동 + (가장자리면) 자동 스크롤 + 자리 계산 */
+function sortFrame() {
+  sortRaf = 0;
+  const d = sortDrag; if (!d) return;
+  const lr = d.listRect, edge = 54, y = d.lastY;
+  let sc = 0;
+  if (y < lr.top + edge) sc = -Math.min(18, Math.ceil((lr.top + edge - y) / 3));
+  else if (y > lr.bottom - edge) sc = Math.min(18, Math.ceil((y - (lr.bottom - edge)) / 3));
+  if (sc && d.maxScroll > 0) {
+    const next = Math.max(0, Math.min(d.maxScroll, d.scroll + sc));
+    if (next !== d.scroll) { d.scroll = next; d.list.scrollTop = next; }
+  }
+  const dy = Math.round((y - d.startY) * 10) / 10;
+  if (dy !== d.rdy) {
+    d.rdy = dy;
+    d.row.style.transform = 'translate3d(0,' + dy + 'px,0)';
+  }
+  const center = d.rowTop + (y - d.startY) + (d.scroll - d.startScroll) + d.rowH / 2;
+  const tgt = sortTarget(d, center);
+  if (!d.tgt || tgt[0] !== d.tgt[0] || tgt[1] !== d.tgt[1]) {
+    d.tgt = tgt;
+    sortPlace(d, tgt[0], tgt[1]);
+  }
+  if (sc) sortRaf = requestAnimationFrame(sortFrame);   /* 가장자리에 머문 동안 계속 */
+}
+function sortQueue(y) {
+  const d = sortDrag; if (!d) return;
+  d.lastY = y;
+  if (!sortRaf) sortRaf = requestAnimationFrame(sortFrame);
+}
+
 function sortDown(e) {
   if (!e.target || !e.target.closest) return;
   const h = e.target.closest('[data-handle]');
   if (!h) return;
   const row = h.closest('.srow'); if (!row) return;
-  e.preventDefault();
-  if (sortDrag) sortResetRow(sortDrag);   /* 앞선 끄기가 남아 있으면 먼저 정리 */
+  if (e.cancelable) e.preventDefault();
+  if (sortDrag) sortResetRow(sortDrag);       /* 앞선 끄기가 남아 있으면 먼저 정리 */
   const list = $('#sortList');
+  const lr = list.getBoundingClientRect();
   const rect = row.getBoundingClientRect();
+  /* 자리 표시 — 끄는 행이 흐름에서 빠진 만큼 높이를 그대로 유지한다(1회만 DOM 변경) */
   const ph = document.createElement('li');
   ph.className = 'srow-ph';
   ph.style.height = rect.height + 'px';
@@ -1687,69 +1859,65 @@ function sortDown(e) {
   row.style.width = rect.width + 'px';
   row.style.height = rect.height + 'px';
   row.style.margin = '0';
+  row.style.zIndex = '60';
+  row.style.willChange = 'transform';
   sortDrag = {
-    row, ph, list, startY: e.clientY, acc: 0, pid: e.pointerId,
+    row, ph, list, id: row.dataset.id, pid: e.pointerId,
+    startY: e.clientY, lastY: e.clientY, rdy: 0, pdy: 0, tgt: null,
+    rowTop: rect.top - lr.top + list.scrollTop,
     origIds: sortIds.slice(), origGroups: Object.assign({}, sortGroups)
   };
+  sortMeasure(sortDrag);
+  sortDrag.tgt = [sortDrag.phSec == null ? 0 : sortDrag.phSec, sortDrag.phIdx || 0];
+  sortPlace(sortDrag, sortDrag.tgt[0], sortDrag.tgt[1]);
   document.body.classList.add('is-sorting');
+  window.addEventListener('touchmove', sortBlockTouch, { passive: false });
   try { h.setPointerCapture(e.pointerId); } catch (err) {}
   if (navigator.vibrate) { try { navigator.vibrate(6); } catch (err) {} }
 }
 function sortMove(e) {
-  const d = sortDrag; if (!d || e.pointerId !== d.pid) return;
+  const d = sortDrag; if (!d) return;
+  if (e.pointerId != null && d.pid != null && e.pointerId !== d.pid) return;
   if (e.cancelable) e.preventDefault();
-  /* 목록 위·아래 끝에서는 저절로 스크롤 */
-  const lr = d.list.getBoundingClientRect(), edge = 54;
-  let sc = 0;
-  if (e.clientY < lr.top + edge) sc = -Math.min(16, Math.ceil((lr.top + edge - e.clientY) / 3));
-  else if (e.clientY > lr.bottom - edge) sc = Math.min(16, Math.ceil((e.clientY - (lr.bottom - edge)) / 3));
-  if (sc) { const b = d.list.scrollTop; d.list.scrollTop += sc; d.acc += d.list.scrollTop - b; }
-  d.row.style.transform = 'translateY(' + ((e.clientY - d.startY) + d.acc) + 'px)';
-  const sec = sortSecAt(d.list, e.clientY); if (!sec) return;
-  const rowsEl = sec.querySelector('.sgrp-rows'); if (!rowsEl) return;
-  const rows = Array.from(rowsEl.children).filter(x => x !== d.row && x.classList.contains('srow'));
-  let ref = null;
-  for (const x of rows) {
-    const q = x.getBoundingClientRect();
-    if (e.clientY < q.top + q.height / 2) { ref = x; break; }
-  }
-  if (ref) {
-    if (d.ph.parentElement !== rowsEl || d.ph.nextElementSibling !== ref) rowsEl.insertBefore(d.ph, ref);
-  } else if (d.ph.parentElement !== rowsEl || d.ph.nextElementSibling !== null) {
-    rowsEl.appendChild(d.ph);
-  }
+  sortQueue(e.clientY);
 }
 function sortResetRow(d) {
   const r = d.row;
   r.classList.remove('drag');
-  ['position', 'left', 'top', 'width', 'height', 'margin', 'transform'].forEach(k => { r.style[k] = ''; });
+  ['position', 'left', 'top', 'width', 'height', 'margin', 'transform', 'willChange', 'zIndex'].forEach(k => { r.style[k] = ''; });
+  if (d.rows) Object.keys(d.rows).forEach(id => {
+    const it = d.rows[id];
+    if (it && it.el) { it.el.style.transform = ''; it.el.style.willChange = ''; it.dy = 0; }
+  });
   if (d.ph && d.ph.parentElement) d.ph.remove();
+  if (sortRaf) { cancelAnimationFrame(sortRaf); sortRaf = 0; }
+  window.removeEventListener('touchmove', sortBlockTouch);
   document.body.classList.remove('is-sorting');
 }
-function sortReadDom(d) {
-  /* 화면(DOM) 순서에서 새 순서와 요일 그룹을 읽는다 */
+/* 화면에 놓인 자리에서 새 순서·요일 그룹을 읽는다 */
+function sortResult(d, tgt) {
+  const counts = d.baseIds.map(a => a.length);
+  counts[tgt[0]] = (counts[tgt[0]] || 0) + 1;
   const ids = [], groups = {};
-  Array.from(d.list.children).forEach(sec => {
-    if (!sec.classList.contains('sgrp')) return;
-    const g = sec.dataset.group || '';
-    const rowsEl = sec.querySelector('.sgrp-rows'); if (!rowsEl) return;
-    Array.from(rowsEl.children).forEach(el => {
-      let id = null;
-      if (el === d.ph) id = d.row.dataset.id;
-      else if (el.classList.contains('srow') && el !== d.row) id = el.dataset.id;
-      if (id && groups[id] === undefined) { ids.push(id); groups[id] = g; }
-    });
-  });
+  for (let s = 0; s < d.secs.length; s++) {
+    const base = d.baseIds[s], key = d.secs[s].key, n = counts[s];
+    for (let j = 0; j < n; j++) {
+      const id = (s === tgt[0]) ? (j === tgt[1] ? d.id : base[j < tgt[1] ? j : j - 1]) : base[j];
+      if (!id || groups[id] !== undefined) continue;
+      ids.push(id); groups[id] = key;
+    }
+  }
   return { ids, groups };
 }
 function sortUp(e) {
   const d = sortDrag; if (!d) return;
-  if (e && e.pointerId != null && e.pointerId !== d.pid) return;
+  if (e && e.pointerId != null && d.pid != null && e.pointerId !== d.pid) return;
   sortDrag = null;
-  const got = sortReadDom(d);
+  const tgt = d.tgt || sortTarget(d, d.rowTop + (d.lastY - d.startY) + (d.scroll - d.startScroll) + d.rowH / 2);
+  const got = sortResult(d, tgt);
   sortResetRow(d);
   sortIds = got.ids; sortGroups = got.groups;
-  paintSort();
+  paintSort();          /* 놓은 자리에서 한 번만 실제 DOM·배열 반영 */
 }
 function sortCancel() {
   const d = sortDrag; if (!d) return;

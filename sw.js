@@ -1,5 +1,5 @@
 /* Bubulife 서비스워커 — 오프라인에서도 마지막 화면은 열리게 */
-const CACHE = 'bubu-v26';
+const CACHE = 'bubu-v27';
 const ASSETS = [
   './',
   './index.html',
