@@ -59,7 +59,7 @@
   .mark{width:1.04em;height:1.04em;border-radius:.3em;color:#fff;display:inline-grid;place-items:center;
         background:linear-gradient(#3DB552,#2C9B44);box-shadow:0 1px 3px rgba(60,50,0,.18)}
   .mark svg{width:72%;height:72%;display:block}
-  .top-right{display:flex;align-items:center;gap:clamp(6px,.9vw,12px);flex:0 0 auto}
+  .top-right{display:flex;align-items:center;gap:10px;flex:0 0 auto}
   .dot{width:clamp(7px,.9vw,11px);aspect-ratio:1;border-radius:50%;background:#B9B39A;opacity:.85;
        transition:background .3s}
   .dot.live{background:#2E9E52}
@@ -82,16 +82,17 @@
   .name{font-size:clamp(14px,2.05vw,26px);font-weight:900;letter-spacing:-.03em;white-space:nowrap;
         overflow:hidden;text-overflow:ellipsis}
   .who-txt{display:flex;flex-direction:column;justify-content:center;gap:.14em;min-width:0}
-  /* 마지막 접속 시간 — 이름 아래 작은 부제 */
-  .seen{display:inline-flex;align-items:center;gap:.3em;min-width:0;max-width:100%;
-        font-size:clamp(9.5px,1.15vw,13px);font-weight:800;letter-spacing:-.02em;line-height:1.1;
-        color:#A8A189;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* 마지막 접속 시간 — 헤더의 연한 알약(세은 / 찬규 두 줄), 탭하면 이 기기 프로필 바꾸기 */
+  .seen-box{display:flex;flex-direction:column;gap:2px;flex:0 0 auto;margin:0 -2px 0 auto;padding:3px 8px;
+            border-radius:12px;background:rgba(255,255,255,.55);text-align:left;cursor:pointer;transition:opacity .15s}
+  .seen-box:active{opacity:.6}
+  .seen{display:flex;align-items:center;gap:4px;min-width:0;font-size:10px;font-weight:800;line-height:1.3;
+        letter-spacing:-.02em;color:#6B6642;white-space:nowrap}
+  .seen .sn{font-weight:900;color:#4F4B30}
   .seen .stx{overflow:hidden;text-overflow:ellipsis}
-  .seen.live{color:var(--green-text)}
-  .seen.none{color:#B8B29B;font-weight:700}
-  button.seen{padding:0;text-align:left;cursor:pointer;border-radius:6px;transition:opacity .15s}
-  button.seen .sw{font-size:.95em;color:#BCB59B}
-  button.seen:active{opacity:.55}
+  .seen.live .stx{color:var(--green-text)}
+  .seen.none .stx{color:#8F8A66;font-weight:700}
+  .seen.mine .sn{color:var(--navy)}
   .ratio{font-size:clamp(12px,1.65vw,22px);font-weight:900;color:#5C5947;letter-spacing:-.02em;flex:0 0 auto}
   .bar{flex:0 0 auto;height:clamp(5px,.8vw,9px);border-radius:999px;background:#EDE9D8;overflow:hidden}
   .bar i{display:block;height:100%;width:0;border-radius:999px;background:var(--navy);
@@ -240,13 +241,13 @@
   #noteInput:focus{border-color:var(--navy)}
 
   /* 수정 요청 메모 */
-  .memo-btn{position:relative;flex:0 0 auto;width:34px;height:34px;border-radius:12px;display:grid;place-items:center;
-            background:rgba(255,255,255,.7);font-size:15px;line-height:1;color:var(--navy);
+  .memo-btn{position:relative;flex:0 0 auto;width:32px;height:32px;border-radius:12px;display:grid;place-items:center;
+            background:rgba(255,255,255,.55);font-size:14px;line-height:1;color:var(--navy);
             transition:background .18s,color .18s}
   .memo-btn.has{background:var(--navy);color:#fff}
   .memo-btn:active{transform:translateY(1px)}
-  .memo-cnt{position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;
-            background:#E8603C;color:#fff;font-size:9.5px;font-weight:900;line-height:17px;text-align:center;
+  .memo-cnt{position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;
+            background:#E8603C;color:#fff;font-size:9px;font-weight:900;line-height:16px;text-align:center;
             border:1.5px solid var(--yellow)}
   #memoInput{width:100%;border:2px solid var(--line);border-radius:14px;padding:12px 13px;background:#fff;
              font:inherit;font-weight:700;font-size:clamp(14px,1.9vw,18px);letter-spacing:-.02em;color:var(--ink);
@@ -324,12 +325,14 @@
     .card{padding:8px 8px 9px;gap:6px;border-radius:16px}
     .avatar{width:27px;height:27px;font-size:15px}
     .name{font-size:15px}
-    .seen{font-size:9.5px}
     .ratio{font-size:13px}
     .saybar{min-height:31px;font-size:12.5px;padding:0 12px}
     .top h1{font-size:20px}
     .card-add{min-height:50px;font-size:16px}
+    .top{gap:5px}
+    .top-right{gap:6px}
   }
+  @media (max-width:400px){ .top .dot{display:none} }
   @media (max-width:340px){
     .row{--delw:76px;min-height:44px}
     .row-face{padding:7px 6px;gap:4px;min-height:44px}
@@ -337,8 +340,10 @@
     .row .ico{font-size:17px}
     .check{width:22px;height:22px}
     .name{font-size:14px}
-    .seen{font-size:9px}
     .saybar{min-height:29px;font-size:12px;padding:0 10px}
+    .top h1{font-size:18px}
+    .seen{font-size:9px}
+    .top .lock-btn,.top .memo-btn{width:28px;height:28px}
   }
 
   /* ---------- 폰 세로 화면: 위(세은) / 아래(찬규) 절반 분할 ---------- */
@@ -385,8 +390,8 @@
   .lock-foot{margin:14px 0 0;font-size:11px;font-weight:700;color:#A9A48D;line-height:1.5}
   .lock-card.shake{animation:lockShake .34s}
   @keyframes lockShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
-  .lock-btn{flex:0 0 auto;width:34px;height:34px;border-radius:12px;display:grid;place-items:center;
-            background:rgba(255,255,255,.7);font-size:15px;line-height:1;color:var(--navy);
+  .lock-btn{flex:0 0 auto;width:32px;height:32px;border-radius:12px;display:grid;place-items:center;
+            background:rgba(255,255,255,.55);font-size:14px;line-height:1;color:var(--navy);
             transition:background .18s,color .18s}
   .lock-btn:active{transform:translateY(1px)}
 
@@ -438,6 +443,7 @@
 <div id="app" class="app hidden">
   <header class="top">
     <h1><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.6 9.6 18.2 20 6.6"/></svg></span> 부부 할일</h1>
+    <button id="seenBox" class="seen-box" type="button" aria-label="마지막 접속 시간 — 탭하면 이 기기 프로필 바꾸기"></button>
     <div class="top-right">
       <i id="dot" class="dot" title="연결 중"></i>
       <button id="memoBtn" class="memo-btn" type="button" aria-label="수정 요청 메모">📝<span class="memo-cnt hidden" id="memoCnt">0</span></button>
@@ -474,12 +480,12 @@
   <div class="panel pick-panel">
     <div class="grab"></div>
     <h2 id="pickTitle">이 기기는 누구인가요?</h2>
-    <p class="pick-sub">고른 사람의 카드에 마지막 접속 시간이 표시돼요</p>
+    <p class="pick-sub">고른 사람의 줄에 이 기기의 마지막 접속 시간이 남아요</p>
     <div class="pick-row">
       <button type="button" class="pick" data-pick="seeun"><span class="pe" aria-hidden="true">👩🏻</span>세은</button>
       <button type="button" class="pick" data-pick="chankyu"><span class="pe" aria-hidden="true">👨🏻</span>찬규</button>
     </div>
-    <p class="hint">나중에 바꾸려면 내 카드의 접속 시간을 눌러 주세요</p>
+    <p class="hint">나중에 바꾸려면 위쪽 접속 시간 칸을 눌러 주세요</p>
   </div>
 </div>
 
@@ -635,42 +641,25 @@ function seenAt(v) {
 function sameYmd(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
 function seenInfo(owner) {
   const ts = seenAt((ST.lastSeen || {})[owner]);
-  if (!ts) return { text: '아직 접속 기록 없음', live: false, none: true };
+  if (!ts) return { text: '기록 없음', live: false, none: true };
   const d = new Date(ts), now = new Date();
   const hm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
   const diff = Date.now() - ts;
-  if (diff < 60 * 1000 && diff > -60 * 1000) return { text: '방금 접속', live: true, none: false };
+  if (diff < 60 * 1000 && diff > -60 * 1000) return { text: '방금', live: true, none: false };
   if (sameYmd(d, now)) return { text: '오늘 ' + hm, live: false, none: false };
   const y = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
   if (sameYmd(d, y)) return { text: '어제 ' + hm, live: false, none: false };
   return { text: (d.getMonth() + 1) + '/' + d.getDate() + ' ' + hm, live: false, none: false };
 }
-function seenEl(owner) {
-  const s = seenInfo(owner);
-  const cls = 'seen' + (s.live ? ' live' : '') + (s.none ? ' none' : '');
-  const txt = '<span class="stx">' + esc(s.text) + '</span>';
-  if (owner === ME) {
-    /* 내 카드의 접속 시간을 누르면 이 기기 프로필을 다시 고를 수 있다 */
-    return '<button class="' + cls + ' mine" type="button" data-switch="1" ' +
-      'title="탭하면 이 기기의 프로필을 바꿀 수 있어요" ' +
-      'aria-label="내 마지막 접속 ' + esc(s.text) + ' — 탭하면 기기 프로필 바꾸기">' +
-      txt + '<span class="sw" aria-hidden="true">⇄</span></button>';
-  }
-  return '<span class="' + cls + '" title="마지막 접속 ' + esc(s.text) + '">' + txt + '</span>';
-}
 function paintSeen() {
-  $$('.card').forEach(card => {
-    const owner = card.dataset.owner;
-    const el = card.querySelector('.seen');
-    if (!el) return;
+  const box = $('#seenBox');
+  if (!box) return;
+  box.innerHTML = OWNER_ORDER.map(owner => {
     const s = seenInfo(owner);
-    const tx = el.querySelector('.stx');
-    if (tx) tx.textContent = s.text;
-    el.classList.toggle('live', s.live);
-    el.classList.toggle('none', s.none);
-    if (owner === ME) el.setAttribute('aria-label', '내 마지막 접속 ' + s.text + ' — 탭하면 기기 프로필 바꾸기');
-    else el.setAttribute('title', '마지막 접속 ' + s.text);
-  });
+    const cls = 'seen' + (s.live ? ' live' : '') + (s.none ? ' none' : '') + (owner === ME ? ' mine' : '');
+    return '<span class="' + cls + '"><span class="sn">' + OWNER[owner].name + '</span>' +
+      '<span class="stx">' + esc(s.text) + '</span></span>';
+  }).join('');
 }
 /* 내 접속 시간을 서버(rooms/{room}/lastSeen/{나})에 남긴다. 실패해도 화면은 그대로. */
 async function touchSeen(force) {
@@ -745,7 +734,7 @@ function cardHtml(owner) {
   return '<section class="card" data-owner="' + owner + '">' +
     '<div class="card-head">' +
       '<span class="who"><span class="avatar">' + info.emoji + '</span>' +
-        '<span class="who-txt"><span class="name">' + info.name + '</span>' + seenEl(owner) + '</span></span>' +
+        '<span class="who-txt"><span class="name">' + info.name + '</span></span></span>' +
       sayBar(owner) +
       '<span class="ratio">' + doneN + '/' + all.length + '</span>' +
     '</div>' +
@@ -1566,6 +1555,7 @@ function initApp() {
   document.addEventListener('touchend', onTouchEnd, { passive: true });
   document.addEventListener('touchcancel', onTouchCancel, { passive: true });
 
+  $('#seenBox').addEventListener('click', e => { e.preventDefault(); openPick(); });
   board.addEventListener('click', e => {
     /* 스와이프 제스처 뒤에 따라오는 click 은 누르지 않은 것으로 친다 */
     if (gestureSwiped) { gestureSwiped = false; e.preventDefault(); e.stopPropagation(); return; }
@@ -1589,8 +1579,6 @@ function initApp() {
     if (add) { e.preventDefault(); openAdd(add.dataset.owner); return; }
     const say = e.target.closest('[data-say]');
     if (say) { e.preventDefault(); e.stopPropagation(); openSay(say.dataset.say); return; }
-    const sw = e.target.closest('[data-switch]');
-    if (sw) { e.preventDefault(); e.stopPropagation(); openPick(); return; }
   });
   board.addEventListener('keydown', e => {
     if (e.key !== 'Enter' && e.key !== ' ') return;
