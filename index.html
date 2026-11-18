@@ -93,7 +93,7 @@
   .seen.live .stx{color:var(--green-text)}
   .seen.none .stx{color:#8F8A66;font-weight:700}
   .seen.mine .sn{color:var(--navy)}
-  .ratio{font-size:clamp(12px,1.65vw,22px);font-weight:900;color:#5C5947;letter-spacing:-.02em;flex:0 0 auto}
+  .ratio{font-size:clamp(12px,1.65vw,22px);font-weight:900;color:#5C5947;letter-spacing:-.02em;flex:0 0 auto}   /* 예전 완료/전체 숫자 — 이제 화면에 쓰지 않음 */
   .bar{flex:0 0 auto;height:clamp(5px,.8vw,9px);border-radius:999px;background:#EDE9D8;overflow:hidden}
   .bar i{display:block;height:100%;width:0;border-radius:999px;background:var(--navy);
          transition:width .35s cubic-bezier(.2,.8,.2,1)}
@@ -319,7 +319,6 @@
     .card{padding:8px 8px 9px;gap:6px;border-radius:16px}
     .avatar{width:27px;height:27px;font-size:15px}
     .name{font-size:15px}
-    .ratio{font-size:13px}
     .saybar{min-height:31px;font-size:12.5px;padding:0 12px}
     .top h1{font-size:20px}
     .top{gap:5px}
@@ -833,7 +832,6 @@ function cardHtml(owner) {
       sayBar(owner) +
       '<button class="top-add" type="button" data-add="' + owner + '" aria-label="' + info.name + ' 할 일 추가">' +
         '<span class="pl" aria-hidden="true">+</span>할일추가</button>' +
-      '<span class="ratio">' + doneN + '/' + all.length + '</span>' +
       '<button class="sort-pill" type="button" data-sort="' + owner + '" ' +
         'aria-label="' + info.name + ' 할 일 순서 바꾸기(큰 화면)" title="큰 화면에서 순서 바꾸기">' +
         '<span class="sp" aria-hidden="true">⇅</span><span class="sl">순서</span></button>' +
