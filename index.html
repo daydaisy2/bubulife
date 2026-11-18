@@ -174,25 +174,14 @@
   body.is-dragging .row{transition:none}
 
   /* 큰 추가 버튼 */
-  .card-add{flex:0 0 auto;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
-            min-height:clamp(46px,6.2vw,58px);border-radius:clamp(12px,1.4vw,16px);
-            background:linear-gradient(180deg,#FDEC86,var(--yellow));
-            color:#2A2510;font-weight:900;font-size:clamp(15px,1.95vw,20px);letter-spacing:-.03em;
-            box-shadow:0 2px 0 #E9C92C, 0 5px 14px rgba(120,95,0,.16);
-            transition:transform .1s, box-shadow .1s}
-  .card-add .plus{font-size:1.3em;line-height:1;font-weight:900;margin-top:-.06em}
-  .card-add:active{transform:translateY(2px);box-shadow:0 0 0 #E9C92C, 0 2px 6px rgba(120,95,0,.14)}
-
-  /* ---------- 완료됨 바 ---------- */
-  .done-bar{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:.45em;
-            width:fit-content;margin:0 auto;padding:clamp(7px,1vw,11px) clamp(18px,2.2vw,26px);
-            background:#fff;border-radius:999px;font-weight:900;color:var(--green);
-            font-size:clamp(14px,1.7vw,18px);letter-spacing:-.02em;
-            box-shadow:0 6px 18px rgba(112,86,0,.16);transition:opacity .2s,transform .1s}
-  .done-bar .count{background:var(--mint);border-radius:999px;padding:.15em .6em;font-size:.92em;min-width:1.9em;text-align:center}
-  .done-bar .chev{color:#9A9784;font-size:.8em;transition:transform .2s}
-  .done-bar.zero{opacity:.72}
-  .done-bar:active{transform:translateY(1px)}
+  /* 카드 헤더의 + 할일추가 (진한 초록 알약) */
+  .top-add{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:2px;
+           height:26px;padding:0 10px;border-radius:999px;background:#15803D;color:#fff;
+           font-size:11px;font-weight:900;letter-spacing:-.03em;line-height:1;white-space:nowrap;
+           box-shadow:0 2px 6px rgba(21,128,61,.26);transition:background .16s,transform .1s}
+  .top-add .pl{font-size:12px;line-height:1;margin-top:-1px}
+  .top-add:active{background:#116B32;transform:translateY(1px)}
+  .top-add:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
 
   /* ---------- sheet (공통) ---------- */
   .sheet{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center}
@@ -246,6 +235,14 @@
             transition:background .18s,color .18s}
   .memo-btn.has{background:var(--navy);color:#fff}
   .memo-btn:active{transform:translateY(1px)}
+  /* 헤더 ✅ 완료됨 — 📝·🔒 와 같은 크기·모양의 둥근 버튼 */
+  .done-btn{position:relative;flex:0 0 auto;width:32px;height:32px;border-radius:12px;display:grid;place-items:center;
+            background:rgba(255,255,255,.55);font-size:14px;line-height:1;color:var(--navy);
+            transition:background .18s,color .18s}
+  .done-btn:active{transform:translateY(1px)}
+  .done-btn .cnt{position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;
+                 background:#2E9E52;color:#fff;font-size:9px;font-weight:900;line-height:16px;text-align:center;
+                 border:1.5px solid var(--yellow)}
   .memo-cnt{position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;
             background:#E8603C;color:#fff;font-size:9px;font-weight:900;line-height:16px;text-align:center;
             border:1.5px solid var(--yellow)}
@@ -328,7 +325,6 @@
     .ratio{font-size:13px}
     .saybar{min-height:31px;font-size:12.5px;padding:0 12px}
     .top h1{font-size:20px}
-    .card-add{min-height:50px;font-size:16px}
     .top{gap:5px}
     .top-right{gap:6px}
   }
@@ -343,7 +339,7 @@
     .saybar{min-height:29px;font-size:12px;padding:0 10px}
     .top h1{font-size:18px}
     .seen{font-size:9px}
-    .top .lock-btn,.top .memo-btn{width:28px;height:28px}
+    .top .lock-btn,.top .memo-btn,.top .done-btn{width:28px;height:28px}
   }
 
   /* ---------- 폰 세로 화면: 위(세은) / 아래(찬규) 절반 분할 ---------- */
@@ -351,8 +347,6 @@
     #app{gap:8px;padding:8px 10px}
     .board{grid-template-columns:1fr;grid-template-rows:1fr 1fr;gap:8px}
     .card{padding:8px 9px 9px;gap:6px;border-radius:18px}
-    .card-add{min-height:52px}
-    .done-bar{padding:8px 22px;font-size:15px}
   }
   @media (min-width:900px){
     .row .txt{-webkit-line-clamp:2}
@@ -367,6 +361,89 @@
   .today-pill.on{background:#231F78;border-color:rgba(255,255,255,.55);color:#FBE049;
                  box-shadow:0 4px 10px rgba(35,31,120,.28)}
   .today-pill:active{transform:scale(.96)}
+
+  /* ---------- 순서 바꾸기 진입 버튼(카드 헤더) ---------- */
+  .sort-pill{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:2px;
+             height:26px;min-width:26px;padding:0 7px;border-radius:999px;border:1.5px solid #E7E1C8;
+             background:rgba(255,255,255,.6);color:#5C5947;font-size:10.5px;font-weight:900;
+             letter-spacing:-.03em;white-space:nowrap;line-height:1;text-align:center;
+             transition:background .16s,color .16s,transform .1s}
+  .sort-pill .sp{font-size:14px;line-height:1;letter-spacing:0}
+  .sort-pill:active{background:#F1EBCE;transform:scale(.96)}
+  .sort-pill:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
+
+  /* ---------- 큰 화면 순서 편집 ---------- */
+  #sortSheet{position:fixed;inset:0;z-index:46;display:flex;flex-direction:column;
+             background:linear-gradient(180deg,#FFFAE3 0%,#F7F1DA 100%);
+             padding:calc(10px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom));
+             animation:sortIn .2s cubic-bezier(.2,.8,.2,1)}
+  @keyframes sortIn{from{opacity:.55;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .sort-head{flex:0 0 auto;display:flex;align-items:center;gap:9px;padding:2px 2px 9px}
+  .sort-head h2{margin:0;display:flex;align-items:center;gap:.3em;min-width:0;
+                font-size:clamp(16px,2.1vw,22px);font-weight:900;letter-spacing:-.03em;
+                white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sort-head .shint{flex:1 1 auto;min-width:0;margin:0;font-size:11px;font-weight:800;color:#8C8672;
+                    letter-spacing:-.02em;line-height:1.25;text-align:right}
+  .sort-done{flex:0 0 auto;min-height:44px;padding:0 16px;border-radius:14px;background:var(--navy);color:#fff;
+             font-weight:900;font-size:clamp(14px,1.8vw,17px);letter-spacing:-.02em;
+             box-shadow:0 6px 16px rgba(30,27,122,.22)}
+  .sort-done:active{transform:translateY(1px)}
+  .sort-list{list-style:none;margin:0;padding:2px 2px 8px;flex:1 1 auto;min-height:0;overflow-y:auto;
+             overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+             display:flex;flex-direction:column;gap:0;scrollbar-width:thin}
+  .sort-list::-webkit-scrollbar{width:6px}
+  .sort-list::-webkit-scrollbar-thumb{background:#E3DCC1;border-radius:999px}
+  .sort-list .sempty{list-style:none;margin:auto;padding:14px;color:var(--muted);font-size:13px;font-weight:800}
+
+  /* 요일 구역 + 얇은 구분선 */
+  .sgrp{list-style:none;flex:0 0 auto;display:flex;flex-direction:column}
+  .ssep{flex:0 0 auto;display:flex;align-items:center;gap:9px;height:28px;margin:4px 4px 6px;
+        color:#A79E75;font-size:11.5px;font-weight:900;letter-spacing:-.02em;
+        -webkit-user-select:none;user-select:none}
+  .ssep span{flex:0 0 auto;padding:0 1px}
+  .ssep::before,.ssep::after{content:'';flex:1 1 0;height:1px;background:#E6DEC2}
+  .sgrp-rows{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;flex:0 0 auto}
+  body.is-sorting .sgrp-rows:empty{min-height:48px;border:1.5px dashed #E0D6B4;border-radius:15px;
+                                   background:rgba(255,255,255,.4)}
+  .srow-ph{list-style:none;flex:0 0 auto;border-radius:16px;border:1.5px dashed #DCCFA6;
+           background:rgba(255,255,255,.55);height:64px}
+  .srow{--rh:clamp(64px,9vw,80px);height:var(--rh);flex:0 0 auto;display:flex;align-items:center;
+        gap:clamp(7px,1vw,12px);background:#fff;border-radius:16px;
+        padding:0 6px 0 clamp(9px,1.2vw,14px);position:relative;
+        box-shadow:0 2px 8px rgba(112,86,0,.10);transition:box-shadow .16s;will-change:transform}
+  .srow .sno{flex:0 0 auto;min-width:1.4em;text-align:center;font-size:12px;font-weight:900;color:#B6AF8C}
+  .srow .sico{flex:0 0 auto;font-size:clamp(19px,2.6vw,25px);line-height:1}
+  .srow .stxt{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .srow .smain{font-size:clamp(14.5px,2vw,19px);font-weight:900;letter-spacing:-.035em;line-height:1.24;
+               white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .srow .snote{font-size:11px;font-weight:700;color:#8C8672;letter-spacing:-.02em;line-height:1.2;
+               white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .srow .smove{flex:0 0 auto;display:flex;flex-direction:column;gap:3px}
+  .srow .sbtn{width:clamp(30px,8.4vw,36px);height:clamp(23px,6vw,26px);border-radius:8px;
+              background:#F6F2E1;color:#6A6650;font-size:11px;font-weight:900;line-height:1;
+              display:grid;place-items:center;transition:background .14s,opacity .14s}
+  .sbtn:active{background:#EAE2C6}
+  .sbtn:disabled{opacity:.3}
+  .srow .shan{flex:0 0 auto;width:clamp(38px,10vw,46px);align-self:stretch;margin:5px 0 5px 2px;
+              display:grid;place-items:center;border-radius:11px;background:#FBF7E7;color:#A9A282;
+              font-size:clamp(15px,4vw,18px);font-weight:900;line-height:1;letter-spacing:-3px;
+              touch-action:none;cursor:grab;-webkit-user-select:none;user-select:none;
+              -webkit-touch-callout:none;transition:background .14s,color .14s}
+  .srow .shan:active{background:#F1EBCE;color:#6A6650}
+  .srow.drag{box-shadow:0 16px 30px rgba(60,50,0,.26);z-index:60;transition:none;background:#FFFDF2;opacity:.98}
+  .srow.drag .shan{background:var(--yellow);color:#4A4426;cursor:grabbing}
+  body.is-sorting{cursor:grabbing;-webkit-user-select:none;user-select:none}
+  body.is-sorting .srow{transition:none}
+  @media (max-width:430px){
+    .sort-pill .sl{display:none}
+  }
+  @media (max-width:360px){
+    .sort-pill{padding:0 5px;height:24px}
+    .sort-pill .sl{display:none}
+    .top-add{font-size:10px;padding:0 7px;height:24px}
+    .sort-head h2{font-size:15px}
+    .sort-head .shint{font-size:10px}
+  }
 
   /* ---------- 입장 잠금 ---------- */
   body.locked{overflow:hidden}
@@ -446,16 +523,12 @@
     <button id="seenBox" class="seen-box" type="button" aria-label="마지막 접속 시간 — 탭하면 이 기기 프로필 바꾸기"></button>
     <div class="top-right">
       <i id="dot" class="dot" title="연결 중"></i>
+      <button id="doneBtn" class="done-btn" type="button" aria-label="완료됨" aria-haspopup="dialog">✅<span class="cnt hidden" id="doneBtnCnt">0</span></button>
       <button id="memoBtn" class="memo-btn" type="button" aria-label="수정 요청 메모">📝<span class="memo-cnt hidden" id="memoCnt">0</span></button>
       <button id="lockNow" class="lock-btn" type="button" aria-label="잠그기">🔒</button>
     </div>
   </header>
   <main id="board" class="board"></main>
-  <button id="doneBar" class="done-bar zero" type="button" aria-haspopup="dialog">
-    <span>✅ 완료됨</span>
-    <span id="doneBarCount" class="count">0</span>
-    <span class="chev" aria-hidden="true">▲</span>
-  </button>
 </div>
 
 <div id="saySheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="sayTitle">
@@ -557,6 +630,15 @@
       <button type="button" class="ghost" id="memoClear">🗑 비우기</button>
     </div>
   </div>
+</div>
+
+<div id="sortSheet" class="hidden" role="dialog" aria-modal="true" aria-labelledby="sortTitle">
+  <div class="sort-head">
+    <h2 id="sortTitle">⇅ <span id="sortWhoTxt">세은</span> 순서</h2>
+    <p class="shint">⋮⋮ 를 바로 잡고<br>요일선 사이로 끌기</p>
+    <button type="button" id="sortDone" class="sort-done">완료</button>
+  </div>
+  <ul id="sortList" class="sort-list"></ul>
 </div>
 
 <script>
@@ -730,20 +812,23 @@ function cardHtml(owner) {
   const pct = all.length ? Math.round(doneN / all.length * 100) : 0;
   const emptyMsg = all.length
     ? '남은 할 일이 없어요 🎉<br>완료됨에서 다시 꺼낼 수 있어요'
-    : '아직 할 일이 없어요';
+    : '아직 할 일이 없어요<br>위의 + 할일추가로 넣어 보세요';
   return '<section class="card" data-owner="' + owner + '">' +
     '<div class="card-head">' +
       '<span class="who"><span class="avatar">' + info.emoji + '</span>' +
         '<span class="who-txt"><span class="name">' + info.name + '</span></span></span>' +
       sayBar(owner) +
+      '<button class="top-add" type="button" data-add="' + owner + '" aria-label="' + info.name + ' 할 일 추가">' +
+        '<span class="pl" aria-hidden="true">+</span>할일추가</button>' +
       '<span class="ratio">' + doneN + '/' + all.length + '</span>' +
+      '<button class="sort-pill" type="button" data-sort="' + owner + '" ' +
+        'aria-label="' + info.name + ' 할 일 순서 바꾸기(큰 화면)" title="큰 화면에서 순서 바꾸기">' +
+        '<span class="sp" aria-hidden="true">⇅</span><span class="sl">순서</span></button>' +
     '</div>' +
     '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
     '<ul class="rows" data-owner="' + owner + '">' +
       (open.length ? open.map(rowHtml).join('') : '<li class="empty">' + emptyMsg + '</li>') +
     '</ul>' +
-    '<button class="card-add" type="button" data-owner="' + owner + '">' +
-      '<span class="plus" aria-hidden="true">+</span> 할 일 추가</button>' +
   '</section>';
 }
 function render() {
@@ -765,9 +850,12 @@ function scheduleRender() {
 function doneOpen() { return !$('#doneSheet').classList.contains('hidden'); }
 function paintDoneBar() {
   const n = doneTodos().length;
-  $('#doneBarCount').textContent = n;
+  const btn = $('#doneBtn'), cnt = $('#doneBtnCnt');
   $('#doneCount').textContent = n;
-  $('#doneBar').classList.toggle('zero', n === 0);
+  if (cnt) { cnt.textContent = n > 9 ? '9+' : String(n); cnt.classList.toggle('hidden', n === 0); }
+  if (btn) {
+    btn.setAttribute('aria-label', n ? '완료됨 ' + n + '개 보기' : '완료됨 보기');
+  }
 }
 function paintDoneList() {
   const arr = doneTodos();
@@ -798,7 +886,8 @@ function closeDone() {
 function syncSheetFlag() {
   const open = !$('#sheet').classList.contains('hidden') || !$('#doneSheet').classList.contains('hidden') ||
                !$('#noteSheet').classList.contains('hidden') || !$('#memoSheet').classList.contains('hidden') ||
-               !$('#pickSheet').classList.contains('hidden') || !$('#saySheet').classList.contains('hidden');
+               !$('#pickSheet').classList.contains('hidden') || !$('#saySheet').classList.contains('hidden') ||
+               !$('#sortSheet').classList.contains('hidden');
   document.body.classList.toggle('sheet-open', open);
 }
 
@@ -898,6 +987,7 @@ function anySheetOpen() {
          !$('#memoSheet').classList.contains('hidden') ||
          !$('#pickSheet').classList.contains('hidden') ||
          !$('#saySheet').classList.contains('hidden') ||
+         !$('#sortSheet').classList.contains('hidden') ||
          !$('#doneSheet').classList.contains('hidden');
 }
 function pushSheetHistory() {
@@ -923,7 +1013,8 @@ function settleSheetHistory() {
   }, 0);
 }
 function closeTopSheet() {
-  if (sayOpen()) closeSay();
+  if (sortOpen()) closeSort();
+  else if (sayOpen()) closeSay();
   else if (pickOpen()) closePick();
   else if (!$('#memoSheet').classList.contains('hidden')) closeMemo();
   else if (!$('#noteSheet').classList.contains('hidden')) closeNote();
@@ -1084,6 +1175,14 @@ async function patch(path, val) {
   if (!r.ok) throw new Error('HTTP ' + r.status);
   return r.json();
 }
+/* 방 전체에 여러 자리를 한 번에 PATCH (키 안의 '/' 경로 = multi-path update)
+   주의: {todos:{id:{order}}} 처럼 겹쳐 보내면 그 할 일이 통째로 교체되므로
+   반드시 'todos/<id>/order' 같은 자리(path) 단위로 보낸다. */
+async function patchRoom(val) {
+  const r = await fetch(roomUrl(), { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(val) });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
 async function del(path) {
   const r = await fetch(nodeUrl(path), { method: 'DELETE' });
   if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -1149,8 +1248,10 @@ function closeSheet() {
   $('#textInput').blur();
 }
 function nextOrder(owner) {
+  /* 새 할 일은 맨 아래가 아니라 맨 위 — 최소 order 보다 하나 앞으로 */
   const arr = todoList().filter(t => ownerOf(t) === owner);
-  return arr.length ? Math.max(...arr.map(t => typeof t.order === 'number' ? t.order : 0)) + 1 : 0;
+  if (!arr.length) return 0;
+  return Math.min(...arr.map(t => typeof t.order === 'number' ? t.order : 0)) - 1;
 }
 async function saveTodo(e) {
   if (e) e.preventDefault();
@@ -1166,6 +1267,9 @@ async function saveTodo(e) {
   ST.todos[id] = obj;
   lastOwner = draft.owner; localStorage.setItem('bubu.owner', lastOwner);
   closeSheet(); render();
+  /* 방금 추가한 할 일이 맨 위에 보이도록 그 카드의 목록을 맨 위로 */
+  const lst = $('.rows[data-owner="' + draft.owner + '"]');
+  if (lst) lst.scrollTop = 0;
   try { await put('todos/' + id, obj); toast(icon + ' 추가했어요'); }
   catch (err) { delete ST.todos[id]; render(); toast('저장하지 못했어요'); }
 }
@@ -1455,6 +1559,269 @@ async function saveOrder(owner) {
   catch (e) { toast('순서를 저장하지 못했어요'); }
 }
 
+/* ============ 큰 화면 순서 편집 (⇅ 순서) ============
+   카드 헤더의 ⇅ 순서를 한 번 탭하면 화면 전체가 순서 편집기로 바뀐다.
+   · 오른쪽 ⋮⋮ 핸들을 터치하면 기다림 없이 바로 끌린다(touch-action:none).
+   · 얇은 요일 구분선(목/금/토/일/다음주) 사이로 끌어다 놓아 요일별로 정리한다.
+   · 끄는 동안에는 다시 그리지 않고 자리 표시(placeholder)만 옮겨 버벅임을 없앤다.
+   · 완료를 누를 때 바뀐 order·dayGroup 만 한 번의 PATCH 로 모아서 보낸다. */
+const DOW_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+const DOW_KO   = ['일', '월', '화', '수', '목', '금', '토'];
+let sortOwner = 'seeun';
+let sortIds = [];          /* 지금 화면의 할 일 순서(평평한 목록) */
+let sortGroups = {};       /* id → 요일 그룹 키('' = 아직 안 정함) */
+let sortSecs = [];         /* 지금 보이는 요일 구역(오늘 ~ 일요일 + 다음주) */
+let sortOrig = null;       /* 열었을 때 상태 — 취소·저장 실패 시 되돌리기 */
+let sortDrag = null;
+
+function sortOpen() { return !$('#sortSheet').classList.contains('hidden'); }
+/* 오늘(Asia/Seoul 기준)부터 이번 주 남은 요일 + 다음주 */
+function seoulDow() {
+  try {
+    const s = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Seoul', weekday: 'short' }).format(new Date());
+    const m = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+    if (m[s] != null) return m[s];
+  } catch (e) {}
+  return new Date().getDay();
+}
+function daySections() {
+  const today = seoulDow();
+  const cnt = (7 - today) % 7;          /* 오늘 → 일요일까지 */
+  const out = [];
+  for (let i = 0; i <= cnt; i++) {
+    const d = (today + i) % 7;
+    out.push({ key: DOW_KEYS[d], ko: DOW_KO[d] });
+  }
+  out.push({ key: 'next', ko: '다음주' });
+  return out;
+}
+function secKeys() { return [''].concat(sortSecs.map(s => s.key)); }
+function groupOf(id) {
+  const g = (ST.todos[id] || {}).dayGroup || '';
+  return secKeys().indexOf(g) >= 0 ? g : '';   /* 지난 요일로 남은 값은 맨 위(미정)로 */
+}
+function sortRowHtml(id, i, n) {
+  const t = ST.todos[id]; if (!t) return '';
+  const note = String(t.note == null ? '' : t.note).trim();
+  return '<li class="srow" data-id="' + esc(id) + '">' +
+    '<span class="sno">' + (i + 1) + '</span>' +
+    '<span class="sico" aria-hidden="true">' + esc(iconFor(t)) + '</span>' +
+    '<span class="stxt"><span class="smain">' + esc(t.text) + '</span>' +
+      (note ? '<span class="snote">📝 ' + esc(note) + '</span>' : '') + '</span>' +
+    '<span class="smove">' +
+      '<button type="button" class="sbtn" data-move="up" aria-label="위로 옮기기"' + (i === 0 ? ' disabled' : '') + '>▲</button>' +
+      '<button type="button" class="sbtn" data-move="down" aria-label="아래로 옮기기"' + (i === n - 1 ? ' disabled' : '') + '>▼</button>' +
+    '</span>' +
+    '<span class="shan" data-handle="1" role="button" tabindex="-1" aria-label="끌어서 순서 바꾸기">⋮⋮</span>' +
+  '</li>';
+}
+function paintSort() {
+  const box = $('#sortList'); if (!box) return;
+  sortIds = sortIds.filter(id => ST.todos[id]);
+  if (!sortIds.length) {
+    box.innerHTML = '<li class="sempty">아직 할 일이 없어요</li>';
+    return;
+  }
+  const n = sortIds.length;
+  const keys = secKeys();
+  box.innerHTML = keys.map((key, si) => {
+    const meta = sortSecs.filter(s => s.key === key)[0];
+    const rows = sortIds.filter(id => (sortGroups[id] || '') === key);
+    return '<li class="sgrp" data-group="' + esc(key) + '">' +
+      (si === 0 ? '' : '<div class="ssep" aria-hidden="true"><span>' + esc(meta ? meta.ko : key) + '</span></div>') +
+      '<ul class="sgrp-rows" data-group="' + esc(key) + '">' +
+        rows.map(id => sortRowHtml(id, sortIds.indexOf(id), n)).join('') +
+      '</ul></li>';
+  }).join('');
+}
+function openSort(owner) {
+  if (!OWNER[owner]) return;
+  closeAllSwipes();
+  sortOwner = owner;
+  sortSecs = daySections();
+  sortIds = openTodos(owner).map(t => t.id);
+  sortGroups = {};
+  sortIds.forEach(id => { sortGroups[id] = groupOf(id); });
+  sortOrig = { ids: sortIds.slice(), groups: Object.assign({}, sortGroups) };
+  $('#sortWhoTxt').textContent = OWNER[owner].name;
+  paintSort();
+  $('#sortSheet').classList.remove('hidden');
+  $('#sortList').scrollTop = 0;
+  syncSheetFlag();
+  pushSheetHistory();
+}
+function closeSort(commit) {
+  if (!sortOpen()) return;
+  if (sortDrag) sortResetRow(sortDrag);   /* 끄는 중에 닫혀도 떠 있는 행이 남지 않게 */
+  sortDrag = null;
+  document.body.classList.remove('is-sorting');
+  $('#sortSheet').classList.add('hidden');
+  syncSheetFlag();
+  settleSheetHistory();
+  if (commit !== false) commitSort();
+}
+
+/* --- 끌기: 행은 position:fixed 로 손가락을 따라가고, 자리 표시만 옮긴다 --- */
+function sortSecAt(list, y) {
+  const secs = Array.from(list.children).filter(el => el.classList.contains('sgrp'));
+  if (!secs.length) return null;
+  for (const s of secs) {
+    const r = s.getBoundingClientRect();
+    if (y >= r.top && y <= r.bottom) return s;
+  }
+  return y < secs[0].getBoundingClientRect().top ? secs[0] : secs[secs.length - 1];
+}
+function sortDown(e) {
+  if (!e.target || !e.target.closest) return;
+  const h = e.target.closest('[data-handle]');
+  if (!h) return;
+  const row = h.closest('.srow'); if (!row) return;
+  e.preventDefault();
+  if (sortDrag) sortResetRow(sortDrag);   /* 앞선 끄기가 남아 있으면 먼저 정리 */
+  const list = $('#sortList');
+  const rect = row.getBoundingClientRect();
+  const ph = document.createElement('li');
+  ph.className = 'srow-ph';
+  ph.style.height = rect.height + 'px';
+  row.parentElement.insertBefore(ph, row);
+  row.classList.add('drag');
+  row.style.position = 'fixed';
+  row.style.left = rect.left + 'px';
+  row.style.top = rect.top + 'px';
+  row.style.width = rect.width + 'px';
+  row.style.height = rect.height + 'px';
+  row.style.margin = '0';
+  sortDrag = {
+    row, ph, list, startY: e.clientY, acc: 0, pid: e.pointerId,
+    origIds: sortIds.slice(), origGroups: Object.assign({}, sortGroups)
+  };
+  document.body.classList.add('is-sorting');
+  try { h.setPointerCapture(e.pointerId); } catch (err) {}
+  if (navigator.vibrate) { try { navigator.vibrate(6); } catch (err) {} }
+}
+function sortMove(e) {
+  const d = sortDrag; if (!d || e.pointerId !== d.pid) return;
+  if (e.cancelable) e.preventDefault();
+  /* 목록 위·아래 끝에서는 저절로 스크롤 */
+  const lr = d.list.getBoundingClientRect(), edge = 54;
+  let sc = 0;
+  if (e.clientY < lr.top + edge) sc = -Math.min(16, Math.ceil((lr.top + edge - e.clientY) / 3));
+  else if (e.clientY > lr.bottom - edge) sc = Math.min(16, Math.ceil((e.clientY - (lr.bottom - edge)) / 3));
+  if (sc) { const b = d.list.scrollTop; d.list.scrollTop += sc; d.acc += d.list.scrollTop - b; }
+  d.row.style.transform = 'translateY(' + ((e.clientY - d.startY) + d.acc) + 'px)';
+  const sec = sortSecAt(d.list, e.clientY); if (!sec) return;
+  const rowsEl = sec.querySelector('.sgrp-rows'); if (!rowsEl) return;
+  const rows = Array.from(rowsEl.children).filter(x => x !== d.row && x.classList.contains('srow'));
+  let ref = null;
+  for (const x of rows) {
+    const q = x.getBoundingClientRect();
+    if (e.clientY < q.top + q.height / 2) { ref = x; break; }
+  }
+  if (ref) {
+    if (d.ph.parentElement !== rowsEl || d.ph.nextElementSibling !== ref) rowsEl.insertBefore(d.ph, ref);
+  } else if (d.ph.parentElement !== rowsEl || d.ph.nextElementSibling !== null) {
+    rowsEl.appendChild(d.ph);
+  }
+}
+function sortResetRow(d) {
+  const r = d.row;
+  r.classList.remove('drag');
+  ['position', 'left', 'top', 'width', 'height', 'margin', 'transform'].forEach(k => { r.style[k] = ''; });
+  if (d.ph && d.ph.parentElement) d.ph.remove();
+  document.body.classList.remove('is-sorting');
+}
+function sortReadDom(d) {
+  /* 화면(DOM) 순서에서 새 순서와 요일 그룹을 읽는다 */
+  const ids = [], groups = {};
+  Array.from(d.list.children).forEach(sec => {
+    if (!sec.classList.contains('sgrp')) return;
+    const g = sec.dataset.group || '';
+    const rowsEl = sec.querySelector('.sgrp-rows'); if (!rowsEl) return;
+    Array.from(rowsEl.children).forEach(el => {
+      let id = null;
+      if (el === d.ph) id = d.row.dataset.id;
+      else if (el.classList.contains('srow') && el !== d.row) id = el.dataset.id;
+      if (id && groups[id] === undefined) { ids.push(id); groups[id] = g; }
+    });
+  });
+  return { ids, groups };
+}
+function sortUp(e) {
+  const d = sortDrag; if (!d) return;
+  if (e && e.pointerId != null && e.pointerId !== d.pid) return;
+  sortDrag = null;
+  const got = sortReadDom(d);
+  sortResetRow(d);
+  sortIds = got.ids; sortGroups = got.groups;
+  paintSort();
+}
+function sortCancel() {
+  const d = sortDrag; if (!d) return;
+  sortDrag = null;
+  sortResetRow(d);
+  sortIds = d.origIds.slice(); sortGroups = Object.assign({}, d.origGroups);
+  paintSort();
+}
+/* ▲▼ — 같은 칸이면 자리만 바꾸고, 옆 칸이면 그 칸으로 넘어간다 */
+function sortFlatOrder() {
+  const out = [];
+  secKeys().forEach(k => sortIds.forEach(id => { if ((sortGroups[id] || '') === k) out.push(id); }));
+  return out;
+}
+function sortStep(id, dir) {
+  const order = sortFlatOrder();
+  const i = order.indexOf(id); if (i < 0) return;
+  const j = i + dir; if (j < 0 || j >= order.length) return;
+  const a = order[i], b = order[j];
+  const ga = sortGroups[a] || '', gb = sortGroups[b] || '';
+  const next = order.slice();
+  next.splice(i, 1);
+  next.splice(dir > 0 ? i + 1 : i - 1, 0, a);
+  sortIds = next;
+  sortGroups[a] = gb; sortGroups[b] = ga;
+  paintSort();
+  if (navigator.vibrate) { try { navigator.vibrate(4); } catch (e) {} }
+}
+
+/* --- 완료: 바뀐 order·dayGroup 만 한 번에 --- */
+async function commitSort() {
+  const ids = sortIds.filter(id => ST.todos[id]);
+  const body = {}, before = {};
+  const now = Date.now();
+  ids.forEach((id, i) => {
+    const t = ST.todos[id]; if (!t) return;
+    const g = sortGroups[id] || '';
+    const pg = t.dayGroup || '';
+    if (t.order !== i || pg !== g) {
+      before[id] = { order: typeof t.order === 'number' ? t.order : null, dayGroup: t.dayGroup === undefined ? null : t.dayGroup };
+      body['todos/' + id + '/order'] = i;
+      body['todos/' + id + '/dayGroup'] = g || null;    /* null = 그 칸 지우기(미정) */
+      body['todos/' + id + '/updatedAt'] = now;
+    }
+  });
+  if (!Object.keys(body).length) return;   /* 바뀐 게 없으면 서버는 그대로 둔다 */
+  ids.forEach((id, i) => {
+    const t = ST.todos[id]; if (!t) return;
+    const g = sortGroups[id] || '';
+    if (t.order !== i) { t.order = i; t.updatedAt = now; }
+    if ((t.dayGroup || '') !== g) { if (g) t.dayGroup = g; else delete t.dayGroup; }
+  });
+  render();
+  try {
+    await patchRoom(body);
+    toast('순서를 저장했어요');
+  } catch (e) {
+    Object.keys(before).forEach(id => {
+      const t = ST.todos[id]; if (!t) return;
+      if (before[id].order === null) delete t.order; else t.order = before[id].order;
+      if (before[id].dayGroup === null) delete t.dayGroup; else t.dayGroup = before[id].dayGroup;
+    });
+    if (sortOrig) { sortIds = sortOrig.ids.slice(); sortGroups = Object.assign({}, sortOrig.groups); }
+    render();
+    toast('순서를 저장하지 못했어요');
+  }
+}
+
 /* ============ 📝 수정 요청 메모 (이 기기에만 저장) ============
    고치고 싶은 곳을 그때그때 적어 두고, [전체 복사]로 피클 채팅에 붙여넣을 수 있게 한다. */
 const MEMO_KEY = 'bubulife.memos.v1';
@@ -1575,10 +1942,12 @@ function initApp() {
     if (ck) { e.preventDefault(); toggle(ck.dataset.id); return; }
     const td = e.target.closest('.today-pill');
     if (td) { e.preventDefault(); e.stopPropagation(); toggleToday(td.dataset.today); return; }
-    const add = e.target.closest('.card-add');
-    if (add) { e.preventDefault(); openAdd(add.dataset.owner); return; }
+    const add = e.target.closest('[data-add]');
+    if (add) { e.preventDefault(); openAdd(add.dataset.add); return; }
     const say = e.target.closest('[data-say]');
     if (say) { e.preventDefault(); e.stopPropagation(); openSay(say.dataset.say); return; }
+    const srt = e.target.closest('[data-sort]');
+    if (srt) { e.preventDefault(); e.stopPropagation(); closeAllSwipes(); openSort(srt.dataset.sort); return; }
   });
   board.addEventListener('keydown', e => {
     if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -1589,7 +1958,7 @@ function initApp() {
   });
 
   /* 완료됨 */
-  $('#doneBar').addEventListener('click', openDone);
+  $('#doneBtn').addEventListener('click', openDone);
   $('#doneClose').addEventListener('click', closeDone);
   $('#doneSheet').addEventListener('click', e => { if (e.target.dataset.dclose === '1') closeDone(); });
   $('#doneList').addEventListener('click', e => {
@@ -1624,8 +1993,20 @@ function initApp() {
     if (e.key === 'Enter') { e.preventDefault(); saveTodo(); }
   });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closePick(); closeSay(); closeSheet(); closeDone(); closeNote(); closeMemo(); }
+    if (e.key === 'Escape') { closePick(); closeSay(); closeSheet(); closeDone(); closeNote(); closeMemo(); closeSort(); }
   });
+
+  /* ⇅ 큰 화면 순서 편집 */
+  $('#sortDone').addEventListener('click', () => closeSort());
+  $('#sortSheet').addEventListener('click', e => {
+    const b = e.target.closest('[data-move]'); if (!b) return;
+    const row = b.closest('.srow'); if (!row) return;
+    sortStep(row.dataset.id, b.dataset.move === 'up' ? -1 : 1);
+  });
+  $('#sortList').addEventListener('pointerdown', sortDown);
+  window.addEventListener('pointermove', sortMove, { passive: false });
+  window.addEventListener('pointerup', sortUp);
+  window.addEventListener('pointercancel', sortCancel);
 
   /* 이 기기 프로필 (세은 / 찬규) */
   $('#pickSheet').addEventListener('click', e => {
