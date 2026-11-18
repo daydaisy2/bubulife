@@ -420,7 +420,16 @@
               background:#F6F2E1;color:#6A6650;font-size:11px;font-weight:900;line-height:1;
               display:grid;place-items:center;transition:background .14s,opacity .14s}
   .sbtn:active{background:#EAE2C6}
-  .sbtn:disabled{opacity:.3}
+  .srow .sbtn:disabled{opacity:.3}
+  /* 순서 편집기 안 `오늘할일` 알약 — 메인 화면과 같은 남색/연한 톤 */
+  .srow .stoday{flex:0 0 auto;min-width:0;height:26px;padding:0 8px;border-radius:999px;
+                border:1.5px solid #E7E1C8;background:rgba(255,255,255,.6);color:#ADA78D;
+                font-size:10px;font-weight:900;letter-spacing:-.03em;white-space:nowrap;line-height:1;
+                display:grid;place-items:center;touch-action:manipulation;
+                transition:background .16s,color .16s,border-color .16s}
+  .srow .stoday.on{background:#231F78;border-color:rgba(255,255,255,.55);color:#FBE049;
+                   box-shadow:0 3px 8px rgba(35,31,120,.24)}
+  .srow .stoday:active{transform:scale(.96)}
   .srow .shan{flex:0 0 auto;width:clamp(38px,10vw,46px);align-self:stretch;margin:5px 0 5px 2px;
               display:grid;place-items:center;border-radius:11px;background:#FBF7E7;color:#A9A282;
               font-size:clamp(15px,4vw,18px);font-weight:900;line-height:1;letter-spacing:-3px;
@@ -438,6 +447,8 @@
   body.is-sorting .srow{transition:none}
   @media (max-width:430px){
     .sort-pill .sl{display:none}
+    .srow .stoday{height:24px;padding:0 6px;font-size:9px}
+    .srow .sno{min-width:1.1em;font-size:11px}
   }
   @media (max-width:360px){
     .sort-pill{padding:0 5px;height:24px}
@@ -637,7 +648,7 @@
 <div id="sortSheet" class="hidden" role="dialog" aria-modal="true" aria-labelledby="sortTitle">
   <div class="sort-head">
     <h2 id="sortTitle">⇅ <span id="sortWhoTxt">세은</span> 순서</h2>
-    <p class="shint">⋮⋮ 를 바로 잡고<br>요일선 사이로 끌기</p>
+    <p class="shint">⋮⋮ 를 잡고<br>선 위·아래로 끌기</p>
     <button type="button" id="sortDone" class="sort-done">완료</button>
   </div>
   <ul id="sortList" class="sort-list"></ul>
@@ -1563,38 +1574,21 @@ async function saveOrder(owner) {
 /* ============ 큰 화면 순서 편집 (⇅ 순서) ============
    카드 헤더의 ⇅ 순서를 한 번 탭하면 화면 전체가 순서 편집기로 바뀐다.
    · 오른쪽 ⋮⋮ 핸들을 터치하면 기다림 없이 바로 끌린다(touch-action:none).
-   · 얇은 요일 구분선(목/금/토/일/다음주) 사이로 끌어다 놓아 요일별로 정리한다.
-   · 끄는 동안에는 다시 그리지 않고 자리 표시(placeholder)만 옮겨 버벅임을 없앤다.
+   · 칸은 둘 — "이번 주(미분류)"와 아래 `── 다음주 이후 ──`.
+   · 행마다 `오늘할일` 알약 토글이 있어 완료 시트에 가지 않고 바로 켜고 끈다.
+   · 끄는 동안에는 측정·DOM 변경 없이 transform 만 움직이고, 손을 뗄 때 한 번만 반영한다.
    · 완료를 누를 때 바뀐 order·dayGroup 만 한 번의 PATCH 로 모아서 보낸다. */
-const DOW_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-const DOW_KO   = ['일', '월', '화', '수', '목', '금', '토'];
 let sortOwner = 'seeun';
 let sortIds = [];          /* 지금 화면의 할 일 순서(평평한 목록) */
-let sortGroups = {};       /* id → 요일 그룹 키('' = 아직 안 정함) */
-let sortSecs = [];         /* 지금 보이는 요일 구역(오늘 ~ 일요일 + 다음주) */
+let sortGroups = {};       /* id → 칸 키('' = 다음주 이후 위쪽, 'next' = 다음주 이후) */
+let sortSecs = [];         /* 지금 보이는 칸(구분선) — 이제 `다음주 이후` 하나 */
 let sortOrig = null;       /* 열었을 때 상태 — 취소·저장 실패 시 되돌리기 */
 let sortDrag = null;
 
 function sortOpen() { return !$('#sortSheet').classList.contains('hidden'); }
-/* 오늘(Asia/Seoul 기준)부터 이번 주 남은 요일 + 다음주 */
-function seoulDow() {
-  try {
-    const s = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Seoul', weekday: 'short' }).format(new Date());
-    const m = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
-    if (m[s] != null) return m[s];
-  } catch (e) {}
-  return new Date().getDay();
-}
 function daySections() {
-  const today = seoulDow();
-  const cnt = (7 - today) % 7;          /* 오늘 → 일요일까지 */
-  const out = [];
-  for (let i = 0; i <= cnt; i++) {
-    const d = (today + i) % 7;
-    out.push({ key: DOW_KEYS[d], ko: DOW_KO[d] });
-  }
-  out.push({ key: 'next', ko: '다음주 이후' });
-  return out;
+  /* 요일선은 `다음주 이후` 하나만 둔다. 예전 mon~sun 값은 위쪽(이번 주) 칸으로 보인다. */
+  return [{ key: 'next', ko: '다음주 이후' }];
 }
 function secKeys() { return [''].concat(sortSecs.map(s => s.key)); }
 function groupOf(id) {
@@ -1609,6 +1603,8 @@ function sortRowHtml(id, i, n) {
     '<span class="sico" aria-hidden="true">' + esc(iconFor(t)) + '</span>' +
     '<span class="stxt"><span class="smain">' + esc(t.text) + '</span>' +
       (note ? '<span class="snote">📝 ' + esc(note) + '</span>' : '') + '</span>' +
+    '<button type="button" class="stoday' + (t.today ? ' on' : '') + '" data-stoday="' + esc(id) + '"' +
+      ' aria-pressed="' + (t.today ? 'true' : 'false') + '" aria-label="오늘 할 일로 표시">오늘할일</button>' +
     '<span class="smove">' +
       '<button type="button" class="sbtn" data-move="up" aria-label="위로 옮기기"' + (i === 0 ? ' disabled' : '') + '>▲</button>' +
       '<button type="button" class="sbtn" data-move="down" aria-label="아래로 옮기기"' + (i === n - 1 ? ' disabled' : '') + '>▼</button>' +
@@ -1947,6 +1943,31 @@ function sortStep(id, dir) {
   if (navigator.vibrate) { try { navigator.vibrate(4); } catch (e) {} }
 }
 
+/* 순서 편집기 안 `오늘할일` 토글 — 그 자리에서 바로 켜고 끄고 Firebase 에도 바로 보낸다 */
+async function sortToggleToday(id, btn) {
+  const t = ST.todos[id]; if (!t) return;
+  const before = { today: !!t.today, updatedAt: t.updatedAt };
+  const on = !t.today;
+  const next = { today: on, updatedAt: Date.now() };
+  Object.assign(t, next);
+  paintTodayBtn(btn, on);
+  render();                       /* 메인 화면 알약도 같이 맞춘다(순서 목록은 그대로) */
+  try {
+    await patch('todos/' + id, next);
+    toast(on ? '오늘 할 일로 표시했어요' : '오늘표시를 껐어요');
+  } catch (e) {
+    Object.assign(t, before);
+    paintTodayBtn(btn, !!before.today);
+    render();
+    toast('저장하지 못했어요');
+  }
+}
+function paintTodayBtn(btn, on) {
+  if (!btn) return;
+  btn.classList.toggle('on', !!on);
+  btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+}
+
 /* --- 완료: 바뀐 order·dayGroup 만 한 번에 --- */
 async function commitSort() {
   const ids = sortIds.filter(id => ST.todos[id]);
@@ -2163,6 +2184,8 @@ function initApp() {
   /* ⇅ 큰 화면 순서 편집 */
   $('#sortDone').addEventListener('click', () => closeSort());
   $('#sortSheet').addEventListener('click', e => {
+    const td = e.target.closest('[data-stoday]');
+    if (td) { e.preventDefault(); e.stopPropagation(); sortToggleToday(td.dataset.stoday, td); return; }
     const b = e.target.closest('[data-move]'); if (!b) return;
     const row = b.closest('.srow'); if (!row) return;
     sortStep(row.dataset.id, b.dataset.move === 'up' ? -1 : 1);
