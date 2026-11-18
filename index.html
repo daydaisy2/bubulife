@@ -98,6 +98,9 @@
          transition:width .35s cubic-bezier(.2,.8,.2,1)}
 
   /* ---------- 서로의 한마디 (슬림 1줄 말풍선 바) ---------- */
+  /* 카드 머리줄(이름 오른쪽 ~ 진행률 왼쪽)에 들어가는 한마디 바 */
+  .card-head .who{flex:0 0 auto;max-width:55%}
+  .card-head .saybar{flex:1 1 0;width:auto}
   .saybar{flex:0 0 auto;display:flex;align-items:center;gap:.36em;width:100%;min-width:0;
           min-height:clamp(20px,2.5vw,26px);padding:0 clamp(7px,.9vw,12px);
           border-radius:999px;background:var(--cream);color:#6F6A52;
@@ -742,10 +745,10 @@ function cardHtml(owner) {
     '<div class="card-head">' +
       '<span class="who"><span class="avatar">' + info.emoji + '</span>' +
         '<span class="who-txt"><span class="name">' + info.name + '</span>' + seenEl(owner) + '</span></span>' +
+      sayBar(owner) +
       '<span class="ratio">' + doneN + '/' + all.length + '</span>' +
     '</div>' +
     '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
-    sayBar(owner) +
     '<ul class="rows" data-owner="' + owner + '">' +
       (open.length ? open.map(rowHtml).join('') : '<li class="empty">' + emptyMsg + '</li>') +
     '</ul>' +
