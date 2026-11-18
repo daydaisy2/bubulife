@@ -240,9 +240,6 @@
             background:rgba(255,255,255,.55);font-size:14px;line-height:1;color:var(--navy);
             transition:background .18s,color .18s}
   .done-btn:active{transform:translateY(1px)}
-  .done-btn .cnt{position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;
-                 background:#2E9E52;color:#fff;font-size:9px;font-weight:900;line-height:16px;text-align:center;
-                 border:1.5px solid var(--yellow)}
   .memo-cnt{position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;
             background:#E8603C;color:#fff;font-size:9px;font-weight:900;line-height:16px;text-align:center;
             border:1.5px solid var(--yellow)}
@@ -523,7 +520,7 @@
     <button id="seenBox" class="seen-box" type="button" aria-label="마지막 접속 시간 — 탭하면 이 기기 프로필 바꾸기"></button>
     <div class="top-right">
       <i id="dot" class="dot" title="연결 중"></i>
-      <button id="doneBtn" class="done-btn" type="button" aria-label="완료됨" aria-haspopup="dialog">✅<span class="cnt hidden" id="doneBtnCnt">0</span></button>
+      <button id="doneBtn" class="done-btn" type="button" aria-label="완료됨" aria-haspopup="dialog">✅</button>
       <button id="memoBtn" class="memo-btn" type="button" aria-label="수정 요청 메모">📝<span class="memo-cnt hidden" id="memoCnt">0</span></button>
       <button id="lockNow" class="lock-btn" type="button" aria-label="잠그기">🔒</button>
     </div>
@@ -850,9 +847,8 @@ function scheduleRender() {
 function doneOpen() { return !$('#doneSheet').classList.contains('hidden'); }
 function paintDoneBar() {
   const n = doneTodos().length;
-  const btn = $('#doneBtn'), cnt = $('#doneBtnCnt');
+  const btn = $('#doneBtn');
   $('#doneCount').textContent = n;
-  if (cnt) { cnt.textContent = n > 9 ? '9+' : String(n); cnt.classList.toggle('hidden', n === 0); }
   if (btn) {
     btn.setAttribute('aria-label', n ? '완료됨 ' + n + '개 보기' : '완료됨 보기');
   }
