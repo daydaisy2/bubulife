@@ -7,7 +7,8 @@
 <meta name="description" content="세은과 찬규의 오늘 할 일 — 두 사람 카드에 딱, 실시간으로 함께.">
 <meta name="theme-color" content="#FBE049">
 <meta name="bubu-version" content="v8-touch">
-<meta name="robots" content="noindex,nofollow">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="googlebot" content="noindex, nofollow, noarchive">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon-192.png">
 <link rel="apple-touch-icon" href="./icon-192.png">
@@ -326,9 +327,54 @@
   .today-pill.on{background:#231F78;border-color:rgba(255,255,255,.55);color:#FBE049;
                  box-shadow:0 4px 10px rgba(35,31,120,.28)}
   .today-pill:active{transform:scale(.96)}
+
+  /* ---------- 입장 잠금 ---------- */
+  body.locked{overflow:hidden}
+  #lock{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:22px;background:var(--yellow);overflow-y:auto}
+  .lock-card{width:100%;max-width:344px;background:#fff;border-radius:26px;padding:26px 22px 20px;text-align:center;
+    box-shadow:0 18px 44px rgba(112,86,0,.20)}
+  .lock-fl{font-size:40px;line-height:1}
+  .lock-title{margin:6px 0 0;font-size:26px;font-weight:900;letter-spacing:-.03em;color:var(--navy);line-height:1.1}
+  .lock-tag{margin:7px 0 0;font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:-.01em}
+  .lock-badge{display:inline-block;margin:14px 0 0;padding:5px 11px;border-radius:999px;background:var(--cream);color:#7C765C;font-size:11.5px;font-weight:800}
+  .lock-dots{display:flex;justify-content:center;gap:13px;margin:20px 0 2px;height:16px}
+  .lock-dots i{display:block;width:14px;height:14px;border-radius:50%;background:#EDE7D1;transition:transform .12s,background .12s}
+  .lock-dots i.on{background:var(--navy);transform:scale(1.06)}
+  .lock-msg{margin:10px 0 0;min-height:16px;font-size:12px;font-weight:800;color:#C0392B}
+  .lock-msg.ok{color:var(--green-text)}
+  .lock-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:8px}
+  .lock-key{height:52px;border:0;border-radius:17px;background:var(--cream);color:var(--navy);
+    font:inherit;font-size:21px;font-weight:900;cursor:pointer}
+  .lock-key:active{background:#F5EED6}
+  .lock-key.ghost{font-size:13px;font-weight:800;color:var(--muted)}
+  .lock-foot{margin:14px 0 0;font-size:11px;font-weight:700;color:#A9A48D;line-height:1.5}
+  .lock-card.shake{animation:lockShake .34s}
+  @keyframes lockShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+  .lock-btn{flex:0 0 auto;width:34px;height:34px;border-radius:12px;display:grid;place-items:center;
+            background:rgba(255,255,255,.7);font-size:15px;line-height:1;color:var(--navy);
+            transition:background .18s,color .18s}
+  .lock-btn:active{transform:translateY(1px)}
 </style>
 </head>
 <body>
+
+<div id="lock" role="dialog" aria-modal="true" aria-label="입장 비밀번호">
+  <div class="lock-card" id="lockCard">
+    <div class="lock-fl">✅</div>
+    <div class="lock-title">부부 할일</div>
+    <p class="lock-tag">세은과 찬규의 오늘 할 일</p>
+    <span class="lock-badge">🔒 우리 둘만의 앱</span>
+    <div class="lock-dots" id="lockDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <p class="lock-msg" id="lockMsg"></p>
+    <div class="lock-pad" id="lockPad">
+      <button type="button" class="lock-key" data-k="1">1</button><button type="button" class="lock-key" data-k="2">2</button><button type="button" class="lock-key" data-k="3">3</button>
+      <button type="button" class="lock-key" data-k="4">4</button><button type="button" class="lock-key" data-k="5">5</button><button type="button" class="lock-key" data-k="6">6</button>
+      <button type="button" class="lock-key" data-k="7">7</button><button type="button" class="lock-key" data-k="8">8</button><button type="button" class="lock-key" data-k="9">9</button>
+      <button type="button" class="lock-key ghost" data-k="clear">전체</button><button type="button" class="lock-key" data-k="0">0</button><button type="button" class="lock-key ghost" data-k="del" aria-label="지우기">←</button>
+    </div>
+    <p class="lock-foot">두 분만 아는 6자리 비밀번호를 입력하면<br>이 기기에서는 다음부터 바로 열려요</p>
+  </div>
+</div>
 
 <div id="gate" class="gate hidden">
   <div class="gate-card">
@@ -348,6 +394,7 @@
     <div class="top-right">
       <i id="dot" class="dot" title="연결 중"></i>
       <button id="memoBtn" class="memo-btn" type="button" aria-label="수정 요청 메모">📝<span class="memo-cnt hidden" id="memoCnt">0</span></button>
+      <button id="lockNow" class="lock-btn" type="button" aria-label="잠그기">🔒</button>
     </div>
   </header>
   <main id="board" class="board"></main>
@@ -1422,8 +1469,106 @@ function boot() {
   setInterval(() => { if (!es) syncNow(true); }, 20000);
 }
 
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-else boot();
+/* ============================================================
+   입장 잠금 — 두 사람만 아는 6자리 비밀번호
+   비밀번호는 코드에 적지 않는다. SHA-256 해시로만 비교하고,
+   한 번 통과한 기기는 localStorage 에 표시만 남겨 다음부터 바로 열린다.
+   잠금을 통과하기 전에는 앱 화면도, 서버(Firebase) 읽기도 없다.
+   ============================================================ */
+const LOCK_KEY = 'bubu.lock.v1';
+const LOCK_SALT = 'bubulife::v1::';
+const LOCK_HASH = '2ee38f2a7384c339e1655db67c30096f115df4160b7a82eceb65dc1543c46484';
+let lockBuf = '', lockBusy = false, lockAfter = null;
+
+function lockPaint() {
+  $$('#lockDots i').forEach((d, i) => d.classList.toggle('on', i < lockBuf.length));
+}
+function lockMsg(text, ok) {
+  const m = $('#lockMsg');
+  if (!m) return;
+  m.className = 'lock-msg' + (ok ? ' ok' : '');
+  m.textContent = text || '';
+}
+function sha256Hex(s) {
+  return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then((buf) =>
+    Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join(''));
+}
+function lockPassed() {
+  try {
+    const v = JSON.parse(localStorage.getItem(LOCK_KEY) || 'null');
+    return !!(v && v.h === LOCK_HASH);
+  } catch (e) { return false; }
+}
+function lockRemove() {
+  const el = $('#lock');
+  if (el) el.remove();
+  document.body.classList.remove('locked');
+}
+function lockTry() {
+  if (lockBusy || lockBuf.length !== 6) return;
+  lockBusy = true;
+  lockMsg('확인 중…');
+  if (!(window.crypto && crypto.subtle)) {
+    lockMsg('보안 연결(https)에서 열어 주세요');
+    lockBusy = false; return;
+  }
+  sha256Hex(LOCK_SALT + lockBuf).then((h) => {
+    if (h !== LOCK_HASH) {
+      lockMsg('비밀번호가 맞지 않아요');
+      const c = $('#lockCard');
+      if (c) { c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); }
+      lockBuf = ''; lockPaint();
+      lockBusy = false; return;
+    }
+    try { localStorage.setItem(LOCK_KEY, JSON.stringify({ h: LOCK_HASH, at: Date.now() })); } catch (e) {}
+    lockMsg('열리는 중…', true);
+    lockBusy = false;
+    lockRemove();
+    if (lockAfter) lockAfter();
+  }).catch(() => {
+    lockMsg('잠시 후 다시 시도해 주세요');
+    lockBusy = false;
+  });
+}
+function lockKey(k) {
+  lockMsg('');
+  if (k === 'del') { lockBuf = lockBuf.slice(0, -1); lockPaint(); return; }
+  if (k === 'clear') { lockBuf = ''; lockPaint(); return; }
+  if (lockBuf.length >= 6) return;
+  lockBuf += k; lockPaint();
+  if (lockBuf.length === 6) setTimeout(lockTry, 110);
+}
+function initLock(after) {
+  lockAfter = after;
+  lockBuf = ''; lockPaint(); lockMsg('');
+  document.body.classList.add('locked');
+  const pad = $('#lockPad');
+  if (pad) pad.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-k]');
+    if (b) lockKey(b.dataset.k);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (!document.getElementById('lock')) return;
+    if (/^\d$/.test(e.key)) lockKey(e.key);
+    else if (e.key === 'Backspace') lockKey('del');
+    else if (e.key === 'Enter' && lockBuf.length === 6) lockTry();
+  });
+}
+function lockNowAction() {
+  try { localStorage.removeItem(LOCK_KEY); } catch (e) {}
+  location.reload();
+}
+
+/* 시작: 이미 통과한 기기면 바로, 아니면 잠금 화면부터 */
+function start() {
+  const btn = $('#lockNow');
+  if (btn) btn.addEventListener('click', lockNowAction);
+  if (lockPassed()) { lockRemove(); boot(); return; }
+  initLock(boot);
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+else start();
 </script>
 </body>
 </html>
