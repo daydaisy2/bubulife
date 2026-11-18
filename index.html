@@ -81,6 +81,17 @@
   .card[data-owner="chankyu"] .avatar{background:#E6F0E2}
   .name{font-size:clamp(14px,2.05vw,26px);font-weight:900;letter-spacing:-.03em;white-space:nowrap;
         overflow:hidden;text-overflow:ellipsis}
+  .who-txt{display:flex;flex-direction:column;justify-content:center;gap:.14em;min-width:0}
+  /* 마지막 접속 시간 — 이름 아래 작은 부제 */
+  .seen{display:inline-flex;align-items:center;gap:.3em;min-width:0;max-width:100%;
+        font-size:clamp(9.5px,1.15vw,13px);font-weight:800;letter-spacing:-.02em;line-height:1.1;
+        color:#A8A189;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .seen .stx{overflow:hidden;text-overflow:ellipsis}
+  .seen.live{color:var(--green-text)}
+  .seen.none{color:#B8B29B;font-weight:700}
+  button.seen{padding:0;text-align:left;cursor:pointer;border-radius:6px;transition:opacity .15s}
+  button.seen .sw{font-size:.95em;color:#BCB59B}
+  button.seen:active{opacity:.55}
   .ratio{font-size:clamp(12px,1.65vw,22px);font-weight:900;color:#5C5947;letter-spacing:-.02em;flex:0 0 auto}
   .bar{flex:0 0 auto;height:clamp(5px,.8vw,9px);border-radius:999px;background:#EDE9D8;overflow:hidden}
   .bar i{display:block;height:100%;width:0;border-radius:999px;background:var(--navy);
@@ -293,6 +304,7 @@
     .card{padding:8px 8px 9px;gap:6px;border-radius:16px}
     .avatar{width:27px;height:27px;font-size:15px}
     .name{font-size:15px}
+    .seen{font-size:9.5px}
     .ratio{font-size:13px}
     .top h1{font-size:20px}
     .card-add{min-height:50px;font-size:16px}
@@ -304,6 +316,7 @@
     .row .ico{font-size:17px}
     .check{width:22px;height:22px}
     .name{font-size:14px}
+    .seen{font-size:9px}
   }
 
   /* ---------- 폰 세로 화면: 위(세은) / 아래(찬규) 절반 분할 ---------- */
@@ -354,6 +367,18 @@
             background:rgba(255,255,255,.7);font-size:15px;line-height:1;color:var(--navy);
             transition:background .18s,color .18s}
   .lock-btn:active{transform:translateY(1px)}
+
+  /* ---------- 이 기기 프로필 선택 ---------- */
+  .pick-panel{gap:clamp(8px,1.2vw,14px)}
+  .pick-sub{margin:-2px 0 0;font-size:clamp(12px,1.55vw,14px);font-weight:700;color:var(--muted);line-height:1.45}
+  .pick-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .pick{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.18em;
+        min-height:clamp(72px,9vw,92px);border-radius:16px;background:var(--cream);
+        border:2px solid transparent;font-weight:900;font-size:clamp(14px,1.8vw,18px);
+        letter-spacing:-.03em;color:var(--ink);transition:background .16s,border-color .16s,transform .1s}
+  .pick .pe{font-size:clamp(22px,3vw,30px);line-height:1}
+  .pick.on{background:#fff;border-color:var(--navy);box-shadow:0 4px 14px rgba(35,31,120,.16)}
+  .pick:active{transform:translateY(1px)}
 </style>
 </head>
 <body>
@@ -403,6 +428,20 @@
     <span id="doneBarCount" class="count">0</span>
     <span class="chev" aria-hidden="true">▲</span>
   </button>
+</div>
+
+<div id="pickSheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
+  <div class="bd" data-pclose="1"></div>
+  <div class="panel pick-panel">
+    <div class="grab"></div>
+    <h2 id="pickTitle">이 기기는 누구인가요?</h2>
+    <p class="pick-sub">고른 사람의 카드에 마지막 접속 시간이 표시돼요</p>
+    <div class="pick-row">
+      <button type="button" class="pick" data-pick="seeun"><span class="pe" aria-hidden="true">👩🏻</span>세은</button>
+      <button type="button" class="pick" data-pick="chankyu"><span class="pe" aria-hidden="true">👨🏻</span>찬규</button>
+    </div>
+    <p class="hint">나중에 바꾸려면 내 카드의 접속 시간을 눌러 주세요</p>
+  </div>
 </div>
 
 <div id="doneSheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="doneTitle">
@@ -494,13 +533,19 @@ if (!ROOM_RE.test(ROOM)) {
   ROOM = ROOM_RE.test(saved) ? saved : '';
 }
 
-const ST = { todos: {} };
+const ST = { todos: {}, lastSeen: {} };
 let es = null, retry = 0, pollTimer = null, gotSnapshot = false;
 let drag = null;
 let openSwipeId = null;   /* 스와이프로 열어 둔 항목 — 다시 그려도 열린 채로 유지 */
 let draft = { id: null, owner: 'seeun' };
 let lastOwner = localStorage.getItem('bubu.owner') || 'seeun';
 if (!OWNER[lastOwner]) lastOwner = 'seeun';
+
+/* 이 기기를 쓰는 사람(seeun / chankyu). 같은 방 링크·비밀번호를 둘이 같이 쓰므로
+   기기마다 한 번만 고르게 하고 localStorage 에 남겨 둔다. */
+const ME_KEY = 'bubu.me.v1';
+let ME = localStorage.getItem(ME_KEY) || '';
+if (!OWNER[ME]) ME = '';
 
 /* ============ 도우미 ============ */
 const $  = (s, r = document) => r.querySelector(s);
@@ -535,6 +580,74 @@ function sortTodos(arr) {
 }
 function openTodos(owner) {   /* 카드에 보이는 것 = 아직 안 한 일 */
   return sortTodos(todoList().filter(t => ownerOf(t) === owner && !t.done));
+}
+
+/* ============ 마지막 접속 시간 ============ */
+const SEEN_THROTTLE = 90 * 1000;   /* 이 안에 또 들어와도 서버에는 한 번만 */
+let seenLastSent = 0, seenTimer = null;
+
+function seenAt(v) {
+  if (v == null) return 0;
+  if (typeof v === 'number') return v > 0 ? v : 0;
+  if (typeof v === 'string') { const n = Number(v); return n > 0 ? n : 0; }
+  if (typeof v === 'object') return seenAt(v.at != null ? v.at : (v.ts != null ? v.ts : v.time));
+  return 0;
+}
+function sameYmd(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
+function seenInfo(owner) {
+  const ts = seenAt((ST.lastSeen || {})[owner]);
+  if (!ts) return { text: '아직 접속 기록 없음', live: false, none: true };
+  const d = new Date(ts), now = new Date();
+  const hm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  const diff = Date.now() - ts;
+  if (diff < 60 * 1000 && diff > -60 * 1000) return { text: '방금 접속', live: true, none: false };
+  if (sameYmd(d, now)) return { text: '오늘 ' + hm, live: false, none: false };
+  const y = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  if (sameYmd(d, y)) return { text: '어제 ' + hm, live: false, none: false };
+  return { text: (d.getMonth() + 1) + '/' + d.getDate() + ' ' + hm, live: false, none: false };
+}
+function seenEl(owner) {
+  const s = seenInfo(owner);
+  const cls = 'seen' + (s.live ? ' live' : '') + (s.none ? ' none' : '');
+  const txt = '<span class="stx">' + esc(s.text) + '</span>';
+  if (owner === ME) {
+    /* 내 카드의 접속 시간을 누르면 이 기기 프로필을 다시 고를 수 있다 */
+    return '<button class="' + cls + ' mine" type="button" data-switch="1" ' +
+      'title="탭하면 이 기기의 프로필을 바꿀 수 있어요" ' +
+      'aria-label="내 마지막 접속 ' + esc(s.text) + ' — 탭하면 기기 프로필 바꾸기">' +
+      txt + '<span class="sw" aria-hidden="true">⇄</span></button>';
+  }
+  return '<span class="' + cls + '" title="마지막 접속 ' + esc(s.text) + '">' + txt + '</span>';
+}
+function paintSeen() {
+  $$('.card').forEach(card => {
+    const owner = card.dataset.owner;
+    const el = card.querySelector('.seen');
+    if (!el) return;
+    const s = seenInfo(owner);
+    const tx = el.querySelector('.stx');
+    if (tx) tx.textContent = s.text;
+    el.classList.toggle('live', s.live);
+    el.classList.toggle('none', s.none);
+    if (owner === ME) el.setAttribute('aria-label', '내 마지막 접속 ' + s.text + ' — 탭하면 기기 프로필 바꾸기');
+    else el.setAttribute('title', '마지막 접속 ' + s.text);
+  });
+}
+/* 내 접속 시간을 서버(rooms/{room}/lastSeen/{나})에 남긴다. 실패해도 화면은 그대로. */
+async function touchSeen(force) {
+  if (!ME || !ROOM) return;
+  const now = Date.now();
+  if (!force && now - seenLastSent < SEEN_THROTTLE) return;
+  seenLastSent = now;
+  ST.lastSeen = ST.lastSeen || {};
+  ST.lastSeen[ME] = now;          /* 내 화면에는 바로 반영 */
+  paintSeen();
+  try { await put('lastSeen/' + ME, now); } catch (e) { seenLastSent = 0; }
+}
+/* 서버 스냅샷이 내 기록보다 먼저 만들어진 것이면(방금 쓴 값이 스냅샷에 없으면)
+   내 시간이 잠깐 "아직 기록 없음"으로 보이지 않게 한 번 다시 남긴다. */
+function seenSelfGuard() {
+  if (ME && seenLastSent && !seenAt((ST.lastSeen || {})[ME])) touchSeen(true);
 }
 function doneTodos() {
   return todoList().filter(t => t.done)
@@ -574,7 +687,8 @@ function cardHtml(owner) {
     : '아직 할 일이 없어요';
   return '<section class="card" data-owner="' + owner + '">' +
     '<div class="card-head">' +
-      '<span class="who"><span class="avatar">' + info.emoji + '</span><span class="name">' + info.name + '</span></span>' +
+      '<span class="who"><span class="avatar">' + info.emoji + '</span>' +
+        '<span class="who-txt"><span class="name">' + info.name + '</span>' + seenEl(owner) + '</span></span>' +
       '<span class="ratio">' + doneN + '/' + all.length + '</span>' +
     '</div>' +
     '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
@@ -590,6 +704,7 @@ function render() {
   render.pending = false;
   $('#board').innerHTML = OWNER_ORDER.map(cardHtml).join('');
   paintDoneBar();
+  paintSeen();
   if (doneOpen()) paintDoneList();
 }
 /* 다른 기기의 연속 업데이트(순서 바꾸기 등)는 한 번에 모은 뒤 그린다 */
@@ -635,8 +750,37 @@ function closeDone() {
 }
 function syncSheetFlag() {
   const open = !$('#sheet').classList.contains('hidden') || !$('#doneSheet').classList.contains('hidden') ||
-               !$('#noteSheet').classList.contains('hidden') || !$('#memoSheet').classList.contains('hidden');
+               !$('#noteSheet').classList.contains('hidden') || !$('#memoSheet').classList.contains('hidden') ||
+               !$('#pickSheet').classList.contains('hidden');
   document.body.classList.toggle('sheet-open', open);
+}
+
+/* ============ 이 기기 프로필 고르기 ============ */
+function pickOpen() { return !$('#pickSheet').classList.contains('hidden'); }
+function openPick() {
+  $$('#pickSheet [data-pick]').forEach(b => b.classList.toggle('on', b.dataset.pick === ME));
+  $('#pickSheet').classList.remove('hidden');
+  syncSheetFlag();
+  pushSheetHistory();
+}
+function closePick() {
+  if (!ME) return;   /* 아직 고르지 않았으면 닫지 않는다 — 고른 뒤에만 닫힌다 */
+  $('#pickSheet').classList.add('hidden');
+  syncSheetFlag();
+  settleSheetHistory();
+}
+function setMe(who) {
+  if (!OWNER[who] || ME === who) { closePick(); return; }
+  ME = who;
+  try { localStorage.setItem(ME_KEY, who); } catch (e) {}
+  /* 이 기기 담당자를 기본값으로 (추가 시트가 내 이름으로 열린다) */
+  lastOwner = who;
+  try { localStorage.setItem('bubu.owner', who); } catch (e) {}
+  closePick();
+  seenLastSent = 0;
+  touchSeen(true);
+  render();
+  toast(ownerIcon(who) + ' ' + OWNER[who].name + ' 님 기기로 설정했어요');
 }
 
 /* ============ 안드로이드 뒤로가기 — 열린 시트만 닫기 ============
@@ -649,6 +793,7 @@ function anySheetOpen() {
   return !$('#sheet').classList.contains('hidden') ||
          !$('#noteSheet').classList.contains('hidden') ||
          !$('#memoSheet').classList.contains('hidden') ||
+         !$('#pickSheet').classList.contains('hidden') ||
          !$('#doneSheet').classList.contains('hidden');
 }
 function pushSheetHistory() {
@@ -674,7 +819,8 @@ function settleSheetHistory() {
   }, 0);
 }
 function closeTopSheet() {
-  if (!$('#memoSheet').classList.contains('hidden')) closeMemo();
+  if (pickOpen()) closePick();
+  else if (!$('#memoSheet').classList.contains('hidden')) closeMemo();
   else if (!$('#noteSheet').classList.contains('hidden')) closeNote();
   else if (!$('#sheet').classList.contains('hidden')) closeSheet();
   else if (!$('#doneSheet').classList.contains('hidden')) closeDone();
@@ -760,7 +906,9 @@ function connect() {
     let m; try { m = JSON.parse(ev.data); } catch (e) { return; }
     if (m.path === '/' || m.path === '') {
       ST.todos = (m.data && m.data.todos) || {};
+      ST.lastSeen = (m.data && m.data.lastSeen) || {};
       gotSnapshot = true;
+      seenSelfGuard();
     } else setAt(m.path, m.data);
     retry = 0; setLive('live'); stopPolling(); scheduleRender();
   });
@@ -784,6 +932,8 @@ function setAt(path, data) {
   const segs = String(path).split('/').filter(Boolean);
   if (!segs.length) {
     ST.todos = (data && data.todos) || {};
+    ST.lastSeen = (data && data.lastSeen) || {};
+    seenSelfGuard();
     return;
   }
   let obj = ST;
@@ -806,7 +956,9 @@ async function syncNow(quiet) {
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const d = (await r.json()) || {};
     ST.todos = d.todos || {};
+    ST.lastSeen = d.lastSeen || {};
     gotSnapshot = true;
+    seenSelfGuard();
     if (!es) setLive('live');
     render(); stopPolling();
   } catch (e) {
@@ -1316,6 +1468,8 @@ function initApp() {
     if (td) { e.preventDefault(); e.stopPropagation(); toggleToday(td.dataset.today); return; }
     const add = e.target.closest('.card-add');
     if (add) { e.preventDefault(); openAdd(add.dataset.owner); return; }
+    const sw = e.target.closest('[data-switch]');
+    if (sw) { e.preventDefault(); e.stopPropagation(); openPick(); return; }
   });
   board.addEventListener('keydown', e => {
     if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -1361,7 +1515,14 @@ function initApp() {
     if (e.key === 'Enter') { e.preventDefault(); saveTodo(); }
   });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeSheet(); closeDone(); closeNote(); closeMemo(); }
+    if (e.key === 'Escape') { closePick(); closeSheet(); closeDone(); closeNote(); closeMemo(); }
+  });
+
+  /* 이 기기 프로필 (세은 / 찬규) */
+  $('#pickSheet').addEventListener('click', e => {
+    if (e.target.dataset.pclose === '1') { closePick(); return; }
+    const b = e.target.closest('[data-pick]');
+    if (b) setMe(b.dataset.pick);
   });
 
   /* 📝 수정 요청 메모 */
@@ -1405,7 +1566,7 @@ function initApp() {
   $('#roomInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); joinRoom(); } });
 
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) { if (!es) syncNow(true); render(); }
+    if (!document.hidden) { if (!es) syncNow(true); render(); touchSeen(true); }
   });
 
   registerSW();
@@ -1467,6 +1628,15 @@ function boot() {
   render();
   connect();
   setInterval(() => { if (!es) syncNow(true); }, 20000);
+  /* 마지막 접속: 들어올 때 한 번, 그 뒤로는 보고 있는 동안 가끔 상대 화면에 "방금"이 유지되게 */
+  if (ME) touchSeen(true);
+  else openPick();
+  if (seenTimer) clearInterval(seenTimer);
+  seenTimer = setInterval(() => {
+    if (document.hidden) return;
+    touchSeen();
+    paintSeen();
+  }, 30000);
 }
 
 /* ============================================================
