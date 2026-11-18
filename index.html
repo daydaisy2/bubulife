@@ -97,6 +97,22 @@
   .bar i{display:block;height:100%;width:0;border-radius:999px;background:var(--navy);
          transition:width .35s cubic-bezier(.2,.8,.2,1)}
 
+  /* ---------- 서로의 한마디 (슬림 1줄 말풍선 바) ---------- */
+  .saybar{flex:0 0 auto;display:flex;align-items:center;gap:.36em;width:100%;min-width:0;
+          min-height:clamp(20px,2.5vw,26px);padding:0 clamp(7px,.9vw,12px);
+          border-radius:999px;background:var(--cream);color:#6F6A52;
+          font-size:clamp(10.5px,1.4vw,15px);font-weight:800;letter-spacing:-.02em;line-height:1;
+          text-align:left;white-space:nowrap;overflow:hidden;
+          transition:background .16s}
+  .saybar .bub{flex:0 0 auto;font-size:.95em;line-height:1;opacity:.92}
+  .saybar .sy{overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .saybar .sy.ph{color:#B3AD95;font-weight:700}
+  .saybar.has{background:#FBF2D6;color:#3C3827}
+  .saybar:active{background:#F4ECD2}
+  #sayInput{flex:1 1 auto;min-width:0;border:0;background:none;padding:14px 0;
+            font:inherit;font-weight:800;font-size:clamp(15px,2vw,19px);letter-spacing:-.02em;
+            color:var(--ink);outline:none}
+
   .rows{list-style:none;margin:0;padding:0 2px 0 0;position:relative;
         display:flex;flex-direction:column;gap:clamp(5px,.75vw,10px);
         flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
@@ -306,6 +322,7 @@
     .name{font-size:15px}
     .seen{font-size:9.5px}
     .ratio{font-size:13px}
+    .saybar{min-height:21px;font-size:11px}
     .top h1{font-size:20px}
     .card-add{min-height:50px;font-size:16px}
   }
@@ -317,6 +334,7 @@
     .check{width:22px;height:22px}
     .name{font-size:14px}
     .seen{font-size:9px}
+    .saybar{min-height:20px;font-size:10.5px}
   }
 
   /* ---------- 폰 세로 화면: 위(세은) / 아래(찬규) 절반 분할 ---------- */
@@ -430,6 +448,23 @@
   </button>
 </div>
 
+<div id="saySheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="sayTitle">
+  <div class="bd" data-sclose="1"></div>
+  <form id="sayForm" class="panel" autocomplete="off">
+    <div class="grab"></div>
+    <h2 id="sayTitle">💬 한마디</h2>
+    <div class="field">
+      <span class="ico" id="sayIcon" aria-hidden="true">👩🏻</span>
+      <input id="sayInput" type="text" maxlength="60" placeholder="한마디 남겨 보세요" enterkeyhint="done">
+    </div>
+    <p class="hint">상대 화면에도 바로 보여요</p>
+    <div class="acts">
+      <button type="submit" class="save">저장</button>
+      <button type="button" class="ghost" id="sayClear">🗑 비우기</button>
+    </div>
+  </form>
+</div>
+
 <div id="pickSheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
   <div class="bd" data-pclose="1"></div>
   <div class="panel pick-panel">
@@ -533,7 +568,7 @@ if (!ROOM_RE.test(ROOM)) {
   ROOM = ROOM_RE.test(saved) ? saved : '';
 }
 
-const ST = { todos: {}, lastSeen: {} };
+const ST = { todos: {}, lastSeen: {}, say: {} };
 let es = null, retry = 0, pollTimer = null, gotSnapshot = false;
 let drag = null;
 let openSwipeId = null;   /* 스와이프로 열어 둔 항목 — 다시 그려도 열린 채로 유지 */
@@ -649,6 +684,24 @@ async function touchSeen(force) {
 function seenSelfGuard() {
   if (ME && seenLastSent && !seenAt((ST.lastSeen || {})[ME])) touchSeen(true);
 }
+/* ============ 서로의 한마디 ============ */
+function sayText(owner) {
+  const s = (ST.say || {})[owner];
+  if (s == null) return '';
+  if (typeof s === 'string') return s.trim();
+  if (typeof s === 'object') return String(s.text == null ? '' : s.text).trim();
+  return '';
+}
+function sayBar(owner) {
+  const text = sayText(owner);
+  const name = OWNER[owner].name;
+  const inner = '<span class="bub" aria-hidden="true">💬</span>' +
+    (text ? '<span class="sy">' + esc(text) + '</span>'
+          : '<span class="sy ph">' + esc(name) + '의 한마디...</span>');
+  return '<button class="saybar' + (text ? ' has' : '') + '" type="button" data-say="' + owner + '" ' +
+    'title="' + esc(name + '의 한마디 ' + (text ? '고치기' : '쓰기')) + '" ' +
+    'aria-label="' + esc(name + '의 한마디 ' + (text ? '고치기' : '쓰기')) + '">' + inner + '</button>';
+}
 function doneTodos() {
   return todoList().filter(t => t.done)
     .sort((a, b) => (b.doneAt || b.updatedAt || 0) - (a.doneAt || a.updatedAt || 0));
@@ -692,6 +745,7 @@ function cardHtml(owner) {
       '<span class="ratio">' + doneN + '/' + all.length + '</span>' +
     '</div>' +
     '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
+    sayBar(owner) +
     '<ul class="rows" data-owner="' + owner + '">' +
       (open.length ? open.map(rowHtml).join('') : '<li class="empty">' + emptyMsg + '</li>') +
     '</ul>' +
@@ -751,8 +805,64 @@ function closeDone() {
 function syncSheetFlag() {
   const open = !$('#sheet').classList.contains('hidden') || !$('#doneSheet').classList.contains('hidden') ||
                !$('#noteSheet').classList.contains('hidden') || !$('#memoSheet').classList.contains('hidden') ||
-               !$('#pickSheet').classList.contains('hidden');
+               !$('#pickSheet').classList.contains('hidden') || !$('#saySheet').classList.contains('hidden');
   document.body.classList.toggle('sheet-open', open);
+}
+
+/* ============ 한마디 시트 ============ */
+let sayOwner = 'seeun';
+function sayOpen() { return !$('#saySheet').classList.contains('hidden'); }
+function openSay(owner) {
+  if (!OWNER[owner]) return;
+  sayOwner = owner;
+  $('#sayTitle').textContent = '💬 ' + OWNER[owner].name + '의 한마디';
+  $('#sayIcon').textContent = ownerIcon(owner);
+  $('#sayInput').value = sayText(owner);
+  resetSayClear();
+  $('#saySheet').classList.remove('hidden');
+  syncSheetFlag();
+  pushSheetHistory();
+}
+function closeSay() {
+  $('#saySheet').classList.add('hidden');
+  syncSheetFlag();
+  settleSheetHistory();
+  $('#sayInput').blur();
+  resetSayClear();
+}
+function resetSayClear() {
+  const b = $('#sayClear'); if (!b) return;
+  b.classList.remove('confirm');
+  b.textContent = '🗑 비우기';
+  clearTimeout(sayClearTimer); sayClearTimer = null;
+}
+let sayClearTimer = null;
+async function saveSay(e) {
+  if (e) e.preventDefault();
+  const owner = sayOwner;
+  const text = $('#sayInput').value.trim();
+  const before = (ST.say || {})[owner];
+  const hadBefore = before != null;
+  ST.say = ST.say || {};
+  if (!text) { closeSay(); clearSay(owner, before, hadBefore); return; }
+  const next = { text: text, at: Date.now() };
+  ST.say[owner] = next;
+  closeSay(); render();
+  try { await put('say/' + owner, next); toast('한마디를 남겼어요'); }
+  catch (err) {
+    if (hadBefore) ST.say[owner] = before; else delete ST.say[owner];
+    render(); toast('저장하지 못했어요');
+  }
+}
+async function clearSay(owner, before, hadBefore) {
+  ST.say = ST.say || {};
+  delete ST.say[owner];
+  render();
+  try { await del('say/' + owner); toast('한마디를 비웠어요'); }
+  catch (err) {
+    if (hadBefore) ST.say[owner] = before;
+    render(); toast('비우지 못했어요');
+  }
 }
 
 /* ============ 이 기기 프로필 고르기 ============ */
@@ -794,6 +904,7 @@ function anySheetOpen() {
          !$('#noteSheet').classList.contains('hidden') ||
          !$('#memoSheet').classList.contains('hidden') ||
          !$('#pickSheet').classList.contains('hidden') ||
+         !$('#saySheet').classList.contains('hidden') ||
          !$('#doneSheet').classList.contains('hidden');
 }
 function pushSheetHistory() {
@@ -819,7 +930,8 @@ function settleSheetHistory() {
   }, 0);
 }
 function closeTopSheet() {
-  if (pickOpen()) closePick();
+  if (sayOpen()) closeSay();
+  else if (pickOpen()) closePick();
   else if (!$('#memoSheet').classList.contains('hidden')) closeMemo();
   else if (!$('#noteSheet').classList.contains('hidden')) closeNote();
   else if (!$('#sheet').classList.contains('hidden')) closeSheet();
@@ -907,6 +1019,7 @@ function connect() {
     if (m.path === '/' || m.path === '') {
       ST.todos = (m.data && m.data.todos) || {};
       ST.lastSeen = (m.data && m.data.lastSeen) || {};
+      ST.say = (m.data && m.data.say) || {};
       gotSnapshot = true;
       seenSelfGuard();
     } else setAt(m.path, m.data);
@@ -933,6 +1046,7 @@ function setAt(path, data) {
   if (!segs.length) {
     ST.todos = (data && data.todos) || {};
     ST.lastSeen = (data && data.lastSeen) || {};
+    ST.say = (data && data.say) || {};
     seenSelfGuard();
     return;
   }
@@ -957,6 +1071,7 @@ async function syncNow(quiet) {
     const d = (await r.json()) || {};
     ST.todos = d.todos || {};
     ST.lastSeen = d.lastSeen || {};
+    ST.say = d.say || {};
     gotSnapshot = true;
     seenSelfGuard();
     if (!es) setLive('live');
@@ -1468,6 +1583,8 @@ function initApp() {
     if (td) { e.preventDefault(); e.stopPropagation(); toggleToday(td.dataset.today); return; }
     const add = e.target.closest('.card-add');
     if (add) { e.preventDefault(); openAdd(add.dataset.owner); return; }
+    const say = e.target.closest('[data-say]');
+    if (say) { e.preventDefault(); e.stopPropagation(); openSay(say.dataset.say); return; }
     const sw = e.target.closest('[data-switch]');
     if (sw) { e.preventDefault(); e.stopPropagation(); openPick(); return; }
   });
@@ -1515,7 +1632,7 @@ function initApp() {
     if (e.key === 'Enter') { e.preventDefault(); saveTodo(); }
   });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closePick(); closeSheet(); closeDone(); closeNote(); closeMemo(); }
+    if (e.key === 'Escape') { closePick(); closeSay(); closeSheet(); closeDone(); closeNote(); closeMemo(); }
   });
 
   /* 이 기기 프로필 (세은 / 찬규) */
@@ -1523,6 +1640,25 @@ function initApp() {
     if (e.target.dataset.pclose === '1') { closePick(); return; }
     const b = e.target.closest('[data-pick]');
     if (b) setMe(b.dataset.pick);
+  });
+
+  /* 💬 한마디 */
+  $('#sayForm').addEventListener('submit', saveSay);
+  $('#saySheet').addEventListener('click', e => { if (e.target.dataset.sclose === '1') closeSay(); });
+  $('#sayClear').addEventListener('click', e => {
+    const owner = sayOwner;
+    if (!sayText(owner)) { toast('비울 한마디가 없어요'); return; }
+    const btn = e.currentTarget;
+    if (!btn.classList.contains('confirm')) {
+      btn.classList.add('confirm');
+      btn.textContent = '정말 비울까요?';
+      clearTimeout(sayClearTimer);
+      sayClearTimer = setTimeout(resetSayClear, 4000);
+      return;
+    }
+    const before = (ST.say || {})[owner];
+    closeSay();
+    clearSay(owner, before, before != null);
   });
 
   /* 📝 수정 요청 메모 */
