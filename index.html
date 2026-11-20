@@ -226,9 +226,30 @@
   .seg button{padding:11px 6px;border-radius:11px;font-weight:900;font-size:clamp(13px,1.7vw,17px);color:#6E6A58}
   .seg button.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(120,95,0,.12)}
 
-  /* 🔁 요일 반복 */
+  /* 📅 요일 지정 (이번만 · 매주 반복) */
   .rep{display:flex;flex-direction:column;gap:9px;background:#F9F5E5;border-radius:16px;
        padding:11px 11px 10px;border:1.5px solid #F1EACE}
+  .rep-mode{display:grid;grid-template-columns:1fr 1fr;gap:5px;background:#fff;border-radius:12px;
+            padding:4px;border:1.5px solid #E7E1C8}
+  .rmode{height:clamp(30px,4vw,34px);border-radius:9px;background:none;border:1.5px solid transparent;
+         color:#8C8672;font-size:clamp(11px,1.45vw,13px);font-weight:900;letter-spacing:-.03em;
+         white-space:nowrap;display:grid;place-items:center;line-height:1;
+         transition:background .14s,color .14s,border-color .14s,box-shadow .14s}
+  .rmode.on{background:#231F78;color:#FBE049;box-shadow:0 2px 8px rgba(35,31,120,.2)}
+  .rmode[data-rmode="once"].on{background:var(--yellow);color:#231F78;border-color:#EBCF2E;
+                                box-shadow:0 2px 8px rgba(180,150,0,.18)}
+  .rmode:active{transform:scale(.98)}
+  .rep.is-once .rep-quick,.rep.is-later .rep-quick{display:none}
+  /* 🗓️ 이후 — 요일도 반복도 없이 나중에 할 일 */
+  .rlater{display:flex;align-items:center;justify-content:center;gap:6px;height:clamp(31px,4.1vw,35px);
+          border-radius:11px;background:#fff;border:1.6px dashed #D8D0B4;color:#8C8672;
+          font-size:clamp(11.5px,1.5vw,13.5px);font-weight:900;letter-spacing:-.03em;
+          transition:background .14s,color .14s,border-color .14s}
+  .rlater .rlater-x{font-size:.9em;font-weight:800;color:#A9A48D;letter-spacing:-.03em}
+  .rlater.on{background:#ECE8DA;border-style:solid;border-color:#D5CDB5;color:#5A5545}
+  .rlater.on .rlater-x{color:#6E6A58}
+  .rlater:active{transform:scale(.99)}
+  .rep.is-later .rday{opacity:.5}
   .rep-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
   .rep-top h3{margin:0;font-size:clamp(12.5px,1.65vw,15px);font-weight:900;
               letter-spacing:-.03em;color:#4A4636}
@@ -251,11 +272,15 @@
   .rq:active{transform:scale(.98)}
   .rep-sum{margin:0;font-size:11.5px;font-weight:800;color:#8C8672;letter-spacing:-.02em;line-height:1.3}
   .rep-sum.on{color:#2A2570;font-weight:900}
+  .rep.is-once .rep-sum.on{color:#7A5B00}
+  .rep.is-later .rep-sum.on{color:#4A4636}
   /* 목록 안의 반복 배지 */
   .row .rep-line{align-self:flex-start;display:inline-block;max-width:100%;
                  font-size:clamp(10.5px,1.5vw,13.5px);font-weight:900;letter-spacing:-.01em;line-height:1.2;
                  color:#2A2570;background:#EDEBFA;border-radius:999px;padding:2px 8px;
                  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .rep-line.once{color:#6B4E00;background:var(--yellow)}
+  .row .rep-line.later{color:#5A5545;background:#ECE8DA}
   .field{display:flex;align-items:center;gap:10px;border:2px solid var(--line);border-radius:14px;
          padding:0 13px;background:#fff;transition:border-color .15s}
   .field:focus-within{border-color:var(--navy)}
@@ -759,8 +784,12 @@
     <p class="hint">담당자 아이콘이 그대로 붙어요</p>
     <div class="rep" id="addRep">
       <div class="rep-top">
-        <h3>🔁 요일 반복</h3>
-        <button type="button" class="rep-off" data-rep-clear>반복 없음</button>
+        <h3>📅 요일 지정</h3>
+        <button type="button" class="rep-off" data-rep-clear>요일 없음</button>
+      </div>
+      <div class="rep-mode" role="group" aria-label="요일 지정 방식">
+        <button type="button" class="rmode on" data-rmode="once" aria-pressed="true">📌 이번만</button>
+        <button type="button" class="rmode" data-rmode="weekly" aria-pressed="false">🔁 매주 반복</button>
       </div>
       <div class="rep-days">
         <button type="button" class="rday" data-day="1" aria-pressed="false">월</button>
@@ -771,12 +800,13 @@
         <button type="button" class="rday" data-day="6" aria-pressed="false">토</button>
         <button type="button" class="rday" data-day="0" aria-pressed="false">일</button>
       </div>
+      <button type="button" class="rlater" data-later aria-pressed="false">🗓️ 이후 <span class="rlater-x">요일 없이 나중에</span></button>
       <div class="rep-quick">
         <button type="button" class="rq" data-rep="all">매일</button>
         <button type="button" class="rq" data-rep="weekday">평일</button>
         <button type="button" class="rq" data-rep="weekend">주말</button>
       </div>
-      <p class="rep-sum" data-rep-sum>안 고르면 한 번만 하는 할 일이에요</p>
+      <p class="rep-sum" data-rep-sum>지정한 요일 없음</p>
     </div>
     <div class="acts">
       <button type="submit" class="save">저장</button>
@@ -800,8 +830,12 @@
     <textarea id="noteInput" rows="3" maxlength="200" placeholder="메모를 적어 주세요"></textarea>
     <div class="rep" id="noteRep">
       <div class="rep-top">
-        <h3>🔁 요일 반복</h3>
-        <button type="button" class="rep-off" data-rep-clear>반복 없음</button>
+        <h3>📅 요일 지정</h3>
+        <button type="button" class="rep-off" data-rep-clear>요일 없음</button>
+      </div>
+      <div class="rep-mode" role="group" aria-label="요일 지정 방식">
+        <button type="button" class="rmode on" data-rmode="once" aria-pressed="true">📌 이번만</button>
+        <button type="button" class="rmode" data-rmode="weekly" aria-pressed="false">🔁 매주 반복</button>
       </div>
       <div class="rep-days">
         <button type="button" class="rday" data-day="1" aria-pressed="false">월</button>
@@ -812,12 +846,13 @@
         <button type="button" class="rday" data-day="6" aria-pressed="false">토</button>
         <button type="button" class="rday" data-day="0" aria-pressed="false">일</button>
       </div>
+      <button type="button" class="rlater" data-later aria-pressed="false">🗓️ 이후 <span class="rlater-x">요일 없이 나중에</span></button>
       <div class="rep-quick">
         <button type="button" class="rq" data-rep="all">매일</button>
         <button type="button" class="rq" data-rep="weekday">평일</button>
         <button type="button" class="rq" data-rep="weekend">주말</button>
       </div>
-      <p class="rep-sum" data-rep-sum>안 고르면 한 번만 하는 일이에요</p>
+      <p class="rep-sum" data-rep-sum>지정한 요일 없음</p>
     </div>
     <div class="acts">
       <button type="submit" class="save">저장</button>
@@ -875,8 +910,10 @@ let es = null, retry = 0, pollTimer = null, gotSnapshot = false;
 let drag = null;
 let openSwipeId = null;   /* 스와이프로 열어 둔 항목 — 다시 그려도 열린 채로 유지 */
 let draft = { id: null, owner: 'seeun' };
-let addRepeatDays = [];    /* 추가 시트에서 고른 요일 반복 */
-let noteRepeatDays = [];   /* 메모·수정 시트에서 고른 요일 반복 */
+let addRepeatDays = [];    /* 추가 시트에서 고른 요일 */
+let addRepeatMode = 'once';/* 추가 시트의 요일 지정 방식 — once(이번만) / weekly(매주 반복) */
+let noteRepeatDays = [];   /* 메모·수정 시트에서 고른 요일 */
+let noteRepeatMode = 'once';
 let lastOwner = localStorage.getItem('bubu.owner') || 'seeun';
 if (!OWNER[lastOwner]) lastOwner = 'seeun';
 
@@ -925,10 +962,12 @@ function openTodos(owner) {   /* 카드에 보이는 것 = 아직 안 한 일 */
   return sortTodos(todoList().filter(t => ownerOf(t) === owner && !t.done));
 }
 
-/* ============ 🔁 요일 반복 ============
+/* ============ 📅 요일 지정 (이번만 · 매주 반복) ============
    repeatDays: [0~6] — JS getDay() 기준(0=일, 1=월 … 6=토), 월요일부터 보이게 정렬해 둔다.
+   repeatMode: 'once' 면 고른 요일에만 오늘할일이 켜지고, 완료하면 끝난다(되살아나지 않는다).
+               없거나 'weekly' 면 매주 그 요일에 다시 올린다 — 예전 데이터(repeatDays 만 있는 항목)가 그대로 매주 반복이다.
    lastResetDate: 마지막으로 완료했거나 다시 올린 한국 날짜(YYYY-MM-DD).
-   오늘이 그 항목의 반복 요일이고 lastResetDate 가 오늘보다 앞서 있으면 한 번만 미완료로 되살린다. */
+   오늘이 그 항목의 반복 요일이고 lastResetDate 가 오늘보다 앞서 있으면 한 번만 미완료로 되살린다(매주 반복만). */
 const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];      /* 월 화 수 목 금 토 일 */
 const DAY_NAME  = { 0: '일', 1: '월', 2: '화', 3: '수', 4: '목', 5: '금', 6: '토' };
 const KST_OFFSET = 9 * 60 * 60 * 1000;        /* 한국시간은 서머타임이 없어 고정 +9시간 */
@@ -956,6 +995,14 @@ function normDays(v) {
   return DAY_ORDER.filter(n => has[n]);
 }
 function repeatOf(t) { return normDays(t && t.repeatDays); }
+/* 요일 지정 방식 — 예전 데이터처럼 repeatMode 가 없으면 매주 반복으로 읽는다.
+   later: true 면 요일도 반복도 없이 '나중에 할 일'이다. */
+function modeOf(t) {
+  if (t && t.later) return 'later';
+  return t && t.repeatMode === 'once' ? 'once' : 'weekly';
+}
+function isOnce(t) { return modeOf(t) === 'once'; }
+function isLater(t) { return !!(t && t.later); }
 function sameDays(a, b) {
   const x = normDays(a), y = normDays(b);
   return x.length === y.length && x.every((n, i) => n === y[i]);
@@ -975,15 +1022,37 @@ function repeatLabel(days) {
   return '매주 ' + d.map(n => DAY_NAME[n]).join('·');
 }
 function repeatBadge(t) {
+  if (isLater(t)) return '<span class="rep-line later" title="나중에 할 일">🗓️ 이후</span>';
   const d = repeatOf(t);
   if (!d.length) return '';
-  return '<span class="rep-line" title="요일 반복">🔁 ' + esc(repeatLabel(d)) + '</span>';
+  if (isOnce(t)) return '<span class="rep-line once" title="이번만 하는 요일">📌 ' + esc(onceLabel(d)) + '</span>';
+  return '<span class="rep-line" title="매주 반복">🔁 ' + esc(repeatLabel(d)) + '</span>';
+}
+/* 이번만 배지·요약 — `📌 토`, `📌 월·수` 처럼 요일만 보여 준다 */
+function onceLabel(days) {
+  const d = normDays(days);
+  if (!d.length) return '';
+  return d.length === 7 ? '매일' : d.map(n => DAY_NAME[n]).join('·');
 }
 
-/* 시트 안 요일 반복 칸을 지금 선택에 맞춰 칠한다 */
-function paintRepeat(box, days) {
+/* 시트 안 요일 지정 칸을 지금 선택·방식에 맞춰 칠한다 */
+function paintRepeat(box, days, mode) {
   if (!box) return;
   const d = normDays(days);
+  const once = mode === 'once';
+  const later = mode === 'later';
+  box.classList.toggle('is-once', once);
+  box.classList.toggle('is-later', later);
+  $$('[data-rmode]', box).forEach(b => {
+    const on = b.dataset.rmode === mode;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  const lb = $('[data-later]', box);
+  if (lb) {
+    lb.classList.toggle('on', later);
+    lb.setAttribute('aria-pressed', later ? 'true' : 'false');
+  }
   $$('.rday', box).forEach(b => {
     const on = d.indexOf(Number(b.dataset.day)) >= 0;
     b.classList.toggle('on', on);
@@ -992,9 +1061,20 @@ function paintRepeat(box, days) {
   $$('.rq', box).forEach(b => b.classList.toggle('on', sameDays(d, presetDays(b.dataset.rep))));
   const sum = $('[data-rep-sum]', box);
   if (sum) {
-    sum.textContent = d.length ? '🔁 ' + repeatLabel(d) + ' 다시 올라와요'
-                              : '안 고르면 한 번만 하는 일이에요';
-    sum.classList.toggle('on', !!d.length);
+    if (later) {
+      sum.textContent = '🗓️ 요일 없이 나중에 할 일 — 오늘할일이 저절로 켜지지 않아요';
+      sum.classList.add('on');
+    } else if (!d.length) {
+      sum.textContent = '지정한 요일 없음';
+      sum.classList.remove('on');
+    } else if (once) {
+      sum.textContent = '📌 ' + onceLabel(d) + (d.length === 7 ? ' ' : '요일에 ') +
+                        '오늘할일이 켜지고, 완료하면 끝나요';
+      sum.classList.add('on');
+    } else {
+      sum.textContent = '🔁 ' + repeatLabel(d) + ' 다시 올라와요';
+      sum.classList.add('on');
+    }
   }
 }
 /* 요일·빠른 선택·반복 없음을 한 자리에서 처리 — 새 배열을 돌려준다 */
@@ -1017,8 +1097,9 @@ function repeatTap(e, days) {
   return normDays(next);
 }
 
-/* 완료한 반복 할 일을 오늘(반복 요일)에 맞춰 한 번만 되살린다.
-   두 기기가 동시에 열려 있어도 같은 값을 쓰는 멱등 처리라 결과가 같다. */
+/* 완료한 매주 반복 할 일을 오늘(반복 요일)에 맞춰 한 번만 되살린다.
+   · 이번만(once) 항목은 되살리지 않는다 — 한 번 완료하면 그걸로 끝.
+   · 두 기기가 동시에 열려 있어도 같은 값을 쓰는 멱등 처리라 결과가 같다. */
 let repBusy = false;
 async function applyRepeatResets() {
   if (repBusy) return 0;
@@ -1027,6 +1108,7 @@ async function applyRepeatResets() {
   Object.keys(ST.todos || {}).forEach(id => {
     const t = ST.todos[id];
     if (!t || !t.done) return;
+    if (isOnce(t)) return;                                  /* 이번만 — 완료하면 끝, 다시 안 올린다 */
     const days = repeatOf(t);
     if (!days.length || days.indexOf(dow) < 0) return;      /* 오늘이 반복 요일이 아니면 그대로 */
     if (t.lastResetDate === ymd) return;                    /* 오늘 이미 완료·되살림 */
@@ -1043,7 +1125,7 @@ async function applyRepeatResets() {
   return jobs.length;
 }
 
-/* 오늘 요일인 반복 할 일은 '오늘할일'을 하루 한 번만 자동으로 켜 둔다.
+/* 오늘이 지정 요일인 할 일은 '오늘할일'을 하루 한 번만 자동으로 켜 둔다(이번만·매주 모두).
    · 손으로 오늘할일을 끄면 그날은 다시 켜지 않는다(항목마다 lastTodayAutoDate 로 기억).
    · 두 기기가 동시에 켜도 같은 값을 쓰는 멱등 처리라 결과가 같다. */
 let repTodayBusy = false;
@@ -1694,6 +1776,8 @@ function openNote(id) {
   noteDraft = id;
   noteOwner = ownerOf(t);
   noteRepeatDays = repeatOf(t);
+  noteRepeatMode = isLater(t) ? 'later' :
+                   (noteRepeatDays.length ? modeOf(t) : 'once');   /* 요일이 없으면 이번만으로 시작 */
   $('#noteText').value = t.text || '';
   $('#noteInput').value = t.note || '';
   paintNote();
@@ -1708,7 +1792,7 @@ function openNote(id) {
 function paintNote() {
   $$('#noteOwnerSeg button').forEach(b => b.classList.toggle('on', b.dataset.owner === noteOwner));
   $('#noteIcon').textContent = ownerIcon(noteOwner);
-  paintRepeat($('#noteRep'), noteRepeatDays);
+  paintRepeat($('#noteRep'), noteRepeatDays, noteRepeatMode);
   resetDelBtn();
 }
 function closeNote() {
@@ -1729,22 +1813,40 @@ async function saveNote(e) {
   if (!text) { $('#noteText').focus(); toast('할 일을 적어 주세요'); return; }
   const note = $('#noteInput').value.trim();
   const ownerChanged = ownerOf(t) !== noteOwner;
-  const days = normDays(noteRepeatDays);
+  const later = noteRepeatMode === 'later';
+  const days = later ? [] : normDays(noteRepeatDays);       /* 🗓️ 이후 — 요일과 함께 쓰지 않는다 */
+  /* 저장하면 어떤 모양이 되는지 — null 이면 요일도 반복도 이후도 없는 보통 할 일 */
+  const want = later ? 'later' : (days.length ? (noteRepeatMode === 'once' ? 'once' : 'weekly') : null);
   const daysSame = sameDays(days, repeatOf(t));
-  if (!ownerChanged && t.text === text && (t.note || '') === note && daysSame) { closeNote(); return; }
+  const modeSame = want === null ? (!repeatOf(t).length && !isLater(t)) : (modeOf(t) === want);
+  if (!ownerChanged && t.text === text && (t.note || '') === note && daysSame && modeSame) { closeNote(); return; }
   const now = Date.now();
   const before = { text: t.text, note: t.note, owner: t.owner, icon: t.icon,
-                   order: t.order, repeatDays: t.repeatDays,
+                   order: t.order, repeatDays: t.repeatDays, repeatMode: t.repeatMode, later: t.later,
                    today: t.today, lastTodayAutoDate: t.lastTodayAutoDate || null,
                    lastResetDate: t.lastResetDate, updatedAt: t.updatedAt };
   const body = { text: text, note: note || null, owner: noteOwner,
                  icon: ownerIcon(noteOwner), updatedAt: now };
   if (ownerChanged) body.order = nextOrder(noteOwner);
-  if (days.length) body.repeatDays = days;
-  else if (t.repeatDays != null) body.repeatDays = null;   /* 반복 없음 — 필드를 지운다 */
-  /* 이미 완료해 둔 일에 반복을 새로 걸면 오늘 바로 되살아나지 않게 오늘 날짜를 남긴다 */
-  if (days.length && t.done && !t.lastResetDate) body.lastResetDate = kstParts().ymd;
-  /* 오늘이 반복 요일이면 저장하는 순간 오늘할일을 켠다(완료해 둔 일은 그대로) */
+  if (later) {
+    body.later = true;
+    if (t.repeatDays != null) body.repeatDays = null;      /* 이후는 요일·반복과 같이 쓰지 않는다 */
+    if (t.repeatMode != null) body.repeatMode = null;
+  } else {
+    if (t.later) body.later = null;
+    if (days.length) {
+      body.repeatDays = days;
+      /* 이번만은 repeatMode:'once' 로 남기고, 매주 반복은 예전 데이터 모양(필드 없음) 그대로 둔다 */
+      if (want === 'once') body.repeatMode = 'once';
+      else if (t.repeatMode != null) body.repeatMode = null;
+    } else {
+      if (t.repeatDays != null) body.repeatDays = null;    /* 요일 없음 — 필드를 지운다 */
+      if (t.repeatMode != null) body.repeatMode = null;
+    }
+  }
+  /* 이미 완료해 둔 일에 매주 반복을 새로 걸면 오늘 바로 되살아나지 않게 오늘 날짜를 남긴다 */
+  if (want === 'weekly' && t.done && !t.lastResetDate) body.lastResetDate = kstParts().ymd;
+  /* 오늘이 지정 요일이면 저장하는 순간 오늘할일을 켠다(완료해 둔 일은 그대로, 이후는 요일이 없으니 해당 없음) */
   if (days.length && !t.done) {
     const { ymd, dow } = kstParts();
     if (days.indexOf(dow) >= 0) { body.today = true; body.lastTodayAutoDate = ymd; }
@@ -1893,8 +1995,8 @@ async function toggle(id) {
   const before = { done: !!t.done, doneAt: t.doneAt || null, lastResetDate: t.lastResetDate || null, updatedAt: t.updatedAt };
   const nextDone = !t.done;
   const next = { done: nextDone, doneAt: nextDone ? now : null, updatedAt: now };
-  /* 반복 할 일은 오늘 완료했다는 것을 남겨 두어야 다음 반복 요일에 다시 올릴 수 있다 */
-  if (nextDone && repeatOf(t).length) next.lastResetDate = kstParts().ymd;
+  /* 매주 반복 할 일은 오늘 완료했다는 것을 남겨 두어야 다음 반복 요일에 다시 올릴 수 있다(이번만은 되살릴 일이 없다) */
+  if (nextDone && !isOnce(t) && repeatOf(t).length) next.lastResetDate = kstParts().ymd;
   Object.assign(t, next);
   render();
   try { await patch('todos/' + id, next); toast(nextDone ? '완료했어요' : '다시 할 일로 옮겼어요'); }
@@ -1913,6 +2015,7 @@ function openAdd(owner) {
   if (owner === 'workout' || !OWNER[owner]) owner = ME || lastOwner || 'seeun';
   draft = { id: null, owner: OWNER[owner] ? owner : 'seeun' };
   addRepeatDays = [];
+  addRepeatMode = 'once';        /* 새 할 일은 기본이 📌 이번만 */
   $('#textInput').value = '';
   paintSheet();
   $('#sheet').classList.remove('hidden');
@@ -1923,7 +2026,7 @@ function openAdd(owner) {
 function paintSheet() {
   $$('#ownerSeg button').forEach(b => b.classList.toggle('on', b.dataset.owner === draft.owner));
   $('#iconPreview').textContent = ownerIcon(draft.owner);
-  paintRepeat($('#addRep'), addRepeatDays);
+  paintRepeat($('#addRep'), addRepeatDays, addRepeatMode);
 }
 function closeSheet() {
   $('#sheet').classList.add('hidden');
@@ -1948,10 +2051,13 @@ async function saveTodo(e) {
     id, text, icon, owner: draft.owner, done: false,
     order: nextOrder(draft.owner), createdAt: now, updatedAt: now
   };
-  if (addRepeatDays.length) {
+  if (addRepeatMode === 'later') {
+    obj.later = true;                     /* 🗓️ 요일 없이 나중에 할 일 */
+  } else if (addRepeatDays.length) {
     const days = normDays(addRepeatDays);
     obj.repeatDays = days;
-    /* 오늘이 반복 요일이면 곧바로 오늘할일로 */
+    if (addRepeatMode === 'once') obj.repeatMode = 'once';
+    /* 오늘이 지정 요일이면 곧바로 오늘할일로 */
     const { ymd, dow } = kstParts();
     if (days.indexOf(dow) >= 0) { obj.today = true; obj.lastTodayAutoDate = ymd; }
   }
@@ -2781,19 +2887,41 @@ function initApp() {
     const b = e.target.closest('button[data-owner]'); if (!b) return;
     draft.owner = b.dataset.owner; paintSheet();
   });
-  /* 🔁 요일 반복 — 추가·메모·수정 두 시트에서 같은 방식으로 고른다 */
-  const bindRepeat = (sel, get, set) => {
+  /* 📅 요일 지정 — 추가·메모·수정 두 시트에서 같은 방식으로 고른다 */
+  const bindRepeat = (sel, getDays, setDays, getMode, setMode) => {
     const box = $(sel); if (!box) return;
     box.addEventListener('click', e => {
-      const before = get();
+      const el = e.target;
+      if (!el || !el.closest) return;
+      const repaint = () => paintRepeat(box, getDays(), getMode());
+      /* 🗓️ 이후 — 요일과 함께 쓰지 않고, 누를 때마다 켜고 끈다 */
+      if (el.closest('[data-later]')) {
+        if (getMode() === 'later') { setMode('once'); setDays([]); }
+        else { setMode('later'); setDays([]); }   /* 이후는 요일을 모두 비운다(매주에서 눌러도 이번만의 이후로) */
+        repaint(); return;
+      }
+      /* 📌 이번만 / 🔁 매주 반복 */
+      const mb = el.closest('[data-rmode]');
+      if (mb) {
+        if (getMode() === mb.dataset.rmode) return;
+        setMode(mb.dataset.rmode);
+        repaint(); return;
+      }
+      /* 요일·빠른 선택·요일 없음 — 이후였으면 고르는 순간 이번만으로 돌아온다 */
+      const picker = el.closest('[data-day]') || el.closest('[data-rep]') || el.closest('[data-rep-clear]');
+      if (!picker) return;
+      const before = getDays();
       const next = repeatTap(e, before);
+      if (getMode() === 'later') { setMode('once'); setDays(next); repaint(); return; }
       if (next === before) return;
-      set(next);
-      paintRepeat(box, next);
+      setDays(next);
+      repaint();
     });
   };
-  bindRepeat('#addRep', () => addRepeatDays, v => { addRepeatDays = v; });
-  bindRepeat('#noteRep', () => noteRepeatDays, v => { noteRepeatDays = v; });
+  bindRepeat('#addRep', () => addRepeatDays, v => { addRepeatDays = v; },
+             () => addRepeatMode, v => { addRepeatMode = v; });
+  bindRepeat('#noteRep', () => noteRepeatDays, v => { noteRepeatDays = v; },
+             () => noteRepeatMode, v => { noteRepeatMode = v; });
   $('#sheet').addEventListener('click', e => { if (e.target.dataset.close === '1') closeSheet(); });
   $('#textInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); saveTodo(); }
