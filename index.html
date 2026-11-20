@@ -1030,15 +1030,49 @@ async function applyRepeatResets() {
     const days = repeatOf(t);
     if (!days.length || days.indexOf(dow) < 0) return;      /* 오늘이 반복 요일이 아니면 그대로 */
     if (t.lastResetDate === ymd) return;                    /* 오늘 이미 완료·되살림 */
-    const next = { done: false, doneAt: null, today: true, lastResetDate: ymd, updatedAt: Date.now() };
+    const next = { done: false, doneAt: null, today: true, lastTodayAutoDate: ymd, lastResetDate: ymd, updatedAt: Date.now() };
     Object.assign(t, next);
     jobs.push(patch('todos/' + id, next).catch(() => {}));
   });
-  if (!jobs.length) return 0;
+  if (!jobs.length) { applyRepeatToday(); return 0; }
   repBusy = true;
   render();
   try { await Promise.all(jobs); toast('🔁 오늘 반복 할 일을 다시 올렸어요'); }
   finally { repBusy = false; }
+  applyRepeatToday();        /* 되살린 뒤에도 오늘 요일 반복 항목은 오늘할일로 */
+  return jobs.length;
+}
+
+/* 오늘 요일인 반복 할 일은 '오늘할일'을 하루 한 번만 자동으로 켜 둔다.
+   · 손으로 오늘할일을 끄면 그날은 다시 켜지 않는다(항목마다 lastTodayAutoDate 로 기억).
+   · 두 기기가 동시에 켜도 같은 값을 쓰는 멱등 처리라 결과가 같다. */
+let repTodayBusy = false;
+async function applyRepeatToday() {
+  if (repTodayBusy) return 0;
+  const { ymd, dow } = kstParts();
+  const now = Date.now();
+  const jobs = [];
+  Object.keys(ST.todos || {}).forEach(id => {
+    const t = ST.todos[id];
+    if (!t || t.done) return;
+    const days = repeatOf(t);
+    if (!days.length || days.indexOf(dow) < 0) return;     /* 오늘이 반복 요일이 아니면 그대로 */
+    if (t.lastTodayAutoDate === ymd) return;               /* 오늘은 이미 자동 처리— 아니면 손으로 껐다 */
+    if (t.today === true) {                                /* 이미 켜져 있으면 날짜 표시만 남긴다 */
+      const mark = { lastTodayAutoDate: ymd };
+      Object.assign(t, mark);
+      jobs.push(patch('todos/' + id, mark).catch(() => {}));
+      return;
+    }
+    const next = { today: true, lastTodayAutoDate: ymd, updatedAt: now };
+    Object.assign(t, next);
+    jobs.push(patch('todos/' + id, next).catch(() => {}));
+  });
+  if (!jobs.length) return 0;
+  repTodayBusy = true;
+  render();
+  try { await Promise.all(jobs); }
+  finally { repTodayBusy = false; }
   return jobs.length;
 }
 
@@ -1348,10 +1382,10 @@ function sayBar(owner) {
   const name = OWNER[owner].name;
   const inner = '<span class="bub" aria-hidden="true">💬</span>' +
     (text ? '<span class="sy">' + esc(text) + '</span>'
-          : '<span class="sy ph">' + esc(name) + '의 한마디...</span>');
+          : '<span class="sy ph">' + esc(name) + '에게 한마디...</span>');
   return '<button class="saybar' + (text ? ' has' : '') + '" type="button" data-say="' + owner + '" ' +
-    'title="' + esc(name + '의 한마디 ' + (text ? '고치기' : '쓰기')) + '" ' +
-    'aria-label="' + esc(name + '의 한마디 ' + (text ? '고치기' : '쓰기')) + '">' + inner + '</button>';
+    'title="' + esc(name + '에게 한마디 ' + (text ? '고치기' : '쓰기')) + '" ' +
+    'aria-label="' + esc(name + '에게 한마디 ' + (text ? '고치기' : '쓰기')) + '">' + inner + '</button>';
 }
 function doneTodos() {
   return todoList().filter(t => t.done)
@@ -1516,8 +1550,9 @@ function sayOpen() { return !$('#saySheet').classList.contains('hidden'); }
 function openSay(owner) {
   if (!OWNER[owner]) return;
   sayOwner = owner;
-  $('#sayTitle').textContent = '💬 ' + OWNER[owner].name + '의 한마디';
+  $('#sayTitle').textContent = '💬 ' + OWNER[owner].name + '에게 한마디';
   $('#sayIcon').textContent = ownerIcon(owner);
+  $('#sayInput').placeholder = OWNER[owner].name + '에게 한마디...';
   $('#sayInput').value = sayText(owner);
   resetSayClear();
   $('#saySheet').classList.remove('hidden');
@@ -1700,6 +1735,7 @@ async function saveNote(e) {
   const now = Date.now();
   const before = { text: t.text, note: t.note, owner: t.owner, icon: t.icon,
                    order: t.order, repeatDays: t.repeatDays,
+                   today: t.today, lastTodayAutoDate: t.lastTodayAutoDate || null,
                    lastResetDate: t.lastResetDate, updatedAt: t.updatedAt };
   const body = { text: text, note: note || null, owner: noteOwner,
                  icon: ownerIcon(noteOwner), updatedAt: now };
@@ -1708,6 +1744,11 @@ async function saveNote(e) {
   else if (t.repeatDays != null) body.repeatDays = null;   /* 반복 없음 — 필드를 지운다 */
   /* 이미 완료해 둔 일에 반복을 새로 걸면 오늘 바로 되살아나지 않게 오늘 날짜를 남긴다 */
   if (days.length && t.done && !t.lastResetDate) body.lastResetDate = kstParts().ymd;
+  /* 오늘이 반복 요일이면 저장하는 순간 오늘할일을 켠다(완료해 둔 일은 그대로) */
+  if (days.length && !t.done) {
+    const { ymd, dow } = kstParts();
+    if (days.indexOf(dow) >= 0) { body.today = true; body.lastTodayAutoDate = ymd; }
+  }
   Object.assign(t, body);
   closeNote(); render();
   try {
@@ -1829,9 +1870,10 @@ async function del(path) {
 /* ============ 오늘할일 표시 ============ */
 async function toggleToday(id) {
   const t = ST.todos[id]; if (!t) return;
-  const before = { today: !!t.today, updatedAt: t.updatedAt };
+  const before = { today: !!t.today, lastTodayAutoDate: t.lastTodayAutoDate || null, updatedAt: t.updatedAt };
   const nextToday = !t.today;
-  const next = { today: nextToday, updatedAt: Date.now() };
+  /* 손으로 켜거나 끈 날은 반복 자동 켜기가 다시 건드리지 않게 날짜를 남긴다 */
+  const next = { today: nextToday, lastTodayAutoDate: kstParts().ymd, updatedAt: Date.now() };
   Object.assign(t, next);
   render();
   try {
@@ -1906,7 +1948,13 @@ async function saveTodo(e) {
     id, text, icon, owner: draft.owner, done: false,
     order: nextOrder(draft.owner), createdAt: now, updatedAt: now
   };
-  if (addRepeatDays.length) obj.repeatDays = normDays(addRepeatDays);
+  if (addRepeatDays.length) {
+    const days = normDays(addRepeatDays);
+    obj.repeatDays = days;
+    /* 오늘이 반복 요일이면 곧바로 오늘할일로 */
+    const { ymd, dow } = kstParts();
+    if (days.indexOf(dow) >= 0) { obj.today = true; obj.lastTodayAutoDate = ymd; }
+  }
   ST.todos[id] = obj;
   lastOwner = draft.owner; localStorage.setItem('bubu.owner', lastOwner);
   const justOwner = draft.owner;   /* 방금 넣은 사람 — 그 탭을 열어서 바로 보이게 */
@@ -2492,9 +2540,9 @@ function sortStep(id, dir) {
 /* 순서 편집기 안 `오늘할일` 토글 — 그 자리에서 바로 켜고 끄고 Firebase 에도 바로 보낸다 */
 async function sortToggleToday(id, btn) {
   const t = ST.todos[id]; if (!t) return;
-  const before = { today: !!t.today, updatedAt: t.updatedAt };
+  const before = { today: !!t.today, lastTodayAutoDate: t.lastTodayAutoDate || null, updatedAt: t.updatedAt };
   const on = !t.today;
-  const next = { today: on, updatedAt: Date.now() };
+  const next = { today: on, lastTodayAutoDate: kstParts().ymd, updatedAt: Date.now() };
   Object.assign(t, next);
   paintTodayBtn(btn, on);
   render();                       /* 메인 화면 알약도 같이 맞춘다(순서 목록은 그대로) */
