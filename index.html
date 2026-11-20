@@ -156,7 +156,17 @@
   .row-acts .act .ai{font-size:1.7em;line-height:1}
   .row-acts .del{background:#C0392B}
   .row-acts .act:active{filter:brightness(.9)}
-  .row .ico{flex:0 0 auto;font-size:clamp(16px,2.4vw,30px);line-height:1}
+  /* 왼쪽 동그라미 — 사람 아바타 자리에 요일/이후를 1~3글자 배지로(이모지 없이) */
+  .row .ico{flex:0 0 auto;width:clamp(30px,3.7vw,34px);height:clamp(30px,3.7vw,34px);
+            border-radius:50%;display:grid;place-items:center;
+            font-size:clamp(16px,2.4vw,26px);line-height:1}
+  .row .ico.dayb{font-size:clamp(11.5px,1.45vw,14.5px);font-weight:900;letter-spacing:-.05em;
+                 line-height:1;padding-bottom:1px;box-shadow:0 1px 2px rgba(110,85,0,.12)}
+  .row .ico.dayb.n2{font-size:clamp(10px,1.3vw,12.5px)}
+  .row .ico.dayb.n3{font-size:clamp(8.5px,1.1vw,10.5px);letter-spacing:-.09em}
+  .row .ico.dayb.once{background:#FDE68A;color:#6B4E00}
+  .row .ico.dayb.weekly{background:#E9E7FD;color:#1E1B7A}
+  .row .ico.dayb.later{background:#ECE8DA;color:#5A5545}
   .row .body{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:.12em}
   .row .txt{min-width:0;font-size:clamp(14px,2.15vw,27px);font-weight:900;
             letter-spacing:-.035em;line-height:1.2;
@@ -274,13 +284,6 @@
   .rep-sum.on{color:#2A2570;font-weight:900}
   .rep.is-once .rep-sum.on{color:#7A5B00}
   .rep.is-later .rep-sum.on{color:#4A4636}
-  /* 목록 안의 반복 배지 */
-  .row .rep-line{align-self:flex-start;display:inline-block;max-width:100%;
-                 font-size:clamp(10.5px,1.5vw,13.5px);font-weight:900;letter-spacing:-.01em;line-height:1.2;
-                 color:#2A2570;background:#EDEBFA;border-radius:999px;padding:2px 8px;
-                 white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .row .rep-line.once{color:#6B4E00;background:var(--yellow)}
-  .row .rep-line.later{color:#5A5545;background:#ECE8DA}
   .field{display:flex;align-items:center;gap:10px;border:2px solid var(--line);border-radius:14px;
          padding:0 13px;background:#fff;transition:border-color .15s}
   .field:focus-within{border-color:var(--navy)}
@@ -483,7 +486,16 @@
         padding:0 6px 0 clamp(9px,1.2vw,14px);position:relative;
         box-shadow:0 2px 8px rgba(112,86,0,.10);transition:box-shadow .16s}
   .srow .sno{flex:0 0 auto;min-width:1.4em;text-align:center;font-size:12px;font-weight:900;color:#B6AF8C}
-  .srow .sico{flex:0 0 auto;font-size:clamp(19px,2.6vw,25px);line-height:1}
+  .srow .sico{flex:0 0 auto;width:clamp(26px,7vw,30px);height:clamp(26px,7vw,30px);
+              border-radius:50%;display:grid;place-items:center;
+              font-size:clamp(19px,2.6vw,25px);line-height:1}
+  .srow .sico.dayb{font-size:clamp(10px,1.4vw,11.5px);font-weight:900;letter-spacing:-.05em;
+                   line-height:1;padding-bottom:1px;box-shadow:0 1px 2px rgba(110,85,0,.12)}
+  .srow .sico.dayb.n2{font-size:clamp(9px,1.2vw,10.5px)}
+  .srow .sico.dayb.n3{font-size:clamp(8px,1.05vw,9px);letter-spacing:-.09em}
+  .srow .sico.dayb.once{background:#FDE68A;color:#6B4E00}
+  .srow .sico.dayb.weekly{background:#E9E7FD;color:#1E1B7A}
+  .srow .sico.dayb.later{background:#ECE8DA;color:#5A5545}
   .srow .stxt{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
   .srow .smain{font-size:clamp(14.5px,2vw,19px);font-weight:900;letter-spacing:-.035em;line-height:1.24;
                white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1012,7 +1024,13 @@ function presetDays(kind) {
   if (kind === 'weekday') return [1, 2, 3, 4, 5];
   return [6, 0];                          /* 주말 */
 }
-/* 목록 배지 — 7개면 매일, 평일/주말은 그대로, 나머지는 매주 월·수·금 */
+/* 이번만 배지·요약 — `📌 토`, `📌 월·수` 처럼 요일만 보여 준다 */
+function onceLabel(days) {
+  const d = normDays(days);
+  if (!d.length) return '';
+  return d.length === 7 ? '매일' : d.map(n => DAY_NAME[n]).join('·');
+}
+/* 요약 문장용 — 7개면 매일, 평일/주말은 그대로, 나머지는 매주 월·수·금 */
 function repeatLabel(days) {
   const d = normDays(days);
   if (!d.length) return '';
@@ -1021,18 +1039,41 @@ function repeatLabel(days) {
   if (d.length === 2 && d.indexOf(0) >= 0 && d.indexOf(6) >= 0) return '주말';
   return '매주 ' + d.map(n => DAY_NAME[n]).join('·');
 }
-function repeatBadge(t) {
-  if (isLater(t)) return '<span class="rep-line later" title="나중에 할 일">🗓️ 이후</span>';
-  const d = repeatOf(t);
-  if (!d.length) return '';
-  if (isOnce(t)) return '<span class="rep-line once" title="이번만 하는 요일">📌 ' + esc(onceLabel(d)) + '</span>';
-  return '<span class="rep-line" title="매주 반복">🔁 ' + esc(repeatLabel(d)) + '</span>';
-}
-/* 이번만 배지·요약 — `📌 토`, `📌 월·수` 처럼 요일만 보여 준다 */
-function onceLabel(days) {
+/* 목록 왼쪽 동그라미 — 요일을 1~3글자로 줄인다.
+   매일 · 평일 · 주말 · 월 · 월수 · 월수금 · (4개 이상) 월+ */
+function dayChipLabel(days, mode) {
   const d = normDays(days);
   if (!d.length) return '';
-  return d.length === 7 ? '매일' : d.map(n => DAY_NAME[n]).join('·');
+  if (d.length === 7) return '매일';
+  if (mode !== 'once') {
+    if (d.length === 5 && d.indexOf(0) < 0 && d.indexOf(6) < 0) return '평일';
+    if (d.length === 2 && d.indexOf(0) >= 0 && d.indexOf(6) >= 0) return '주말';
+  }
+  if (d.length <= 3) return d.map(n => DAY_NAME[n]).join('');
+  return DAY_NAME[d[0]] + '+';
+}
+/* 동그라미 안에 넣을 배지 정보 — 요일·이후가 없으면 null(사람 이모지 그대로) */
+function dayChip(t) {
+  if (!t) return null;
+  if (isLater(t)) return { text: '이후', kind: 'later', n: 2, title: '나중에 할 일' };
+  const d = repeatOf(t);
+  if (!d.length) return null;
+  const mode = modeOf(t);
+  const text = dayChipLabel(d, mode);
+  if (!text) return null;
+  return {
+    text: text,
+    kind: mode === 'once' ? 'once' : 'weekly',
+    n: Math.min(3, text.length),
+    title: (mode === 'once' ? '이번만 · ' : '매주 · ') + d.map(n => DAY_NAME[n]).join('·')
+  };
+}
+/* 목록·순서 편집기 왼쪽 칸: 배지가 있으면 동그라미 배지, 없으면 사람 이모지 */
+function icoHtml(t, base) {
+  const c = dayChip(t);
+  if (!c) return '<span class="' + base + '">' + esc(iconFor(t)) + '</span>';
+  return '<span class="' + base + ' dayb ' + c.kind + ' n' + c.n + '" title="' + esc(c.title) + '">' +
+    esc(c.text) + '</span>';
 }
 
 /* 시트 안 요일 지정 칸을 지금 선택·방식에 맞춰 칠한다 */
@@ -1484,10 +1525,9 @@ function rowHtml(t) {
         '<span class="ai" aria-hidden="true">🗑</span>삭제</button>' +
     '</div>' +
     '<div class="row-face">' +
-      '<span class="ico">' + esc(iconFor(t)) + '</span>' +
+      icoHtml(t, 'ico') +
       '<span class="body">' +
         '<span class="txt">' + esc(t.text) + '</span>' +
-        repeatBadge(t) +
         (note ? '<span class="note-line">📝 ' + esc(note) + '</span>' : '') +
       '</span>' +
       '<button class="today-pill' + (t.today ? ' on' : '') + '" type="button" data-today="' + id + '"' +
@@ -2382,7 +2422,7 @@ function sortRowHtml(id, i, n) {
   const note = String(t.note == null ? '' : t.note).trim();
   return '<li class="srow" data-id="' + esc(id) + '">' +
     '<span class="sno">' + (i + 1) + '</span>' +
-    '<span class="sico" aria-hidden="true">' + esc(iconFor(t)) + '</span>' +
+    icoHtml(t, 'sico') +
     '<span class="stxt"><span class="smain">' + esc(t.text) + '</span>' +
       (note ? '<span class="snote">📝 ' + esc(note) + '</span>' : '') + '</span>' +
     '<button type="button" class="stoday' + (t.today ? ' on' : '') + '" data-stoday="' + esc(id) + '"' +
