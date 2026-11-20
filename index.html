@@ -2201,7 +2201,7 @@ async function saveOrder(owner) {
   });
   render();
   if (!jobs.length) return;
-  try { await Promise.all(jobs); toast('순서를 저장했어요'); }
+  try { await Promise.all(jobs); }        /* 조용히 저장 — 알림 토스트는 띄우지 않는다 */
   catch (e) { toast('순서를 저장하지 못했어요'); }
 }
 
@@ -2517,6 +2517,9 @@ function paintTodayBtn(btn, on) {
 /* --- 완료: 바뀐 order 만 한 번에 --- */
 async function commitSort() {
   const ids = sortIds.filter(id => ST.todos[id]);
+  /* 열었을 때와 순서가 그대로면 아무것도 보내지 않는다 — 열었다가 그냥 닫은 경우 Firebase 를 건드리지 않는다 */
+  const orig = sortOrig ? sortOrig.ids.filter(id => ST.todos[id]) : null;
+  if (orig && orig.length === ids.length && ids.every((id, i) => id === orig[i])) return;
   const body = {}, before = {};
   const now = Date.now();
   ids.forEach((id, i) => {
@@ -2531,8 +2534,7 @@ async function commitSort() {
   if (!Object.keys(body).length) return;   /* 바뀐 게 없으면 서버는 그대로 둔다 */
   render();
   try {
-    await patchRoom(body);
-    toast('순서를 저장했어요');
+    await patchRoom(body);        /* 조용히 저장 — 알림 토스트는 띄우지 않는다 */
   } catch (e) {
     Object.keys(before).forEach(id => {
       const t = ST.todos[id]; if (!t) return;
