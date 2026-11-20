@@ -7,7 +7,18 @@ const ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './icon-maskable-192.png',
-  './icon-maskable-512.png'
+  './icon-maskable-512.png',
+  './wo/bubu.jpg',
+  './wo/jiny.jpg',
+  './wo/somi.jpg',
+  './wo/hana5.jpg',
+  './wo/mizi.jpg',
+  './wo/jieun.jpg',
+  './wo/ppiyak.jpg',
+  './wo/bbang.jpg',
+  './wo/afit_up.jpg',
+  './wo/hana_lb.jpg',
+  './wo/afit_lb.jpg'
 ];
 
 self.addEventListener('install', (e) => {
