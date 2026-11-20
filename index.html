@@ -66,8 +66,9 @@
   .dot.warn{background:#D08A17}
   .dot.off{background:#A9A497}
 
-  .board{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:1fr 1fr;
-         gap:var(--gap);align-items:stretch}
+  /* 한 번에 한 사람 카드만 — 그 카드가 화면 높이를 넓게 쓴다 */
+  .board{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:var(--gap)}
+  .board > .card{flex:1 1 auto}
 
   /* ---------- card ---------- */
   .card{background:var(--white);border-radius:var(--radius);padding:clamp(8px,1.25vw,18px);
@@ -173,15 +174,35 @@
   body.is-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
   body.is-dragging .row{transition:none}
 
-  /* 큰 추가 버튼 */
-  /* 카드 헤더의 + 할일추가 (진한 초록 알약) */
-  .top-add{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:2px;
-           height:26px;padding:0 10px;border-radius:999px;background:#15803D;color:#fff;
-           font-size:11px;font-weight:900;letter-spacing:-.03em;line-height:1;white-space:nowrap;
-           box-shadow:0 2px 6px rgba(21,128,61,.26);transition:background .16s,transform .1s}
-  .top-add .pl{font-size:12px;line-height:1;margin-top:-1px}
-  .top-add:active{background:#116B32;transform:translateY(1px)}
-  .top-add:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
+  /* ---------- 하단 큰 추가 버튼 — 지금 보고 있는 탭의 사람 할 일 ---------- */
+  .add-dock{flex:0 0 auto}
+  .card-add{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+            min-height:clamp(50px,6.4vw,60px);border-radius:clamp(14px,1.6vw,18px);
+            background:linear-gradient(180deg,#FDEC86,var(--yellow));
+            color:#2A2510;font-weight:900;font-size:clamp(16px,2.05vw,21px);letter-spacing:-.03em;
+            box-shadow:0 2px 0 #E9C92C, 0 5px 14px rgba(120,95,0,.16);
+            transition:transform .1s, box-shadow .1s}
+  .card-add .plus{font-size:1.3em;line-height:1;font-weight:900;margin-top:-.06em}
+  .card-add:active{transform:translateY(2px);box-shadow:0 0 0 #E9C92C, 0 2px 6px rgba(120,95,0,.14)}
+  .card-add:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
+
+  /* ---------- 하단 고정 2탭 (👩🏻 세은 / 👨🏻 찬규) ---------- */
+  .person-tabs{flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;gap:8px;
+               padding:7px;border-radius:22px 22px 0 0;
+               background:rgba(255,255,255,.8);backdrop-filter:blur(10px);
+               box-shadow:0 -6px 20px rgba(112,86,0,.14)}
+  .ptab{display:flex;align-items:center;justify-content:center;gap:.34em;
+        min-height:clamp(50px,6.2vw,58px);border-radius:16px;
+        font-size:clamp(14.5px,1.95vw,18px);font-weight:900;letter-spacing:-.03em;
+        color:#8F8A73;transition:background .18s,color .18s,box-shadow .18s,transform .1s}
+  .ptab .pe{font-size:1.3em;line-height:1;opacity:.62;transition:opacity .18s}
+  .ptab.on{background:var(--navy);color:var(--yellow);box-shadow:0 4px 12px rgba(30,27,122,.26)}
+  .ptab.on .pe{opacity:1}
+  .ptab:active{transform:translateY(1px)}
+  .ptab:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
+  /* 탭을 바꿀 때 카드가 살짝 올라오며 바뀐다 */
+  @keyframes tabIn{from{opacity:.45;transform:translateY(7px)}to{opacity:1;transform:none}}
+  .board.tabsw > .card{animation:tabIn .2s cubic-bezier(.2,.8,.2,1)}
 
   /* ---------- sheet (공통) ---------- */
   .sheet{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center}
@@ -338,16 +359,19 @@
     .top h1{font-size:18px}
     .seen{font-size:9px}
     .top .lock-btn,.top .memo-btn,.top .done-btn{width:28px;height:28px}
+    .card-add{min-height:48px;font-size:15px}
+    .ptab{min-height:46px;font-size:13.5px}
   }
 
-  /* ---------- 폰 세로 화면: 위(세은) / 아래(찬규) 절반 분할 ---------- */
+  /* ---------- 폰 세로 화면: 한 사람 카드가 화면 전체를 쓴다 ---------- */
   @media (max-width:760px) and (orientation:portrait){
     #app{gap:8px;padding:8px 10px}
-    .board{grid-template-columns:1fr;grid-template-rows:1fr 1fr;gap:8px}
     .card{padding:8px 9px 9px;gap:6px;border-radius:18px}
   }
   @media (min-width:900px){
     .row .txt{-webkit-line-clamp:2}
+    /* 넓은 화면에서는 카드가 지나치게 늘어나지 않게 가운데로 */
+    #app{width:100%;max-width:860px;margin:0 auto}
   }
 
   /* 오늘할일 알약 */
@@ -446,7 +470,6 @@
   @media (max-width:360px){
     .sort-pill{padding:0 5px;height:24px}
     .sort-pill .sl{display:none}
-    .top-add{font-size:10px;padding:0 7px;height:24px}
     .sort-head h2{font-size:15px}
     .sort-head .shint{font-size:10px}
   }
@@ -535,6 +558,17 @@
     </div>
   </header>
   <main id="board" class="board"></main>
+  <div class="add-dock">
+    <button id="addBig" class="card-add" type="button" aria-label="할 일 추가">
+      <span class="plus" aria-hidden="true">+</span> 할 일 추가
+    </button>
+  </div>
+  <nav id="personTabs" class="person-tabs" role="tablist" aria-label="누구의 할 일을 볼지 고르기">
+    <button class="ptab" type="button" role="tab" data-tab-owner="seeun" aria-selected="false" aria-controls="board">
+      <span class="pe" aria-hidden="true">👩🏻</span>세은</button>
+    <button class="ptab" type="button" role="tab" data-tab-owner="chankyu" aria-selected="false" aria-controls="board">
+      <span class="pe" aria-hidden="true">👨🏻</span>찬규</button>
+  </nav>
 </div>
 
 <div id="saySheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="sayTitle">
@@ -680,6 +714,10 @@ const ME_KEY = 'bubu.me.v1';
 let ME = localStorage.getItem(ME_KEY) || '';
 if (!OWNER[ME]) ME = '';
 
+/* 지금 보고 있는 탭(seeun / chankyu). 앱을 열면 이 기기 사람 탭부터 열리고,
+   그 뒤로는 하단 탭을 눌러 언제든 자유롭게 오간다(기기에는 남기지 않는다). */
+let TAB = OWNER[ME] ? ME : 'seeun';
+
 /* ============ 도우미 ============ */
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -818,14 +856,12 @@ function cardHtml(owner) {
   const pct = all.length ? Math.round(doneN / all.length * 100) : 0;
   const emptyMsg = all.length
     ? '남은 할 일이 없어요 🎉<br>완료됨에서 다시 꺼낼 수 있어요'
-    : '아직 할 일이 없어요<br>위의 + 할일추가로 넣어 보세요';
-  return '<section class="card" data-owner="' + owner + '">' +
+    : '아직 할 일이 없어요<br>아래 + 할 일 추가로 넣어 보세요';
+  return '<section class="card" data-owner="' + owner + '" role="tabpanel" aria-label="' + info.name + ' 할 일">' +
     '<div class="card-head">' +
       '<span class="who"><span class="avatar">' + info.emoji + '</span>' +
         '<span class="who-txt"><span class="name">' + info.name + '</span></span></span>' +
       sayBar(owner) +
-      '<button class="top-add" type="button" data-add="' + owner + '" aria-label="' + info.name + ' 할 일 추가">' +
-        '<span class="pl" aria-hidden="true">+</span>할일추가</button>' +
       '<button class="sort-pill" type="button" data-sort="' + owner + '" ' +
         'aria-label="' + info.name + ' 할 일 순서 바꾸기(큰 화면)" title="큰 화면에서 순서 바꾸기">' +
         '<span class="sp" aria-hidden="true">⇅</span><span class="sl">순서</span></button>' +
@@ -836,10 +872,43 @@ function cardHtml(owner) {
     '</ul>' +
   '</section>';
 }
+function paintTabs() {
+  $$('#personTabs .ptab').forEach(b => {
+    const on = b.dataset.tabOwner === TAB;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+    b.setAttribute('tabindex', on ? '0' : '-1');
+  });
+}
+function paintAddDock() {
+  const b = $('#addBig'); if (!b) return;
+  const info = OWNER[TAB] || OWNER.seeun;
+  b.setAttribute('aria-label', info.name + ' 할 일 추가');
+  b.dataset.owner = TAB;
+}
+function setTab(owner) {
+  if (!OWNER[owner]) return;
+  const changed = TAB !== owner;
+  TAB = owner;
+  closeAllSwipes();
+  render();
+  if (changed) {
+    const bd = $('#board');
+    if (bd) {
+      bd.classList.remove('tabsw');
+      void bd.offsetWidth;      /* 같은 애니메이션이 다시 돌게 */
+      bd.classList.add('tabsw');
+      clearTimeout(setTab._t);
+      setTab._t = setTimeout(() => bd.classList.remove('tabsw'), 240);
+    }
+  }
+}
 function render() {
   if (drag && drag.active) { render.pending = true; return; }
   render.pending = false;
-  $('#board').innerHTML = OWNER_ORDER.map(cardHtml).join('');
+  $('#board').innerHTML = cardHtml(TAB);
+  paintTabs();
+  paintAddDock();
   paintDoneBar();
   paintSeen();
   if (doneOpen()) paintDoneList();
@@ -969,12 +1038,13 @@ function setMe(who) {
   if (!OWNER[who] || ME === who) { closePick(); return; }
   ME = who;
   try { localStorage.setItem(ME_KEY, who); } catch (e) {}
-  /* 이 기기 담당자를 기본값으로 (추가 시트가 내 이름으로 열린다) */
+  /* 이 기기 담당자를 기본값으로 (추가 시트도 내 이름으로, 그리고 내 탭이 열린다) */
   lastOwner = who;
   try { localStorage.setItem('bubu.owner', who); } catch (e) {}
   closePick();
   seenLastSent = 0;
   touchSeen(true);
+  TAB = who;
   render();
   toast(ownerIcon(who) + ' ' + OWNER[who].name + ' 님 기기로 설정했어요');
 }
@@ -1235,7 +1305,7 @@ function resetDelBtn() {
   clearTimeout(delTimer); delTimer = null;
 }
 function openAdd(owner) {
-  draft = { id: null, owner: owner || lastOwner };
+  draft = { id: null, owner: OWNER[owner] ? owner : TAB };
   $('#textInput').value = '';
   paintSheet();
   $('#sheet').classList.remove('hidden');
@@ -1272,9 +1342,12 @@ async function saveTodo(e) {
   };
   ST.todos[id] = obj;
   lastOwner = draft.owner; localStorage.setItem('bubu.owner', lastOwner);
-  closeSheet(); render();
+  const justOwner = draft.owner;   /* 방금 넣은 사람 — 그 탭을 열어서 바로 보이게 */
+  closeSheet();
+  if (TAB !== justOwner) TAB = justOwner;
+  render();
   /* 방금 추가한 할 일이 맨 위에 보이도록 그 카드의 목록을 맨 위로 */
-  const lst = $('.rows[data-owner="' + draft.owner + '"]');
+  const lst = $('.rows[data-owner="' + justOwner + '"]');
   if (lst) lst.scrollTop = 0;
   try { await put('todos/' + id, obj); toast(icon + ' 추가했어요'); }
   catch (err) { delete ST.todos[id]; render(); toast('저장하지 못했어요'); }
@@ -2005,6 +2078,16 @@ function initApp() {
   document.addEventListener('touchcancel', onTouchCancel, { passive: true });
 
   $('#seenBox').addEventListener('click', e => { e.preventDefault(); openPick(); });
+
+  /* 하단 2탭 — 👩🏻 세은 / 👨🏻 찬규 */
+  const tabs = $('#personTabs');
+  if (tabs) tabs.addEventListener('click', e => {
+    const b = e.target.closest('[data-tab-owner]');
+    if (b) { e.preventDefault(); setTab(b.dataset.tabOwner); }
+  });
+  /* 하단 큰 + 할 일 추가 — 지금 보고 있는 탭의 사람으로 바로 */
+  const addBig = $('#addBig');
+  if (addBig) addBig.addEventListener('click', () => { closeAllSwipes(); openAdd(TAB); });
   board.addEventListener('click', e => {
     /* 스와이프 제스처 뒤에 따라오는 click 은 누르지 않은 것으로 친다 */
     if (gestureSwiped) { gestureSwiped = false; e.preventDefault(); e.stopPropagation(); return; }
@@ -2024,8 +2107,6 @@ function initApp() {
     if (ck) { e.preventDefault(); toggle(ck.dataset.id); return; }
     const td = e.target.closest('.today-pill');
     if (td) { e.preventDefault(); e.stopPropagation(); toggleToday(td.dataset.today); return; }
-    const add = e.target.closest('[data-add]');
-    if (add) { e.preventDefault(); openAdd(add.dataset.add); return; }
     const say = e.target.closest('[data-say]');
     if (say) { e.preventDefault(); e.stopPropagation(); openSay(say.dataset.say); return; }
     const srt = e.target.closest('[data-sort]');
