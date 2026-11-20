@@ -877,7 +877,6 @@ function paintTabs() {
     const on = b.dataset.tabOwner === TAB;
     b.classList.toggle('on', on);
     b.setAttribute('aria-selected', on ? 'true' : 'false');
-    b.setAttribute('tabindex', on ? '0' : '-1');
   });
 }
 function paintAddDock() {
