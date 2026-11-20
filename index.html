@@ -1105,6 +1105,7 @@ const WO_TOTAL = WO_ALL.length;
 
 let WOST = { date: '', checks: {}, history: [], celebrated: '' };
 let woBuilt = false;
+let woRaw = '';          /* 마지막으로 읽거나 쓴 원문 — 다른 화면(세은 운동 앱)에서 바뀌었는지 비교용 */
 
 function woPad(n) { return (n < 10 ? '0' : '') + n; }
 function woToday() {
@@ -1115,6 +1116,7 @@ function woLoad() {
   WOST = { date: woToday(), checks: {}, history: [], celebrated: '' };
   let raw = null;
   try { raw = localStorage.getItem(WO_KEY); } catch (e) { raw = null; }
+  woRaw = raw || '';
   if (!raw) return;
   let d = null;
   try { d = JSON.parse(raw); } catch (e) { return; }
@@ -1132,7 +1134,8 @@ function woLoad() {
   if (typeof d.celebrated === 'string') WOST.celebrated = d.celebrated;
 }
 function woSave() {
-  try { localStorage.setItem(WO_KEY, JSON.stringify(WOST)); } catch (e) {}
+  woRaw = JSON.stringify(WOST);
+  try { localStorage.setItem(WO_KEY, woRaw); } catch (e) {}
 }
 function woGroupDone(g) { let n = 0; g.items.forEach(it => { if (WOST.checks[it.id]) n++; }); return n; }
 function woStats() {
@@ -1250,8 +1253,11 @@ function woRollover() {
 }
 function woTick() {
   if (!woBuilt) return;
+  let cur = '';
+  try { cur = localStorage.getItem(WO_KEY) || ''; } catch (e) {}
+  if (cur !== woRaw) woLoad();     /* 세은 운동 앱 등 다른 화면에서 체크했으면 다시 읽어 맞춘다 */
   if (woRollover()) { woPaint(); toast('날짜가 바뀌어 오늘 운동이 새로 시작됐어요'); return; }
-  if (TAB === 'workout') woPaint();
+  woPaint();
 }
 function woResetOpen() { return !$('#woReset').classList.contains('hidden'); }
 function openWoReset() {
@@ -2660,6 +2666,8 @@ function initApp() {
   $('#woResetYes').addEventListener('click', woResetNow);
   $('#woResetNo').addEventListener('click', closeWoReset);
   $('#woReset').addEventListener('click', e => { if (e.target.dataset.wrclose === '1') closeWoReset(); });
+  /* 세은 운동 앱(다른 탭·창)에서 체크하면 이 화면도 바로 따라간다 */
+  window.addEventListener('storage', e => { if (e && e.key === WO_KEY) woTick(); });
   board.addEventListener('click', e => {
     /* 스와이프 제스처 뒤에 따라오는 click 은 누르지 않은 것으로 친다 */
     if (gestureSwiped) { gestureSwiped = false; e.preventDefault(); e.stopPropagation(); return; }
