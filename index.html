@@ -3996,11 +3996,17 @@ async function shopSaveText(id) {
 function shopAskDelete(id) {
   if (shopDelId === id) { shopDeleteNow(id); return; }
   shopDelId = id;
-  shopShown = ''; shopPaint();
-  const inp = $('#shopEdit');
-  if (inp) inp.value = (inp.value || '');     /* 고치던 글자는 그대로 둔다 */
+  /* 목록을 다시 그리지 않고 그 버튼만 바꿔 단다 — 고치던 글자·포커스가 그대로 남는다 */
+  shopDelPaint();
   clearTimeout(shopDelT);
-  shopDelT = setTimeout(() => { shopDelId = ''; shopShown = ''; shopPaint(); }, 4500);
+  shopDelT = setTimeout(() => { shopDelId = ''; shopDelPaint(); }, 4500);
+}
+function shopDelPaint() {
+  $$('#shopList [data-shop-del]').forEach(b => {
+    const on = b.dataset.shopDel === shopDelId;
+    b.classList.toggle('confirm', on);
+    b.textContent = on ? '지우기?' : '✕';
+  });
 }
 async function shopDeleteNow(id) {
   clearTimeout(shopDelT);
