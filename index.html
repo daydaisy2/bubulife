@@ -743,14 +743,14 @@
   .wt-head{display:flex;align-items:center;gap:8px}
   .wt-tit{min-width:0;flex:1 1 auto}
   .wt-nav{flex:0 0 auto;display:flex;align-items:center;gap:4px}
-  .wt-arrow{flex:0 0 auto;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;
-            background:var(--cream);color:#6E6A58;font-size:9px;font-weight:900;line-height:1;
+  .wt-arrow{flex:0 0 auto;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;
+            background:var(--cream);color:#6E6A58;font-size:10.5px;font-weight:900;line-height:1;
             border:1.5px solid #EFE8CF;transition:background .14s}
   .wt-arrow:active{background:#F1EBCE}
   .wt-arrow:disabled{opacity:.32}
   .wt-dwrap{position:relative;display:inline-flex;flex:0 0 auto}
-  .wt-date{height:24px;padding:0 8px;border-radius:8px;background:var(--cream);
-           border:1.5px solid #EFE8CF;color:#4A4426;font-size:10.5px;font-weight:900;
+  .wt-date{height:28px;padding:0 10px;border-radius:9px;background:var(--cream);
+           border:1.5px solid #EFE8CF;color:#4A4426;font-size:11px;font-weight:900;
            letter-spacing:-.03em;white-space:nowrap;font-variant-numeric:tabular-nums}
   .wt-date.today{background:var(--navy);border-color:var(--navy);color:#fff}
   .wt-dinput{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;
@@ -1974,7 +1974,8 @@ function wtPaint() {
   }
   const di = $('#wtDateInput');
   if (di) {
-    if (di.value !== wtDate) di.value = wtDate;
+    /* 날짜칸을 고르는 중(포커스)에는 건드리지 않는다 — 다시 그리기가 고른 값을 되돌리면 안 된다 */
+    if (document.activeElement !== di && di.value !== wtDate) di.value = wtDate;
     if (di.max !== today) di.max = today;
   }
   const sub = $('#wtSub');
