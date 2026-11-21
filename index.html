@@ -990,8 +990,8 @@
                autocomplete="off" spellcheck="false" maxlength="40" aria-label="살 것 이름">
         <div class="shop-form-row">
           <div class="shop-own" id="shopOwn" role="group" aria-label="담당 고르기">
-            <button type="button" class="shop-chip" data-newown="seeun">세은</button>
-            <button type="button" class="shop-chip" data-newown="chankyu">찬규</button>
+            <button type="button" class="shop-chip" data-newown="seeun" aria-pressed="false">세은</button>
+            <button type="button" class="shop-chip" data-newown="chankyu" aria-pressed="false">찬규</button>
           </div>
           <button type="button" class="shop-save" id="shopSave">넣기</button>
         </div>
@@ -3899,7 +3899,7 @@ function shopOpenForm(open) {
   }
   if (!shopFormOpen) {
     shopNewOwner = '';
-    $$('#shopOwn [data-newown]').forEach(b => b.classList.remove('on'));
+    $$('#shopOwn [data-newown]').forEach(b => { b.classList.remove('on'); b.setAttribute('aria-pressed', 'false'); });
   } else {
     const inp = $('#shopInput');
     if (inp) { try { inp.focus(); } catch (e) {} }
@@ -3907,7 +3907,11 @@ function shopOpenForm(open) {
 }
 function shopPickNewOwner(owner) {
   shopNewOwner = (shopNewOwner === owner) ? '' : owner;
-  $$('#shopOwn [data-newown]').forEach(b => b.classList.toggle('on', b.dataset.newown === shopNewOwner));
+  $$('#shopOwn [data-newown]').forEach(b => {
+    const on = b.dataset.newown === shopNewOwner;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
 }
 async function shopAddItem() {
   const inp = $('#shopInput');
@@ -3922,6 +3926,8 @@ async function shopAddItem() {
   ST.shopping = ST.shopping || {};
   ST.shopping[id] = item;
   inp.value = '';
+  shopNewOwner = '';                     /* 다음 품목은 다시 담당 없음부터 */
+  $$('#shopOwn [data-newown]').forEach(b => { b.classList.remove('on'); b.setAttribute('aria-pressed', 'false'); });
   shopShown = '';
   shopPaint();
   if (navigator.vibrate) { try { navigator.vibrate(10); } catch (e) {} }
@@ -3994,7 +4000,7 @@ function shopAskDelete(id) {
   const inp = $('#shopEdit');
   if (inp) inp.value = (inp.value || '');     /* 고치던 글자는 그대로 둔다 */
   clearTimeout(shopDelT);
-  shopDelT = setTimeout(() => { shopDelId = ''; shopShown = ''; shopPaint(); }, 3000);
+  shopDelT = setTimeout(() => { shopDelId = ''; shopShown = ''; shopPaint(); }, 4500);
 }
 async function shopDeleteNow(id) {
   clearTimeout(shopDelT);
