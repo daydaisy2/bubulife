@@ -99,6 +99,19 @@
   .bar i{display:block;height:100%;width:0;border-radius:999px;background:var(--navy);
          transition:width .35s cubic-bezier(.2,.8,.2,1)}
 
+  /* ---------- 📅 오늘 일정 배너 — 진행률 바 바로 아래, 첫 할 일 위 ---------- */
+  .today-cal{flex:0 0 auto;display:flex;align-items:center;gap:.36em;width:100%;min-width:0;
+             min-height:clamp(32px,4vw,42px);padding:0 clamp(9px,1.3vw,15px);
+             border-radius:clamp(11px,1.5vw,17px);background:#E8F0FC;
+             box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 1px 3px rgba(70,100,160,.14);
+             font-size:clamp(11px,1.45vw,15px);font-weight:800;letter-spacing:-.02em;line-height:1;
+             text-align:left;white-space:nowrap;overflow:hidden;transition:background .15s}
+  .today-cal .tci{flex:0 0 auto;font-size:1.1em;line-height:1}
+  .today-cal .tcl{flex:0 0 auto;font-weight:900;color:var(--navy)}
+  .today-cal .tcs{flex:0 0 auto;color:#8FA2C0;font-weight:900;margin:0 .12em}
+  .today-cal .tcv{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;font-weight:800;color:#2C3550}
+  .today-cal:active{background:#D6E4F7}
+
   /* ---------- 서로의 한마디 (슬림 1줄 말풍선 바) ---------- */
   /* 카드 머리줄(이름 오른쪽 ~ 진행률 왼쪽)에 들어가는 한마디 바 */
   .card-head .who{flex:0 0 auto;max-width:55%}
@@ -171,6 +184,9 @@
   .row .db.weekly{background:#E9E7FD;color:#1E1B7A}
   .row .db.other{background:#DFF2DD;color:#1F5F2C}
   .row .db.later{background:#ECE8DA;color:#5A5545}
+  /* 📅 일정에서 만든 할 일 — 요일 동그라미 자리에 흰 원 + 달력 배지 */
+  .row .db.cal{background:#fff;box-shadow:0 0 0 1.5px #E3DED0, 0 1px 2px rgba(110,85,0,.12);
+               font-size:clamp(13px,1.7vw,16px);padding-bottom:0;letter-spacing:0}
   .row .body{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:.12em}
   .row .txt{min-width:0;font-size:clamp(14px,2.15vw,27px);font-weight:900;
             letter-spacing:-.035em;line-height:1.2;
@@ -411,6 +427,17 @@
   #evNote:focus{border-color:var(--navy)}
   .ev-sub{flex:0 0 auto;height:38px;padding:0 12px;border-radius:12px;background:var(--cream);color:#6E6A58;
           font-size:12px;font-weight:900;letter-spacing:-.02em}
+  /* 📅 일정 시트 — 할 일에도 넣기 */
+  .ev-link{display:flex;flex-direction:column;gap:7px;background:#F9F5E5;border-radius:16px;
+           padding:10px 11px;border:1.5px solid #F1EACE}
+  .ev-link h3{margin:0;font-size:clamp(12.5px,1.65vw,15px);font-weight:900;letter-spacing:-.03em;color:#4A4636}
+  .ev-link-chips{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .el-chip{height:clamp(31px,4.1vw,37px);border-radius:11px;border:1.5px solid #E7E1C8;background:#fff;
+           color:#8C8672;font-size:clamp(11px,1.45vw,13px);font-weight:900;letter-spacing:-.03em;
+           white-space:nowrap;transition:background .14s,color .14s,border-color .14s,box-shadow .14s}
+  .el-chip.on{background:#231F78;border-color:#231F78;color:#FBE049;box-shadow:0 2px 8px rgba(35,31,120,.2)}
+  .el-chip:active{transform:scale(.98)}
+  .ev-link p{margin:0;font-size:11px;font-weight:800;color:#8C8672;letter-spacing:-.02em;line-height:1.3}
   /* 헤더 ✅ 완료됨 — 📝·🔒 와 같은 크기·모양의 둥근 버튼 */
   .done-btn{position:relative;flex:0 0 auto;width:32px;height:32px;border-radius:12px;display:grid;place-items:center;
             background:rgba(255,255,255,.55);font-size:14px;line-height:1;color:var(--navy);
@@ -582,6 +609,7 @@
   .srow .sdb.weekly{background:#E9E7FD;color:#1E1B7A}
   .srow .sdb.other{background:#DFF2DD;color:#1F5F2C}
   .srow .sdb.later{background:#ECE8DA;color:#5A5545}
+  .srow .sdb.cal{background:#fff;box-shadow:0 0 0 1.4px #E3DED0;font-size:clamp(12px,3.2vw,14px)}
   .srow .stxt{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
   .srow .smain{font-size:clamp(14.5px,2vw,19px);font-weight:900;letter-spacing:-.035em;line-height:1.24;
                white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -975,6 +1003,7 @@
       </div>
       <p class="rep-sum" data-rep-sum>지정한 요일 없음</p>
     </div>
+    <p class="rep-sum on hidden" id="noteLinkHint"></p>
     <div class="acts">
       <button type="submit" class="save">저장</button>
     </div>
@@ -994,6 +1023,16 @@
       <button type="button" id="evTimeClear" class="ev-sub">시간 없음</button>
     </div>
     <textarea id="evNote" rows="2" maxlength="200" placeholder="메모 (선택)"></textarea>
+    <div class="ev-link" id="evLink">
+      <h3>📅 할 일에도 넣기</h3>
+      <div class="ev-link-chips" role="group" aria-label="할 일에도 넣기">
+        <button type="button" class="el-chip on" data-elink="none" aria-pressed="true">안 넣기</button>
+        <button type="button" class="el-chip" data-elink="seeun" aria-pressed="false">👩🏻 세은</button>
+        <button type="button" class="el-chip" data-elink="chankyu" aria-pressed="false">👨🏻 찬규</button>
+        <button type="button" class="el-chip" data-elink="both" aria-pressed="false">💛 함께(둘 다)</button>
+      </div>
+      <p id="evLinkHint">일정만 달력에 넣어요</p>
+    </div>
     <div class="acts">
       <button type="submit" class="save">저장</button>
       <button type="button" class="ghost" id="evCancel">취소</button>
@@ -1202,6 +1241,11 @@ function dayChipLabel(days, mode) {
 /* 동그라미 안에 넣을 배지 정보 — 요일·이후가 없으면 null(사람 이모지 그대로) */
 function dayChip(t) {
   if (!t) return null;
+  /* 📅 일정에서 만든 할 일 — 요일 동그라미 자리에 달력 배지 */
+  if (t.linkedEventId) {
+    return { text: '📅', kind: 'cal', n: 1,
+             title: '일정에서 만든 할 일' + (t.eventDate ? ' · ' + calShortLabel(t.eventDate) + ' 일정' : '') };
+  }
   if (isLater(t)) return { text: '이후', kind: 'later', n: 2, title: '나중에 할 일' };
   const d = repeatOf(t);
   if (!d.length) return null;
@@ -1311,12 +1355,13 @@ async function applyRepeatResets() {
     Object.assign(t, next);
     jobs.push(patch('todos/' + id, next).catch(() => {}));
   });
-  if (!jobs.length) { applyRepeatToday(); return 0; }
+  if (!jobs.length) { applyRepeatToday(); applyEventToday(); return 0; }
   repBusy = true;
   render();
   try { await Promise.all(jobs); }        /* 조용히 되살린다 — 완료 알림 토스트는 띄우지 않는다 */
   finally { repBusy = false; }
   applyRepeatToday();        /* 되살린 뒤에도 오늘 요일 반복 항목은 오늘할일로 */
+  applyEventToday();         /* 일정 날짜가 오늘인 할 일도 오늘할일로 */
   return jobs.length;
 }
 
@@ -1351,6 +1396,139 @@ async function applyRepeatToday() {
   try { await Promise.all(jobs); }
   finally { repTodayBusy = false; }
   return jobs.length;
+}
+
+/* ============ 📅 일정 ↔ 할 일 연동 ============
+   일정 시트의 `할 일에도 넣기`로 만든 할 일은 linkedEventId · eventDate 로 일정과 묶인다.
+   · 목록에서는 요일 동그라미 자리에 📅 배지
+   · 일정 날짜(한국시간 오늘)가 되면 오늘할일이 저절로 켜진다 — 그날 손으로 끄면 다시 켜지 않는다(lastTodayAutoDate).
+   · 완료 체크는 기존처럼 그날 목록에 남았다가 자정에 완료됨으로 넘어간다.
+   · 일정을 고치면 제목·날짜가, 지우면 연결된 할 일도 함께 정리된다. */
+const EVLINK_TARGETS = { none: [], seeun: ['seeun'], chankyu: ['chankyu'], both: ['seeun', 'chankyu'] };
+let evLinkSel = 'none';          /* 일정 시트에서 고른 값 — none / seeun / chankyu / both */
+let evLinkBusy = false;
+
+function linkedTodosOf(evId) {
+  return todoList().filter(t => t && t.linkedEventId === evId);
+}
+/* 이 일정에 연결된 할 일로 지금 고를 값을 되살린다(둘 다 있으면 both) */
+function evLinkTargetOf(evId) {
+  const has = { seeun: false, chankyu: false };
+  linkedTodosOf(evId).forEach(t => { has[ownerOf(t)] = true; });
+  if (has.seeun && has.chankyu) return 'both';
+  return has.seeun ? 'seeun' : has.chankyu ? 'chankyu' : 'none';
+}
+function paintEvLink() {
+  $$('#evLink [data-elink]').forEach(b => {
+    const on = b.dataset.elink === evLinkSel;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  const hint = $('#evLinkHint');
+  if (!hint) return;
+  const owners = EVLINK_TARGETS[evLinkSel] || [];
+  hint.textContent = owners.length === 2 ? '두 사람 할 일에 같이 올려요'
+    : owners.length ? OWNER[owners[0]].name + ' 할 일에도 올려요'
+    : '일정만 달력에 넣어요';
+}
+/* 일정 날짜가 오늘인 연결 할 일의 오늘할일을 하루 한 번만 자동으로 켠다.
+   날짜가 지난 항목은 자동으로 켰던 오늘할일만 내린다(손으로 켠 것은 그대로). */
+let evTodayBusy = false;
+async function applyEventToday() {
+  if (evTodayBusy) return 0;
+  const { ymd } = kstParts();
+  const now = Date.now();
+  const jobs = [];
+  Object.keys(ST.todos || {}).forEach(id => {
+    const t = ST.todos[id];
+    if (!t || t.done || !t.linkedEventId || !t.eventDate) return;
+    if (t.eventDate === ymd) {
+      if (t.lastTodayAutoDate === ymd) return;             /* 오늘 이미 자동 처리 — 아니면 손으로 껐다 */
+      if (t.today === true) {
+        const mark = { lastTodayAutoDate: ymd };
+        Object.assign(t, mark);
+        jobs.push(patch('todos/' + id, mark).catch(() => {}));
+        return;
+      }
+      const next = { today: true, lastTodayAutoDate: ymd, updatedAt: now };
+      Object.assign(t, next);
+      jobs.push(patch('todos/' + id, next).catch(() => {}));
+      return;
+    }
+    if (t.eventDate < ymd && t.today === true && t.lastTodayAutoDate && t.lastTodayAutoDate < ymd) {
+      const next = { today: false, updatedAt: now };
+      Object.assign(t, next);
+      jobs.push(patch('todos/' + id, next).catch(() => {}));
+    }
+  });
+  if (!jobs.length) return 0;
+  evTodayBusy = true;
+  render();
+  try { await Promise.all(jobs); }
+  finally { evTodayBusy = false; }
+  return jobs.length;
+}
+/* 일정을 저장·삭제할 때 연결된 할 일을 맞춘다.
+   ev = { date, title } 새 값 · prev = 고치기 전 일정(없으면 새 일정) · target = none/seeun/chankyu/both */
+async function syncEventTodos(evId, ev, prev, target) {
+  if (evLinkBusy) return true;
+  const want = EVLINK_TARGETS[target] || [];
+  const { ymd } = kstParts();
+  const now = Date.now();
+  const snap = JSON.parse(JSON.stringify(ST.todos || {}));
+  const linked = linkedTodosOf(evId);
+  const body = {}, drop = [];
+  const keep = {};
+  want.forEach(owner => {
+    const cur = linked.find(t => ownerOf(t) === owner);
+    if (cur) {
+      keep[cur.id] = 1;
+      const upd = { owner: owner, icon: ownerIcon(owner), eventDate: ev.date, updatedAt: now };
+      /* 제목을 직접 고치지 않았으면 일정 제목을 따라간다 */
+      if (!cur.text || cur.text === (prev && prev.title)) upd.text = ev.title;
+      if (cur.eventDate !== ev.date) {
+        if (ev.date === ymd) { if (!cur.done) { upd.today = true; upd.lastTodayAutoDate = ymd; } }
+        else if (cur.today && cur.lastTodayAutoDate) upd.today = false;   /* 날짜가 다른 날로 옮겨지면 자동 오늘할일은 내린다 */
+      }
+      Object.assign(cur, upd);
+      Object.keys(upd).forEach(k => { body['todos/' + cur.id + '/' + k] = upd[k]; });
+      return;
+    }
+    /* 없는 대상은 새로 만든다 — 같은 일정·같은 사람의 할 일이 이미 있으면 만들지 않는다(중복 방지) */
+    const id = 't' + now.toString(36) + Math.random().toString(36).slice(2, 6);
+    const obj = { id: id, text: ev.title, icon: ownerIcon(owner), owner: owner, done: false,
+                  linkedEventId: evId, eventDate: ev.date, createdAt: now, updatedAt: now };
+    if (ev.date === ymd) { obj.today = true; obj.lastTodayAutoDate = ymd; }
+    const place = placeOrder(owner, ev.date === ymd ? { today: true } : {});
+    obj.order = place.order;
+    ST.todos[id] = obj;
+    place.moves.forEach(m => {
+      const t = ST.todos[m.id]; if (!t) return;
+      t.order = m.to;
+      body['todos/' + m.id + '/order'] = m.to;
+    });
+    body['todos/' + id] = obj;
+  });
+  /* 이 일정에서 뺀 대상의 연결 할 일은 지운다 */
+  linked.forEach(t => { if (!keep[t.id]) { delete ST.todos[t.id]; drop.push(t.id); } });
+  render();
+  const hasBody = Object.keys(body).length > 0;
+  if (!hasBody && !drop.length) return true;
+  evLinkBusy = true;
+  try {
+    if (hasBody) await patchRoom(body);
+    for (const id of drop) await del('todos/' + id);
+    return true;
+  } catch (e) {
+    restoreTodos(snap);
+    render();
+    toast('할 일까지는 저장하지 못했어요');
+    return false;
+  } finally { evLinkBusy = false; }
+}
+function restoreTodos(snap) {
+  Object.keys(ST.todos || {}).forEach(k => { delete ST.todos[k]; });
+  Object.assign(ST.todos, snap || {});
 }
 
 /* ============ 💪 운동 탭 — 세은 운동(daydaisy2/workout-quest)을 그대로 합쳤다 ============
@@ -1712,6 +1890,7 @@ function cardHtml(owner) {
         '<span class="sp" aria-hidden="true">⇅</span><span class="sl">순서</span></button>' +
     '</div>' +
     '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
+    todayEventsHtml() +
     '<ul class="rows" data-owner="' + owner + '">' +
       (show.length ? show.map(rowHtml).join('') : '<li class="empty">' + emptyMsg + '</li>') +
     '</ul>' +
@@ -2020,6 +2199,16 @@ function paintNote() {
   $$('#noteOwnerSeg button').forEach(b => b.classList.toggle('on', b.dataset.owner === noteOwner));
   $('#noteIcon').textContent = ownerIcon(noteOwner);
   paintRepeat($('#noteRep'), noteRepeatDays, noteRepeatMode);
+  /* 📅 일정에서 만든 할 일은 날짜가 일정이 정하므로 요일 지정 대신 안내를 보여 준다 */
+  const t = noteDraft ? ST.todos[noteDraft] : null;
+  const linked = !!(t && t.linkedEventId);
+  const repBox = $('#noteRep'), linkHint = $('#noteLinkHint');
+  if (repBox) repBox.classList.toggle('hidden', linked);
+  if (linkHint) {
+    linkHint.classList.toggle('hidden', !linked);
+    if (linked) linkHint.textContent = '📅 ' + (t.eventDate ? calShortLabel(t.eventDate) + ' ' : '') +
+      '일정과 연결된 할 일 — 그날 오늘할일로 올라와요';
+  }
   resetDelBtn();
 }
 function closeNote() {
@@ -3106,6 +3295,21 @@ function eventsOn(ymd) {
   return eventList().filter(e => e.date === ymd)
     .sort((a, b) => String(a.time || '99:99').localeCompare(String(b.time || '99:99')) || (a.at || 0) - (b.at || 0));
 }
+/* 할 일 카드 맨 위(진행률 바 바로 아래)의 📅 오늘 일정 배너 — 오늘(한국시간) 일정이 없으면 아예 안 그린다.
+   누르면 일정 탭으로 가서 오늘 날짜가 골라진 채로 보인다. */
+function todayEventsHtml() {
+  const ymd = kstParts().ymd;
+  const evs = eventsOn(ymd);
+  if (!evs.length) return '';
+  const txt = evs.map(e => (e.time ? e.time + ' ' : '') + String(e.title == null ? '' : e.title)).join(' · ');
+  return '<button class="today-cal" type="button" data-gocal="' + ymd + '" ' +
+    'aria-label="' + esc('오늘 일정 ' + evs.length + '개 — 일정 탭에서 보기') + '" title="일정 탭에서 보기">' +
+    '<span class="tci" aria-hidden="true">📅</span>' +
+    '<span class="tcl">오늘 일정</span>' +
+    '<span class="tcs" aria-hidden="true">·</span>' +
+    '<span class="tcv">' + esc(txt) + '</span>' +
+  '</button>';
+}
 function eventDots(ym) {
   const map = {};
   eventList().forEach(e => { if (e.date.slice(0, 7) === ym) map[e.date] = (map[e.date] || 0) + 1; });
@@ -3228,6 +3432,8 @@ function openEventAdd() {
   $('#evTime').value = '';
   $('#evNote').value = '';
   $('#evDel').classList.add('hidden');
+  evLinkSel = 'none';
+  paintEvLink();
   resetEvDel();
   showEventSheet();
 }
@@ -3242,6 +3448,8 @@ function openEventEdit(id) {
   $('#evTime').value = String(e.time || '');
   $('#evNote').value = String(e.note == null ? '' : e.note);
   $('#evDel').classList.remove('hidden');
+  evLinkSel = evLinkTargetOf(id);        /* 이미 연결된 할 일이 있으면 그 대상으로 보여 준다 */
+  paintEvLink();
   resetEvDel();
   showEventSheet();
 }
@@ -3261,6 +3469,7 @@ async function saveEvent(e) {
   if (!title) { $('#evName').focus(); toast('일정 제목을 적어 주세요'); return; }
   const id = evEditId || ('e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
   const before = (ST.events || {})[id] || null;
+  const target = evLinkSel;                 /* 시트를 닫기 전에 고른 값을 잡아 둔다 */
   const body = {
     date: CAL.sel,
     title: title,
@@ -3275,6 +3484,8 @@ async function saveEvent(e) {
   closeEvent();
   try {
     await put('events/' + id, body);      /* 두 사람 화면에 바로 보인다 */
+    await syncEventTodos(id, { date: body.date, title: body.title }, before, target);
+    render();
   } catch (err) {
     if (before) ST.events[id] = before; else delete ST.events[id];
     calPaint(); toast('저장하지 못했어요');
@@ -3283,12 +3494,19 @@ async function saveEvent(e) {
 async function removeEvent(id) {
   const e = (ST.events || {})[id];
   if (!e) return;
+  const linked = linkedTodosOf(id);
+  const snap = JSON.parse(JSON.stringify(ST.todos || {}));
   delete ST.events[id];
+  linked.forEach(t => { delete ST.todos[t.id]; });   /* 일정을 지우면 연결된 할 일도 함께 지운다 */
   calPaint();
+  render();
   try {
     await del('events/' + id);
+    for (const t of linked) await del('todos/' + t.id);
   } catch (err) {
-    ST.events[id] = e; calPaint(); toast('삭제하지 못했어요');
+    ST.events[id] = e;
+    restoreTodos(snap);
+    calPaint(); render(); toast('삭제하지 못했어요');
   }
 }
 function armEvDel() {
@@ -3408,6 +3626,15 @@ function initApp() {
   board.addEventListener('click', e => {
     /* 스와이프 제스처 뒤에 따라오는 click 은 누르지 않은 것으로 친다 */
     if (gestureSwiped) { gestureSwiped = false; e.preventDefault(); e.stopPropagation(); return; }
+    /* 📅 오늘 일정 배너 — 일정 탭으로 가서 오늘 날짜를 골라 둔다 */
+    const gc = e.target.closest('[data-gocal]');
+    if (gc) {
+      e.preventDefault(); e.stopPropagation();
+      closeAllSwipes();
+      calSelect(gc.dataset.gocal);
+      setTab('cal');
+      return;
+    }
     const act = e.target.closest('.row-acts .act');
     if (act) {
       e.preventDefault(); e.stopPropagation();
@@ -3582,6 +3809,13 @@ function initApp() {
   const evTimeClearBtn = $('#evTimeClear'); if (evTimeClearBtn) evTimeClearBtn.addEventListener('click', () => { $('#evTime').value = ''; });
   const evSheet = $('#eventSheet');
   if (evSheet) evSheet.addEventListener('click', e => { if (e.target.dataset.evclose === '1') closeEvent(); });
+  const evLinkBox = $('#evLink');
+  if (evLinkBox) evLinkBox.addEventListener('click', e => {
+    const b = e.target.closest('[data-elink]'); if (!b) return;
+    e.preventDefault();
+    evLinkSel = b.dataset.elink;
+    paintEvLink();
+  });
 
   /* 📅 일정 탭 — 달력은 위쪽 그리드/일정 바 핸들러에서 처리한다 */
 
