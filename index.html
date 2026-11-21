@@ -438,6 +438,26 @@
   .el-chip.on{background:#231F78;border-color:#231F78;color:#FBE049;box-shadow:0 2px 8px rgba(35,31,120,.2)}
   .el-chip:active{transform:scale(.98)}
   .ev-link p{margin:0;font-size:11px;font-weight:800;color:#8C8672;letter-spacing:-.02em;line-height:1.3}
+  /* 📅 일정 시트 — 누구 일정(달력 배지 색이 이 값으로 고정된다: 공통 노랑 · 세은 분홍 · 찬규 파랑) */
+  .ev-who{display:flex;flex-direction:column;gap:7px;background:#F9F5E5;border-radius:16px;
+          padding:10px 11px;border:1.5px solid #F1EACE}
+  .ev-who h3{margin:0;font-size:clamp(12.5px,1.65vw,15px);font-weight:900;letter-spacing:-.03em;color:#4A4636}
+  .ev-who-chips{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+  .ew-chip{height:clamp(31px,4.1vw,37px);border-radius:11px;border:1.5px solid #E7E1C8;background:#fff;
+           color:#8C8672;font-size:clamp(11px,1.45vw,13px);font-weight:900;letter-spacing:-.03em;
+           white-space:nowrap;transition:background .14s,color .14s,border-color .14s,box-shadow .14s}
+  .ew-chip:active{transform:scale(.98)}
+  .ew-chip.on[data-ewho="both"]{background:#FCF0C6;border-color:#E7CB3C;color:#8A6D18;
+    box-shadow:0 2px 8px rgba(138,109,24,.16)}
+  .ew-chip.on[data-ewho="seeun"]{background:#FDE7E9;border-color:#EFBEC4;color:#B4565F;
+    box-shadow:0 2px 8px rgba(180,86,95,.16)}
+  .ew-chip.on[data-ewho="changyu"]{background:#E4EEFB;border-color:#BCCEE9;color:#4B6FA8;
+    box-shadow:0 2px 8px rgba(75,111,168,.16)}
+  /* 날짜를 골랐을 때 아래 일정 목록의 맨 앞 — 그 일정의 색 점 */
+  .cal-ev .ew-dot{flex:0 0 auto;align-self:center;width:7px;height:7px;border-radius:50%;background:#D9B22E}
+  .cal-ev .ew-dot.pink{background:#E4949D}
+  .cal-ev .ew-dot.yellow{background:#D9B22E}
+  .cal-ev .ew-dot.blue{background:#7C9DCC}
   /* 헤더 ✅ 완료됨 — 📝·🔒 와 같은 크기·모양의 둥근 버튼 */
   .done-btn{position:relative;flex:0 0 auto;width:32px;height:32px;border-radius:12px;display:grid;place-items:center;
             background:rgba(255,255,255,.55);font-size:14px;line-height:1;color:var(--navy);
@@ -758,18 +778,20 @@
   /* 본문 — 좁은 왼쪽(입력·저장) + 넓은 오른쪽(그래프) */
   .wt-body{display:grid;grid-template-columns:clamp(88px,24vw,112px) minmax(0,1fr);gap:9px;
            margin-top:9px;align-items:stretch}
-  .wt-left{display:flex;flex-direction:column;justify-content:space-between;gap:5px;min-width:0}
-  .wt-field{flex:0 0 auto;display:flex;align-items:baseline;gap:3px;height:40px;padding:0 7px;
+  .wt-left{display:flex;flex-direction:column;justify-content:center;gap:6px;min-width:0}
+  .wt-field{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:3px;height:42px;padding:0 8px;
             border-radius:12px;background:var(--cream);border:1.5px solid var(--cream-line);
             transition:background .14s,border-color .14s}
   .wt-field:focus-within{background:#fff;border-color:var(--navy)}
-  .wt-in{flex:1 1 auto;min-width:0;width:100%;border:0;background:none;padding:0;text-align:center;
+  .wt-in{flex:1 1 auto;display:block;min-width:0;width:100%;height:100%;border:0;background:none;
+         padding:2px 0 0;text-align:center;
          font:inherit;font-size:clamp(18px,2.6vw,23px);font-weight:900;letter-spacing:-.04em;
+         line-height:1;
          color:var(--navy);font-variant-numeric:tabular-nums;
          -webkit-appearance:none;appearance:none}
   .wt-in::placeholder{color:#CFC9B0;font-weight:800}
   .wt-in:focus{outline:none}
-  .wt-kg{flex:0 0 auto;font-size:10px;font-weight:900;color:#9A94AE}
+  .wt-kg{flex:0 0 auto;font-size:10px;font-weight:900;line-height:1;color:#9A94AE;transform:translateY(1px)}
   .wt-save{flex:0 0 auto;height:29px;border-radius:9px;background:var(--navy);color:#fff;
            font-size:11.5px;font-weight:900;letter-spacing:-.03em;transition:background .16s,color .16s}
   .wt-save:active{background:#151253}
@@ -1089,6 +1111,14 @@
       <button type="button" id="evTimeClear" class="ev-sub">시간 없음</button>
     </div>
     <textarea id="evNote" rows="2" maxlength="200" placeholder="메모 (선택)"></textarea>
+    <div class="ev-who" id="evWho">
+      <h3>👤 누구 일정</h3>
+      <div class="ev-who-chips" role="group" aria-label="누구 일정">
+        <button type="button" class="ew-chip on" data-ewho="both" aria-pressed="true">공통</button>
+        <button type="button" class="ew-chip" data-ewho="seeun" aria-pressed="false">👩🏻 세은</button>
+        <button type="button" class="ew-chip" data-ewho="changyu" aria-pressed="false">👨🏻 찬규</button>
+      </div>
+    </div>
     <div class="ev-link" id="evLink">
       <h3>📅 할 일에도 넣기</h3>
       <div class="ev-link-chips" role="group" aria-label="할 일에도 넣기">
@@ -1472,6 +1502,16 @@ async function applyRepeatToday() {
    · 일정을 고치면 제목·날짜가, 지우면 연결된 할 일도 함께 정리된다. */
 const EVLINK_TARGETS = { none: [], seeun: ['seeun'], chankyu: ['chankyu'], both: ['seeun', 'chankyu'] };
 let evLinkSel = 'none';          /* 일정 시트에서 고른 값 — none / seeun / chankyu / both */
+let evWhoSel = 'both';           /* 일정 시트의 `누구 일정` — both(공통) / seeun / changyu. 달력 배지 색이 이 값으로 고정된다 */
+const EV_WHO_VALUES = ['both', 'seeun', 'changyu'];
+function paintEvWho() {
+  if (!EV_WHO_VALUES.includes(evWhoSel)) evWhoSel = 'both';
+  $$('#evWho [data-ewho]').forEach(b => {
+    const on = b.dataset.ewho === evWhoSel;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
 let evLinkBusy = false;
 
 function linkedTodosOf(evId) {
@@ -3729,21 +3769,28 @@ function eventDots(ym) {
   return map;
 }
 function evRowHtml(e) {
+  const tone = calPillTone(e);
   return '<li class="cal-ev-li"><button type="button" class="cal-ev" data-evedit="' + esc(e.id) + '" ' +
-    'aria-label="' + esc((e.time ? e.time + ' ' : '') + e.title + ' — 고치기') + '">' +
+    'aria-label="' + esc(CAL_WHO_NAME[calWhoOf(e)] + ' · ' +
+      (e.time ? e.time + ' ' : '') + e.title + ' — 고치기') + '">' +
+    '<span class="ew-dot ' + tone + '" aria-hidden="true"></span>' +
     '<span class="ex">' + esc(e.title) + '</span>' +
     (e.time ? '<span class="et">' + esc(e.time) + '</span>' : '') +
     (e.note ? '<span class="en" aria-hidden="true">📝</span>' : '') +
   '</button></li>';
 }
-/* 날짜 칸 — 숫자 아래에 일정 제목 알약 배지(최대 3개, 넘치면 +N) */
-const CAL_PILL_TONES = ['pink', 'yellow', 'blue', 'green'];
-function calPillTone(e) {
-  let h = 0;
-  const key = String(e.id || '') + String(e.title || '');
-  for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) % 997;
-  return CAL_PILL_TONES[h % CAL_PILL_TONES.length];
+/* 날짜 칸 — 숫자 아래에 일정 제목 알약 배지(최대 3개, 넘치면 +N)
+   배지 색은 일정의 `who`(대상)로 고정한다 — 세은 분홍 · 찬규 파랑 · 공통(미지정) 노랑.
+   예전 일정처럼 `who` 가 없으면 공통(yellow)으로 본다. 예전 키 `chankyu` 도 찬규로 읽는다. */
+function calWhoOf(e) {
+  const w = String((e && e.who) || 'both').trim().toLowerCase();
+  if (w === 'seeun') return 'seeun';
+  if (w === 'changyu' || w === 'chankyu') return 'changyu';
+  return 'both';
 }
+const CAL_WHO_TONE = { seeun: 'pink', changyu: 'blue', both: 'yellow' };
+const CAL_WHO_NAME = { seeun: '세은', changyu: '찬규', both: '공통' };
+function calPillTone(e) { return CAL_WHO_TONE[calWhoOf(e)]; }
 function calCellHtml(ymd, day, today, maxPills, byDate) {
   const evs = byDate[ymd] || [];
   const n = evs.length;
@@ -3848,6 +3895,8 @@ function openEventAdd() {
   $('#evDel').classList.add('hidden');
   evLinkSel = 'none';
   paintEvLink();
+  evWhoSel = 'both';                     /* 새 일정은 공통(노랑)으로 시작 */
+  paintEvWho();
   resetEvDel();
   showEventSheet();
 }
@@ -3864,6 +3913,8 @@ function openEventEdit(id) {
   $('#evDel').classList.remove('hidden');
   evLinkSel = evLinkTargetOf(id);        /* 이미 연결된 할 일이 있으면 그 대상으로 보여 준다 */
   paintEvLink();
+  evWhoSel = calWhoOf(e);                /* 저장된 대상(없으면 공통)을 그대로 보여 준다 */
+  paintEvWho();
   resetEvDel();
   showEventSheet();
 }
@@ -3884,11 +3935,13 @@ async function saveEvent(e) {
   const id = evEditId || ('e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
   const before = (ST.events || {})[id] || null;
   const target = evLinkSel;                 /* 시트를 닫기 전에 고른 값을 잡아 둔다 */
+  const who = EV_WHO_VALUES.includes(evWhoSel) ? evWhoSel : 'both';
   const body = {
     date: CAL.sel,
     title: title,
     time: $('#evTime').value || '',
     note: $('#evNote').value.trim(),
+    who: who,                               /* 달력 배지 색(공통 노랑·세은 분홍·찬규 파랑) */
     at: before && before.at ? before.at : Date.now(),
     by: (before && before.by) || ME || ''
   };
@@ -3897,7 +3950,8 @@ async function saveEvent(e) {
   ST.events[id] = Object.assign({}, before || {}, body);
   closeEvent();
   try {
-    await put('events/' + id, body);      /* 두 사람 화면에 바로 보인다 */
+    /* 예전에는 PUT 이라 다른 필드(구글 캘린더에서 온 값 등)까지 지웠다 — 이제 보낸 필드만 바꾼다 */
+    await patch('events/' + id, body);    /* 두 사람 화면에 바로 보인다 */
     await syncEventTodos(id, { date: body.date, title: body.title }, before, target);
     render();
   } catch (err) {
@@ -4262,6 +4316,13 @@ function initApp() {
     e.preventDefault();
     evLinkSel = b.dataset.elink;
     paintEvLink();
+  });
+  const evWhoBox = $('#evWho');
+  if (evWhoBox) evWhoBox.addEventListener('click', e => {
+    const b = e.target.closest('[data-ewho]'); if (!b) return;
+    e.preventDefault();
+    evWhoSel = b.dataset.ewho;
+    paintEvWho();
   });
 
   /* 📅 일정 탭 — 달력은 위쪽 그리드/일정 바 핸들러에서 처리한다 */
