@@ -156,17 +156,20 @@
   .row-acts .act .ai{font-size:1.7em;line-height:1}
   .row-acts .del{background:#C0392B}
   .row-acts .act:active{filter:brightness(.9)}
-  /* 왼쪽 동그라미 — 사람 아바타 자리에 요일/이후를 1~3글자 배지로(이모지 없이) */
+  /* 왼쪽 칸 — 담당자 아바타(늘 맨 왼쪽) + 요일/이후 동그라미 배지(있을 때만 바로 오른쪽) */
   .row .ico{flex:0 0 auto;width:clamp(30px,3.7vw,34px);height:clamp(30px,3.7vw,34px);
             border-radius:50%;display:grid;place-items:center;
+            background:rgba(255,255,255,.8);
             font-size:clamp(16px,2.4vw,26px);line-height:1}
-  .row .ico.dayb{font-size:clamp(11.5px,1.45vw,14.5px);font-weight:900;letter-spacing:-.05em;
-                 line-height:1;padding-bottom:1px;box-shadow:0 1px 2px rgba(110,85,0,.12)}
-  .row .ico.dayb.n2{font-size:clamp(10px,1.3vw,12.5px)}
-  .row .ico.dayb.n3{font-size:clamp(9px,1.15vw,10.5px);letter-spacing:-.07em}
-  .row .ico.dayb.once{background:#FDE68A;color:#6B4E00}
-  .row .ico.dayb.weekly{background:#E9E7FD;color:#1E1B7A}
-  .row .ico.dayb.later{background:#ECE8DA;color:#5A5545}
+  .row .db{flex:0 0 auto;width:clamp(26px,3.3vw,30px);height:clamp(26px,3.3vw,30px);
+           border-radius:50%;display:grid;place-items:center;margin-right:clamp(0px,.4vw,3px);
+           font-size:clamp(11px,1.4vw,13.5px);font-weight:900;letter-spacing:-.05em;
+           line-height:1;padding-bottom:1px;box-shadow:0 1px 2px rgba(110,85,0,.12)}
+  .row .db.n2{font-size:clamp(9.5px,1.25vw,12px)}
+  .row .db.n3{font-size:clamp(8.5px,1.1vw,10px);letter-spacing:-.07em}
+  .row .db.once{background:#FDE68A;color:#6B4E00}
+  .row .db.weekly{background:#E9E7FD;color:#1E1B7A}
+  .row .db.later{background:#ECE8DA;color:#5A5545}
   .row .body{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:.12em}
   .row .txt{min-width:0;font-size:clamp(14px,2.15vw,27px);font-weight:900;
             letter-spacing:-.035em;line-height:1.2;
@@ -489,13 +492,15 @@
   .srow .sico{flex:0 0 auto;width:clamp(26px,7vw,30px);height:clamp(26px,7vw,30px);
               border-radius:50%;display:grid;place-items:center;
               font-size:clamp(19px,2.6vw,25px);line-height:1}
-  .srow .sico.dayb{font-size:clamp(10px,1.4vw,11.5px);font-weight:900;letter-spacing:-.05em;
-                   line-height:1;padding-bottom:1px;box-shadow:0 1px 2px rgba(110,85,0,.12)}
-  .srow .sico.dayb.n2{font-size:clamp(9px,1.2vw,10.5px)}
-  .srow .sico.dayb.n3{font-size:clamp(8px,1.05vw,9px);letter-spacing:-.09em}
-  .srow .sico.dayb.once{background:#FDE68A;color:#6B4E00}
-  .srow .sico.dayb.weekly{background:#E9E7FD;color:#1E1B7A}
-  .srow .sico.dayb.later{background:#ECE8DA;color:#5A5545}
+  .srow .sdb{flex:0 0 auto;width:clamp(24px,6.4vw,28px);height:clamp(24px,6.4vw,28px);
+             border-radius:50%;display:grid;place-items:center;margin-right:2px;
+             font-size:clamp(9.5px,1.3vw,11px);font-weight:900;letter-spacing:-.05em;
+             line-height:1;padding-bottom:1px;box-shadow:0 1px 2px rgba(110,85,0,.12)}
+  .srow .sdb.n2{font-size:clamp(8.5px,1.15vw,10px)}
+  .srow .sdb.n3{font-size:clamp(7.5px,1vw,8.5px);letter-spacing:-.09em}
+  .srow .sdb.once{background:#FDE68A;color:#6B4E00}
+  .srow .sdb.weekly{background:#E9E7FD;color:#1E1B7A}
+  .srow .sdb.later{background:#ECE8DA;color:#5A5545}
   .srow .stxt{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
   .srow .smain{font-size:clamp(14.5px,2vw,19px);font-weight:900;letter-spacing:-.035em;line-height:1.24;
                white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1068,11 +1073,14 @@ function dayChip(t) {
     title: (mode === 'once' ? '이번만 · ' : '매주 · ') + d.map(n => DAY_NAME[n]).join('·')
   };
 }
-/* 목록·순서 편집기 왼쪽 칸: 배지가 있으면 동그라미 배지, 없으면 사람 이모지 */
+/* 목록·순서 편집기 왼쪽 칸: 담당자 아바타는 늘 맨 왼쪽에, 요일·이후 동그라미 배지는 있을 때만 바로 옆에 */
 function icoHtml(t, base) {
+  return '<span class="' + base + '">' + esc(iconFor(t)) + '</span>';
+}
+function chipHtml(t, base) {
   const c = dayChip(t);
-  if (!c) return '<span class="' + base + '">' + esc(iconFor(t)) + '</span>';
-  return '<span class="' + base + ' dayb ' + c.kind + ' n' + c.n + '" title="' + esc(c.title) + '">' +
+  if (!c) return '';
+  return '<span class="' + base + ' ' + c.kind + ' n' + c.n + '" title="' + esc(c.title) + '">' +
     esc(c.text) + '</span>';
 }
 
@@ -1525,7 +1533,7 @@ function rowHtml(t) {
         '<span class="ai" aria-hidden="true">🗑</span>삭제</button>' +
     '</div>' +
     '<div class="row-face">' +
-      icoHtml(t, 'ico') +
+      icoHtml(t, 'ico') + chipHtml(t, 'db') +
       '<span class="body">' +
         '<span class="txt">' + esc(t.text) + '</span>' +
         (note ? '<span class="note-line">📝 ' + esc(note) + '</span>' : '') +
@@ -2421,7 +2429,7 @@ function sortRowHtml(id, i, n) {
   const note = String(t.note == null ? '' : t.note).trim();
   return '<li class="srow" data-id="' + esc(id) + '">' +
     '<span class="sno">' + (i + 1) + '</span>' +
-    icoHtml(t, 'sico') +
+    icoHtml(t, 'sico') + chipHtml(t, 'sdb') +
     '<span class="stxt"><span class="smain">' + esc(t.text) + '</span>' +
       (note ? '<span class="snote">📝 ' + esc(note) + '</span>' : '') + '</span>' +
     '<button type="button" class="stoday' + (t.today ? ' on' : '') + '" data-stoday="' + esc(id) + '"' +
