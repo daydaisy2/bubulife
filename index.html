@@ -1807,9 +1807,26 @@ function setTab(owner) {
     }
   }
 }
+/* 다시 그려도 보던 자리를 지킨다 — 스크롤되는 칸의 위치를 저장했다가 되돌린다 */
+const SCROLL_SEL = ['.rows', '#memoTabList', '.cal-events', '#woPane', '#doneList', '.sheet .panel'];
+function saveScrolls() {
+  const out = [];
+  SCROLL_SEL.forEach(sel => { const el = $(sel); if (el && el.scrollTop > 0) out.push([sel, el.scrollTop]); });
+  return out;
+}
+function restoreScrolls(saved) {
+  if (!saved || !saved.length) return;
+  saved.forEach(([sel, top]) => {
+    const el = $(sel);
+    if (el && el.scrollTop !== top) el.scrollTop = top;
+  });
+}
+/* 지난번에 그린 카드와 글자가 같으면 DOM 을 건드리지 않는다(스크롤·포커스 보존) */
+let boardHtml = { owner: null, html: '' };
 function render() {
   if (drag && drag.active) { render.pending = true; return; }
   render.pending = false;
+  const savedScrolls = saveScrolls();
   if (TAB === 'memo') {
     $('#board').classList.add('hidden');
     $('#woPane').classList.add('hidden');
@@ -1825,13 +1842,18 @@ function render() {
     $('#woPane').classList.add('hidden');
     $('#memoPane').classList.add('hidden');
     $('#board').classList.remove('hidden');
-    $('#board').innerHTML = cardHtml(TAB);
+    const html = cardHtml(TAB);
+    if (boardHtml.owner !== TAB || boardHtml.html !== html) {
+      $('#board').innerHTML = html;
+      boardHtml = { owner: TAB, html: html };
+    }
   }
   paintTabs();
   paintAddDock();
   paintDoneBar();
   paintSeen();
   if (doneOpen()) paintDoneList();
+  restoreScrolls(savedScrolls);
 }
 /* 다른 기기의 연속 업데이트(순서 바꾸기 등)는 한 번에 모은 뒤 그린다 */
 let renderTimer = null;
@@ -2153,8 +2175,17 @@ function connect() {
   });
   es.addEventListener('patch', ev => {
     let m; try { m = JSON.parse(ev.data); } catch (e) { return; }
-    Object.entries(m.data || {}).forEach(([k, v]) => setAt((m.path === '/' ? '' : m.path) + '/' + k, v));
-    gotSnapshot = true; setLive('live'); scheduleRender();
+    const paths = [];
+    Object.entries(m.data || {}).forEach(([k, v]) => {
+      const path = (m.path === '/' ? '' : m.path) + '/' + k;
+      paths.push(path);
+      setAt(path, v);
+    });
+    gotSnapshot = true; setLive('live');
+    /* 마지막 접속 시간만 바뀐 경우 — 목록을 다시 그리면 보던 자리가 맨 위로 튄다.
+       (내가 90초마다 남기는 lastSeen 도 여기로 들어온다) 글자만 바꾼다. */
+    if (paths.length && paths.every(p => /^\/?lastSeen(\/|$)/.test(p))) { paintSeen(); return; }
+    scheduleRender();
   });
   es.addEventListener('cancel', () => { setLive('warn'); reconnect(); });
   es.addEventListener('auth_revoked', () => { setLive('off'); });
@@ -3171,6 +3202,7 @@ function calCellHtml(ymd, day, today, weeks, byDate) {
     '</span>' +
   '</button>';
 }
+let calGridSig = '', calDaySig = '';
 function calPaint() {
   const grid = $('#calGrid');
   if (!grid) return;
@@ -3191,15 +3223,18 @@ function calPaint() {
   let html = '';
   for (let i = 0; i < first; i++) html += '<button type="button" class="cal-cell empty" disabled></button>';
   for (let d = 1; d <= last; d++) html += calCellHtml(calYmd(y, m, d), d, today, weeks, byDate);
-  grid.innerHTML = html;
+  /* 같은 달·같은 일정이면 다시 그리지 않는다(보던 자리 유지) */
+  const gridSig = CAL.ym + '|' + CAL.sel + '|' + today + '|' + weeks + '|' + JSON.stringify(byDate);
+  if (calGridSig !== gridSig) { grid.innerHTML = html; calGridSig = gridSig; }
   const t = $('#calTitle'); if (t) t.textContent = y + '년 ' + m + '월';
   const dt = $('#calDayTitle');
   if (dt) dt.textContent = calShortLabel(CAL.sel);
   const box = $('#calEvents');
   if (box) {
     const evs = eventsOn(CAL.sel);
-    box.innerHTML = evs.length ? evs.map(evRowHtml).join('')
-      : '<li class="cal-empty">일정 없음</li>';
+    const dayHtml = evs.length ? evs.map(evRowHtml).join('') : '<li class="cal-empty">일정 없음</li>';
+    const daySig = CAL.sel + '|' + dayHtml;
+    if (calDaySig !== daySig) { box.innerHTML = dayHtml; calDaySig = daySig; }
   }
 }
 function calMove(step) {
@@ -3373,12 +3408,14 @@ function memoRowHtml(m) {
     '</button>' +
   '</li>';
 }
+let memoListHtml = '';
 function paintMemoTab() {
   const list = $('#memoTabList');
   if (!list) return;
   const ms = sharedMemos();
-  list.innerHTML = ms.length ? ms.map(memoRowHtml).join('')
+  const html = ms.length ? ms.map(memoRowHtml).join('')
     : '<li class="mem-empty">아직 같이 적은 메모가 없어요<br>위에 적어 보세요</li>';
+  if (memoListHtml !== html) { list.innerHTML = html; memoListHtml = html; }
 }
 function memoTabVisible() {
   const pane = $('#memoPane');
