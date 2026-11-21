@@ -335,6 +335,11 @@
             background:rgba(255,255,255,.55);font-size:14px;line-height:1;color:var(--navy);
             transition:background .18s,color .18s}
   .done-btn:active{transform:translateY(1px)}
+  /* 헤더 📣 확인 요청 — 상대에게 보낼 문구·링크를 바로 공유(크림 바탕 + 노란 테두리) */
+  .nudge-btn{position:relative;flex:0 0 auto;width:32px;height:32px;border-radius:12px;display:grid;place-items:center;
+             background:var(--cream);border:1.5px solid #EFD96B;font-size:14px;line-height:1;color:var(--navy);
+             transition:background .18s,border-color .18s}
+  .nudge-btn:active{background:#FBEFB8;border-color:#E7CB3C;transform:translateY(1px)}
   .memo-cnt{position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;
             background:#E8603C;color:#fff;font-size:9px;font-weight:900;line-height:16px;text-align:center;
             border:1.5px solid var(--yellow)}
@@ -398,6 +403,8 @@
          background:rgba(32,30,20,.92);color:#fff;padding:10px 16px;border-radius:999px;
          font-size:13.5px;font-weight:800;z-index:60;animation:fade .16s ease;white-space:nowrap;max-width:90vw;
          overflow:hidden;text-overflow:ellipsis}
+  /* 두 줄까지 늘어나는 안내(공유 미지원 → 복사 안내처럼 글자가 긴 경우) */
+  .toast.long{white-space:normal;text-align:center;line-height:1.38;border-radius:18px;max-width:min(90vw,340px)}
 
   /* 시트가 열려 있으면 토스트는 위로 (아래 버튼을 가리지 않게) */
   body.sheet-open .toast{bottom:auto;top:calc(14px + env(safe-area-inset-top));animation:none}
@@ -430,7 +437,7 @@
     .saybar{min-height:29px;font-size:12px;padding:0 10px}
     .top h1{font-size:18px}
     .seen{font-size:9px}
-    .top .lock-btn,.top .memo-btn,.top .done-btn{width:28px;height:28px}
+    .top .lock-btn,.top .memo-btn,.top .done-btn,.top .nudge-btn{width:28px;height:28px}
     .card-add{min-height:48px;font-size:15px}
     .ptab{min-height:46px;font-size:13.5px}
   }
@@ -716,6 +723,7 @@
     <button id="seenBox" class="seen-box" type="button" aria-label="마지막 접속 시간 — 탭하면 이 기기 프로필 바꾸기"></button>
     <div class="top-right">
       <i id="dot" class="dot" title="연결 중"></i>
+      <button id="nudgeBtn" class="nudge-btn" type="button" aria-label="확인 요청 공유" title="확인 요청 공유">📣</button>
       <button id="doneBtn" class="done-btn" type="button" aria-label="완료됨" aria-haspopup="dialog">✅</button>
       <button id="memoBtn" class="memo-btn" type="button" aria-label="수정 요청 메모">📝<span class="memo-cnt hidden" id="memoCnt">0</span></button>
       <button id="lockNow" class="lock-btn" type="button" aria-label="잠그기">🔒</button>
@@ -966,10 +974,10 @@ function esc(s) {
 function objEntries(o) { return Object.entries(o || {}).filter(([, v]) => v && typeof v === 'object'); }
 function todoList() { return objEntries(ST.todos).map(([id, t]) => ({ id, ...t })); }
 function newId() { return 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
-function toast(msg) {
+function toast(msg, cls) {
   const old = $('.toast'); if (old) old.remove();
   const el = document.createElement('div');
-  el.className = 'toast'; el.textContent = msg;
+  el.className = 'toast' + (cls ? ' ' + cls : ''); el.textContent = msg;
   document.body.appendChild(el);
   clearTimeout(toast._t);
   toast._t = setTimeout(() => el.remove(), 2200);
@@ -1799,6 +1807,7 @@ function setMe(who) {
   seenLastSent = 0;
   touchSeen(true);
   TAB = who;
+  paintNudge();
   render();
 }
 
@@ -2964,6 +2973,47 @@ async function copyText(t) {
   ta.remove();
   if (!ok) throw new Error('copy failed');
 }
+
+/* ============ 📣 확인 요청 ============ */
+/* 이 기기 사람이 상대에게 보낼 한 줄. 앱 주소(location.href)에 방 코드가 들어 있어
+   상대가 링크를 열면 같은 목록이 바로 뜬다. */
+function nudgeTargetName() {
+  if (ME === 'seeun') return '찬규';
+  if (ME === 'chankyu') return '세은';
+  return '상대';
+}
+function nudgeText() {
+  if (ME === 'seeun') return '찬규야, 부부 할일 확인해 줘! 💛';
+  if (ME === 'chankyu') return '세은아, 부부 할일 확인해 줘! 💛';
+  return '부부 할일 확인해 줘! 💛';
+}
+function paintNudge() {
+  const b = $('#nudgeBtn');
+  if (!b) return;
+  b.setAttribute('aria-label', '확인 요청 공유 — ' + nudgeTargetName() + '에게 보낼 문구와 링크');
+  b.title = '확인 요청 공유';
+}
+/* 스마트폰 브라우저는 OS 공유 시트(카톡·피클 등)를 바로 띄우고,
+   공유를 지원하지 않는 곳에서는 문구+링크를 클립보드에 복사해 준다(그때만 안내). */
+async function shareNudge() {
+  paintNudge();
+  const text = nudgeText();
+  const url = location.href;
+  if (typeof navigator.share === 'function') {
+    try {
+      await navigator.share({ title: '부부 할일', text: text, url: url });
+      return;                 /* 공유 시트로 보냈으면 따로 안내하지 않는다 */
+    } catch (e) {
+      if (e && e.name === 'AbortError') return;   /* 사용자가 공유 시트를 그냥 닫음 — 오류 아님 */
+    }
+  }
+  try {
+    await copyText(text + '\n' + url);
+    toast('확인 요청 문구를 복사했어요! 카톡이나 피클에 붙여넣기 해 주세요', 'long');
+  } catch (e) {
+    toast('문구를 복사하지 못했어요 — 주소창의 링크를 복사해 주세요');
+  }
+}
 function openMemo() {
   paintMemoList();
   resetMemoClear();
@@ -3073,6 +3123,10 @@ function initApp() {
     if (!row || e.target.closest('.check') || e.target.closest('.today-pill')) return;
     e.preventDefault(); openNote(row.dataset.id);
   });
+
+  /* 확인 요청 공유 */
+  $('#nudgeBtn').addEventListener('click', shareNudge);
+  paintNudge();
 
   /* 완료됨 */
   $('#doneBtn').addEventListener('click', openDone);
