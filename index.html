@@ -415,6 +415,78 @@
     .cal-pill{line-height:1.2;padding:1px 3px}
   }
 
+  /* ---------- 🛒 사야할 것 (v46) — 📅 일정 탭 달력 아래 ---------- */
+  .shop-card{flex:0 0 auto;display:flex;flex-direction:column;gap:7px;
+             border-radius:var(--radius);padding:clamp(9px,1.2vw,14px) clamp(10px,1.3vw,15px)}
+  /* 달력 카드만 높이를 나눠 갖고, 사야할 것 카드는 내용만큼만 쓴다 */
+  .cal-pane > .card.shop-card{flex:0 0 auto;min-height:0;overflow:hidden}
+  .shop-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .shop-tit{margin:0;display:flex;align-items:center;gap:.3em;font-size:clamp(14px,1.9vw,17px);
+            font-weight:900;letter-spacing:-.03em;color:var(--ink)}
+  .shop-emoji{font-size:1.05em;line-height:1}
+  .shop-add{flex:0 0 auto;height:30px;padding:0 12px;border-radius:10px;background:var(--navy);color:#fff;
+            font-size:12px;font-weight:900;letter-spacing:-.02em;white-space:nowrap}
+  .shop-add:active{background:#2A2690}
+  .shop-add.close{background:var(--cream);color:#6E6A58;border:1.5px solid #EFE8CF}
+  .shop-form{flex:0 0 auto;display:flex;flex-direction:column;gap:6px;
+             background:var(--cream);border-radius:14px;padding:8px}
+  .shop-input{width:100%;height:38px;padding:0 11px;border-radius:11px;background:#fff;
+              border:1.5px solid var(--cream-line);color:var(--ink);font:inherit;
+              font-size:14px;font-weight:800;letter-spacing:-.02em;-webkit-appearance:none;appearance:none}
+  .shop-input::placeholder{color:#C6C0A8;font-weight:700}
+  .shop-input:focus{outline:none;border-color:var(--navy)}
+  .shop-form-row{display:flex;align-items:center;gap:6px}
+  .shop-own{flex:1 1 auto;display:flex;gap:5px;min-width:0}
+  .shop-chip{flex:0 0 auto;height:30px;padding:0 12px;border-radius:999px;background:#fff;
+             border:1.5px solid var(--cream-line);color:#8A8471;font-size:11.5px;font-weight:900;
+             letter-spacing:-.02em;transition:background .14s,color .14s,border-color .14s}
+  .shop-chip.on{background:#FBDDE2;border-color:#F4BFC8;color:#C0505C}
+  .shop-chip[data-newown="chankyu"].on{background:#DBE8FB;border-color:#B9D2F3;color:#3F6EA8}
+  .shop-save{flex:0 0 auto;height:30px;padding:0 14px;border-radius:10px;background:var(--navy);
+             color:#fff;font-size:12px;font-weight:900;letter-spacing:-.02em}
+  .shop-save:active{background:#151253}
+  .shop-list{flex:0 1 auto;min-height:0;display:flex;flex-direction:column;gap:5px;
+             overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;
+             max-height:min(30vh,224px)}
+  .shop-list::-webkit-scrollbar{width:5px}
+  .shop-list::-webkit-scrollbar-thumb{background:#EDE7D1;border-radius:999px}
+  .shop-row{flex:0 0 auto;display:flex;align-items:center;gap:6px;background:var(--cream);
+            border-radius:13px;padding:6px 7px 6px 12px;min-width:0}
+  .shop-rows{min-width:0}
+  .shop-name{flex:1 1 auto;min-width:0;padding:2px 0;text-align:left;font-size:clamp(12.5px,1.75vw,14.5px);
+             font-weight:800;letter-spacing:-.02em;color:#2C2A22;line-height:1.35;
+             overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .shop-name:active{opacity:.6}
+  .shop-row.done .shop-name{color:#9C977F;text-decoration:line-through;
+            text-decoration-color:#B9B39A;text-decoration-thickness:1.5px}
+  .shop-tags{flex:0 0 auto;display:flex;align-items:center;gap:4px}
+  .shop-tag{flex:0 0 auto;height:26px;padding:0 9px;border-radius:999px;background:#fff;
+            border:1.5px solid var(--cream-line);color:#A9A48D;font-size:11px;font-weight:900;
+            letter-spacing:-.03em;white-space:nowrap;line-height:1;
+            transition:background .14s,color .14s,border-color .14s}
+  .shop-tag:active{opacity:.7}
+  .shop-tag.on.seeun{background:#FBDDE2;border-color:#F4BFC8;color:#C0505C}
+  .shop-tag.on.chankyu{background:#DBE8FB;border-color:#B9D2F3;color:#3F6EA8}
+  .shop-tag.donetag{display:flex;align-items:center;gap:3px;padding:0 8px}
+  .shop-tag.donetag.on{background:var(--mint);border-color:#B9DCB4;color:var(--green-text)}
+  .shop-tag .dot{width:8px;height:8px;border-radius:50%;border:1.6px solid #D6D0B8;background:#fff}
+  .shop-tag.donetag.on .dot{display:none}
+  .shop-tag .tk{display:none;font-size:11px;line-height:1}
+  .shop-tag.donetag.on .tk{display:inline}
+  .shop-row.editing{background:#FFF9E0;box-shadow:inset 0 0 0 1.5px #EBDC63}
+  .shop-edit-in{flex:1 1 auto;min-width:0;height:32px;padding:0 9px;border-radius:9px;background:#fff;
+                border:1.5px solid var(--navy);color:var(--ink);font:inherit;font-size:13.5px;
+                font-weight:800;letter-spacing:-.02em;-webkit-appearance:none;appearance:none}
+  .shop-edit-in:focus{outline:none}
+  .shop-mini{flex:0 0 auto;height:30px;padding:0 10px;border-radius:9px;font-size:11.5px;font-weight:900;
+             letter-spacing:-.02em;white-space:nowrap}
+  .shop-mini.save{background:var(--navy);color:#fff}
+  .shop-mini.del{width:30px;padding:0;display:grid;place-items:center;background:#fff;color:#C0BAA2;
+                 font-size:11px}
+  .shop-mini.del.confirm{width:auto;padding:0 8px;background:#E45B3C;color:#fff}
+  .shop-empty{margin:0;padding:11px;text-align:center;background:var(--cream);border-radius:12px;
+              font-size:11.5px;font-weight:800;color:#A9A48D;letter-spacing:-.02em}
+
   .ev-row{display:flex;gap:8px;align-items:center}
   .ev-row .field{flex:1 1 auto;min-width:0}
   #evName{flex:1 1 auto;min-width:0;border:0;background:none;padding:12px 0;font:inherit;font-weight:800;
@@ -908,6 +980,24 @@
         <button type="button" id="calAdd" class="cal-add">＋ 일정</button>
       </div>
     </div>
+    <section class="card shop-card" aria-label="사야할 것">
+      <div class="shop-head">
+        <h2 class="shop-tit"><span class="shop-emoji" aria-hidden="true">🛒</span> 사야할 것</h2>
+        <button type="button" class="shop-add" id="shopAdd">+ 추가</button>
+      </div>
+      <div class="shop-form hidden" id="shopForm">
+        <input id="shopInput" class="shop-input" type="text" placeholder="살 것 이름 (예: 방수팩)"
+               autocomplete="off" spellcheck="false" maxlength="40" aria-label="살 것 이름">
+        <div class="shop-form-row">
+          <div class="shop-own" id="shopOwn" role="group" aria-label="담당 고르기">
+            <button type="button" class="shop-chip" data-newown="seeun">세은</button>
+            <button type="button" class="shop-chip" data-newown="chankyu">찬규</button>
+          </div>
+          <button type="button" class="shop-save" id="shopSave">넣기</button>
+        </div>
+      </div>
+      <div class="shop-list" id="shopList"></div>
+    </section>
   </section>
   <div class="add-dock">
     <button id="addBig" class="card-add" type="button" aria-label="할 일 추가">
@@ -1135,7 +1225,7 @@ if (!ROOM_RE.test(ROOM)) {
   ROOM = ROOM_RE.test(saved) ? saved : '';
 }
 
-const ST = { todos: {}, lastSeen: {}, say: {}, memos: {}, events: {}, weights: {} };
+const ST = { todos: {}, lastSeen: {}, say: {}, memos: {}, events: {}, weights: {}, shopping: {} };
 let es = null, retry = 0, pollTimer = null, gotSnapshot = false;
 let drag = null;
 let openSwipeId = null;   /* 스와이프로 열어 둔 항목 — 다시 그려도 열린 채로 유지 */
@@ -2613,6 +2703,7 @@ function connect() {
       ST.memos = (m.data && m.data.memos) || {};
       ST.events = (m.data && m.data.events) || {};
       ST.weights = (m.data && m.data.weights) || {};
+      ST.shopping = (m.data && m.data.shopping) || {};
       gotSnapshot = true;
       seenSelfGuard();
       applyRepeatResets();
@@ -2653,6 +2744,7 @@ function setAt(path, data) {
     ST.memos = (data && data.memos) || {};
     ST.events = (data && data.events) || {};
     ST.weights = (data && data.weights) || {};
+    ST.shopping = (data && data.shopping) || {};
     seenSelfGuard();
     applyRepeatResets();
     return;
@@ -2682,6 +2774,7 @@ async function syncNow(quiet) {
     ST.memos = d.memos || {};
     ST.events = d.events || {};
     ST.weights = d.weights || {};
+    ST.shopping = d.shopping || {};
     gotSnapshot = true;
     seenSelfGuard();
     if (!es) setLive('live');
@@ -3701,6 +3794,7 @@ function calPaint() {
     const daySig = CAL.sel + '|' + dayHtml;
     if (calDaySig !== daySig) { box.innerHTML = dayHtml; calDaySig = daySig; }
   }
+  shopPaint();
 }
 function calMove(step) {
   calInit();
@@ -3724,6 +3818,199 @@ function calSelect(ymd) {
   CAL.sel = ymd;
   CAL.ym = ymd.slice(0, 7);
   calPaint();
+}
+
+/* ============ 🛒 사야할 것 (v46) ============
+   📅 일정 탭 달력 아래 목록. 저장: rooms/{room}/shopping/{id}
+   = { text, owner: 'seeun'|'chankyu'|'', done, order, createdAt, updatedAt }
+   담당·완료는 그 항목만 PATCH 해서 다른 항목을 건드리지 않는다. */
+const SHOP_MAX = 40;
+let shopFormOpen = false;
+let shopNewOwner = '';   /* 추가할 때 고른 담당 */
+let shopEditId = '';     /* 이름을 고치고 있는 항목 */
+let shopDelId = '';      /* 지우기를 한 번 누른 항목 */
+let shopDelT = null;
+let shopShown = '';      /* 목록을 마지막으로 그린 서명 */
+
+function shopItems() {
+  return Object.entries(ST.shopping || {})
+    .filter(([, v]) => v && typeof v === 'object')
+    .map(([id, v]) => ({
+      id: id,
+      text: String(v.text == null ? '' : v.text).trim(),
+      owner: (v.owner === 'seeun' || v.owner === 'chankyu') ? v.owner : '',
+      done: !!v.done,
+      order: Number(v.order) || 0,
+      createdAt: Number(v.createdAt) || 0
+    }))
+    .filter(it => it.text)
+    .sort((a, b) => (a.order - b.order) || (a.createdAt - b.createdAt));
+}
+function shopRowHtml(it) {
+  if (it.id === shopEditId) {
+    return '<div class="shop-row editing" data-shop-row="' + it.id + '">' +
+      '<input class="shop-edit-in" id="shopEdit" type="text" maxlength="' + SHOP_MAX + '" value="' +
+        esc(it.text) + '" aria-label="살 것 이름 고치기" autocomplete="off">' +
+      '<button class="shop-mini save" type="button" data-shop-savetext="' + it.id + '">저장</button>' +
+      '<button class="shop-mini del' + (shopDelId === it.id ? ' confirm' : '') + '" type="button" data-shop-del="' +
+        it.id + '" aria-label="지우기">' + (shopDelId === it.id ? '지우기?' : '✕') + '</button>' +
+    '</div>';
+  }
+  const on = it.owner === 'seeun', on2 = it.owner === 'chankyu';
+  return '<div class="shop-row' + (it.done ? ' done' : '') + '" data-shop-row="' + it.id + '">' +
+    '<button class="shop-name" type="button" data-shop-edit="' + it.id + '">' + esc(it.text) + '</button>' +
+    '<div class="shop-tags">' +
+      '<button class="shop-tag seeun' + (on ? ' on' : '') + '" type="button" data-shop-owner="' + it.id +
+        '" data-owner="seeun" aria-pressed="' + (on ? 'true' : 'false') + '">세은</button>' +
+      '<button class="shop-tag chankyu' + (on2 ? ' on' : '') + '" type="button" data-shop-owner="' + it.id +
+        '" data-owner="chankyu" aria-pressed="' + (on2 ? 'true' : 'false') + '">찬규</button>' +
+      '<button class="shop-tag donetag' + (it.done ? ' on' : '') + '" type="button" data-shop-done="' + it.id +
+        '" aria-pressed="' + (it.done ? 'true' : 'false') + '">' +
+        '<span class="dot" aria-hidden="true"></span><span class="tk" aria-hidden="true">✓</span>완료</button>' +
+    '</div>' +
+  '</div>';
+}
+function shopPaint() {
+  const list = $('#shopList');
+  if (!list) return;
+  const items = shopItems();
+  const sig = items.map(it => it.id + '~' + it.text + '~' + it.owner + '~' + (it.done ? 1 : 0) + '~' + it.order).join('|') +
+    '|e' + shopEditId + '|d' + shopDelId;
+  if (sig === shopShown) return;
+  shopShown = sig;
+  /* 이름을 고치는 중이면 치던 글자를 잃지 않게 잠시 받아 둔다 */
+  const typing = $('#shopEdit');
+  const typed = typing ? typing.value : null;
+  list.innerHTML = items.length ? items.map(shopRowHtml).join('')
+    : '<p class="shop-empty">아직 없어요 · 오른쪽 + 추가로 넣어 보세요</p>';
+  if (typed != null && shopEditId) {
+    const again = $('#shopEdit');
+    if (again && again.value !== typed) again.value = typed;
+  }
+}
+function shopOpenForm(open) {
+  shopFormOpen = !!open;
+  const f = $('#shopForm');
+  if (f) f.classList.toggle('hidden', !shopFormOpen);
+  const add = $('#shopAdd');
+  if (add) {
+    add.textContent = shopFormOpen ? '닫기' : '+ 추가';
+    add.classList.toggle('close', shopFormOpen);
+  }
+  if (!shopFormOpen) {
+    shopNewOwner = '';
+    $$('#shopOwn [data-newown]').forEach(b => b.classList.remove('on'));
+  } else {
+    const inp = $('#shopInput');
+    if (inp) { try { inp.focus(); } catch (e) {} }
+  }
+}
+function shopPickNewOwner(owner) {
+  shopNewOwner = (shopNewOwner === owner) ? '' : owner;
+  $$('#shopOwn [data-newown]').forEach(b => b.classList.toggle('on', b.dataset.newown === shopNewOwner));
+}
+async function shopAddItem() {
+  const inp = $('#shopInput');
+  if (!inp) return;
+  const text = String(inp.value || '').trim().slice(0, SHOP_MAX);
+  if (!text) { toast('살 것을 적어 주세요'); try { inp.focus(); } catch (e) {} return; }
+  const items = shopItems();
+  const order = items.length ? Math.max.apply(null, items.map(i => i.order)) + 1 : 1;
+  const id = 'sh' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  const now = Date.now();
+  const item = { text: text, owner: shopNewOwner || '', done: false, order: order, createdAt: now, updatedAt: now };
+  ST.shopping = ST.shopping || {};
+  ST.shopping[id] = item;
+  inp.value = '';
+  shopShown = '';
+  shopPaint();
+  if (navigator.vibrate) { try { navigator.vibrate(10); } catch (e) {} }
+  try { await put('shopping/' + id, item); }
+  catch (e) {
+    delete ST.shopping[id];
+    shopShown = ''; shopPaint();
+    toast('저장하지 못했어요');
+    return;
+  }
+  const again = $('#shopInput');
+  if (again && shopFormOpen) { try { again.focus(); } catch (e) {} }
+}
+async function shopSetOwner(id, owner) {
+  const it = (ST.shopping || {})[id];
+  if (!it) return;
+  const before = it.owner == null ? '' : it.owner;
+  const next = (before === owner) ? '' : owner;   /* 같은 사람을 다시 누르면 해제 */
+  it.owner = next;
+  it.updatedAt = Date.now();
+  shopShown = ''; shopPaint();
+  try { await patch('shopping/' + id, { owner: next, updatedAt: it.updatedAt }); }
+  catch (e) { it.owner = before; shopShown = ''; shopPaint(); toast('저장하지 못했어요'); }
+}
+async function shopToggleDone(id) {
+  const it = (ST.shopping || {})[id];
+  if (!it) return;
+  const before = !!it.done;
+  it.done = !before;
+  it.updatedAt = Date.now();
+  shopShown = ''; shopPaint();
+  if (navigator.vibrate) { try { navigator.vibrate(it.done ? 12 : [8, 22, 8]); } catch (e) {} }
+  try { await patch('shopping/' + id, { done: it.done, updatedAt: it.updatedAt }); }
+  catch (e) { it.done = before; shopShown = ''; shopPaint(); toast('저장하지 못했어요'); }
+}
+function shopStartEdit(id) {
+  if (!(ST.shopping || {})[id]) return;
+  shopEditId = id;
+  shopDelId = '';
+  shopShown = '';
+  shopPaint();
+  const inp = $('#shopEdit');
+  if (inp) { try { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); } catch (e) {} }
+}
+function shopEndEdit() {
+  shopEditId = '';
+  shopDelId = '';
+  clearTimeout(shopDelT);
+  shopShown = '';
+  shopPaint();
+}
+async function shopSaveText(id) {
+  const inp = $('#shopEdit');
+  const it = (ST.shopping || {})[id];
+  if (!inp || !it) return;
+  const text = String(inp.value || '').trim().slice(0, SHOP_MAX);
+  if (!text) { toast('이름을 적어 주세요'); return; }
+  const before = it.text;
+  it.text = text;
+  it.updatedAt = Date.now();
+  shopEditId = ''; shopDelId = '';
+  shopShown = ''; shopPaint();
+  try { await patch('shopping/' + id, { text: text, updatedAt: it.updatedAt }); }
+  catch (e) { it.text = before; shopShown = ''; shopPaint(); toast('저장하지 못했어요'); }
+}
+function shopAskDelete(id) {
+  if (shopDelId === id) { shopDeleteNow(id); return; }
+  shopDelId = id;
+  shopShown = ''; shopPaint();
+  const inp = $('#shopEdit');
+  if (inp) inp.value = (inp.value || '');     /* 고치던 글자는 그대로 둔다 */
+  clearTimeout(shopDelT);
+  shopDelT = setTimeout(() => { shopDelId = ''; shopShown = ''; shopPaint(); }, 3000);
+}
+async function shopDeleteNow(id) {
+  clearTimeout(shopDelT);
+  shopDelId = '';
+  const before = (ST.shopping || {})[id];
+  if (!before) return;
+  delete ST.shopping[id];
+  shopEditId = '';
+  shopShown = ''; shopPaint();
+  try { await del('shopping/' + id); }
+  catch (e) {
+    ST.shopping = ST.shopping || {};
+    ST.shopping[id] = before;
+    shopShown = ''; shopPaint();
+    toast('지우지 못했어요');
+  }
 }
 function eventSheetOpen() { return !$('#eventSheet').classList.contains('hidden'); }
 function showEventSheet() {
@@ -4148,6 +4435,32 @@ function initApp() {
   if (calEventsBox) calEventsBox.addEventListener('click', e => {
     const b = e.target.closest('[data-evedit]');
     if (b) { e.preventDefault(); openEventEdit(b.dataset.evedit); }
+  });
+  /* 🛒 사야할 것 — 추가·담당·완료·이름 고치기·지우기 */
+  const calPaneBox = $('#calPane');
+  if (calPaneBox) calPaneBox.addEventListener('click', e => {
+    if (e.target.closest('#shopAdd')) { e.preventDefault(); shopOpenForm(!shopFormOpen); return; }
+    if (e.target.closest('#shopSave')) { e.preventDefault(); shopAddItem(); return; }
+    const chip = e.target.closest('[data-newown]');
+    if (chip) { e.preventDefault(); shopPickNewOwner(chip.dataset.newown); return; }
+    const ow = e.target.closest('[data-shop-owner]');
+    if (ow) { e.preventDefault(); shopSetOwner(ow.dataset.shopOwner, ow.dataset.owner); return; }
+    const dn = e.target.closest('[data-shop-done]');
+    if (dn) { e.preventDefault(); shopToggleDone(dn.dataset.shopDone); return; }
+    const ed = e.target.closest('[data-shop-edit]');
+    if (ed) { e.preventDefault(); shopStartEdit(ed.dataset.shopEdit); return; }
+    const sv = e.target.closest('[data-shop-savetext]');
+    if (sv) { e.preventDefault(); shopSaveText(sv.dataset.shopSavetext); return; }
+    const dl = e.target.closest('[data-shop-del]');
+    if (dl) { e.preventDefault(); shopAskDelete(dl.dataset.shopDel); return; }
+    /* 목록 밖을 누르면 이름 고치기를 끝낸다 */
+    if (shopEditId && !e.target.closest('.shop-row.editing')) shopEndEdit();
+  });
+  if (calPaneBox) calPaneBox.addEventListener('keydown', e => {
+    if (!e.target) return;
+    if (e.target.id === 'shopInput' && e.key === 'Enter') { e.preventDefault(); shopAddItem(); return; }
+    if (e.target.id === 'shopEdit' && e.key === 'Enter') { e.preventDefault(); shopSaveText(shopEditId); return; }
+    if (e.target.id === 'shopEdit' && e.key === 'Escape') { e.preventDefault(); shopEndEdit(); }
   });
   const eventForm = $('#eventForm'); if (eventForm) eventForm.addEventListener('submit', saveEvent);
   const evCancelBtn = $('#evCancel'); if (evCancelBtn) evCancelBtn.addEventListener('click', closeEvent);
