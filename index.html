@@ -3875,7 +3875,7 @@ function shopPaint() {
   if (!list) return;
   const items = shopItems();
   const sig = items.map(it => it.id + '~' + it.text + '~' + it.owner + '~' + (it.done ? 1 : 0) + '~' + it.order).join('|') +
-    '|e' + shopEditId + '|d' + shopDelId;
+    '|e' + shopEditId;
   if (sig === shopShown) return;
   shopShown = sig;
   /* 이름을 고치는 중이면 치던 글자를 잃지 않게 잠시 받아 둔다 */
@@ -3887,6 +3887,7 @@ function shopPaint() {
     const again = $('#shopEdit');
     if (again && again.value !== typed) again.value = typed;
   }
+  shopDelPaint();
 }
 function shopOpenForm(open) {
   shopFormOpen = !!open;
@@ -3999,7 +4000,7 @@ function shopAskDelete(id) {
   /* 목록을 다시 그리지 않고 그 버튼만 바꿔 단다 — 고치던 글자·포커스가 그대로 남는다 */
   shopDelPaint();
   clearTimeout(shopDelT);
-  shopDelT = setTimeout(() => { shopDelId = ''; shopDelPaint(); }, 4500);
+  shopDelT = setTimeout(() => { shopDelId = ''; shopDelPaint(); }, 10000);
 }
 function shopDelPaint() {
   $$('#shopList [data-shop-del]').forEach(b => {
