@@ -2847,6 +2847,7 @@ async function sortToggleToday(id, btn) {
   } catch (e) {
     restoreTodo(t, before);
     paintTodayBtn(btn, !!before.today);
+    sortInsertByOrder(id);
     paintSort();
     render();
     toast('저장하지 못했어요');
