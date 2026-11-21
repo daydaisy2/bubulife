@@ -3829,7 +3829,6 @@ let shopFormOpen = false;
 let shopNewOwner = '';   /* 추가할 때 고른 담당 */
 let shopEditId = '';     /* 이름을 고치고 있는 항목 */
 let shopDelId = '';      /* 지우기를 한 번 누른 항목 */
-let shopDelT = null;
 let shopShown = '';      /* 목록을 마지막으로 그린 서명 */
 
 function shopItems() {
@@ -3976,7 +3975,6 @@ function shopStartEdit(id) {
 function shopEndEdit() {
   shopEditId = '';
   shopDelId = '';
-  clearTimeout(shopDelT);
   shopShown = '';
   shopPaint();
 }
@@ -3997,10 +3995,9 @@ async function shopSaveText(id) {
 function shopAskDelete(id) {
   if (shopDelId === id) { shopDeleteNow(id); return; }
   shopDelId = id;
-  /* 목록을 다시 그리지 않고 그 버튼만 바꿔 단다 — 고치던 글자·포커스가 그대로 남는다 */
+  /* 목록을 다시 그리지 않고 그 버튼만 바꿔 단다 — 고치던 글자·포커스가 그대로 남는다.
+     확인 상태는 시간으로 저절로 풀지 않고, 다른 곳을 누르거나 그 줄을 나가면 풀린다 */
   shopDelPaint();
-  clearTimeout(shopDelT);
-  shopDelT = setTimeout(() => { shopDelId = ''; shopDelPaint(); }, 10000);
 }
 function shopDelPaint() {
   $$('#shopList [data-shop-del]').forEach(b => {
@@ -4010,7 +4007,6 @@ function shopDelPaint() {
   });
 }
 async function shopDeleteNow(id) {
-  clearTimeout(shopDelT);
   shopDelId = '';
   const before = (ST.shopping || {})[id];
   if (!before) return;
