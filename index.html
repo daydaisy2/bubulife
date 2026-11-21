@@ -400,6 +400,8 @@
               letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .cal-ev .et{flex:0 0 auto;font-size:11px;font-weight:900;color:#8A8467;letter-spacing:-.02em}
   .cal-ev .en{flex:0 0 auto;font-size:10.5px;opacity:.7}
+  /* 연속 일정의 작은 날짜 범위 `11.24~11.26` */
+  .cal-ev .er{flex:0 0 auto;font-size:10.5px;font-weight:900;color:#A08A46;letter-spacing:-.02em}
   .cal-empty{font-size:12.5px;font-weight:800;color:#A8A28A}
   .cal-add{flex:0 0 auto;height:40px;padding:0 15px;border-radius:12px;background:var(--navy);color:#fff;
            font-size:clamp(12.5px,1.7vw,14.5px);font-weight:900;letter-spacing:-.02em}
@@ -421,6 +423,10 @@
           font-size:clamp(15px,2vw,19px);letter-spacing:-.02em;color:var(--ink);outline:none}
   #evTime{border:0;background:none;padding:12px 0;font:inherit;font-weight:800;font-size:clamp(14px,1.9vw,18px);
           color:var(--ink);outline:none;min-width:0}
+  /* 📆 끝나는 날(연속 일정, 선택) — 비우면 하루 일정 */
+  #evEnd{border:0;background:none;padding:12px 0;font:inherit;font-weight:800;font-size:clamp(14px,1.9vw,18px);
+         color:var(--ink);outline:none;min-width:0;width:100%}
+  .ev-end-hint{margin:-2px 0 0;text-align:left;padding-left:5px}
   #evNote{width:100%;border:2px solid var(--line);border-radius:14px;padding:10px 12px;background:#fff;
           font:inherit;font-weight:700;font-size:clamp(13.5px,1.8vw,17px);line-height:1.45;letter-spacing:-.02em;
           color:var(--ink);resize:vertical;min-height:62px;outline:none;transition:border-color .15s}
@@ -1111,6 +1117,11 @@
       <div class="field"><span class="ico">🕒</span><input id="evTime" type="time" aria-label="시간(선택)"></div>
       <button type="button" id="evTimeClear" class="ev-sub">시간 없음</button>
     </div>
+    <div class="ev-row">
+      <div class="field"><span class="ico">📆</span><input id="evEnd" type="date" aria-label="끝나는 날(선택)"></div>
+      <button type="button" id="evEndClear" class="ev-sub">하루만</button>
+    </div>
+    <p class="hint ev-end-hint" id="evEndHint">하루 일정</p>
     <textarea id="evNote" rows="2" maxlength="200" placeholder="메모 (선택)"></textarea>
     <div class="ev-who" id="evWho">
       <h3>👤 누구 일정</h3>
@@ -3756,8 +3767,27 @@ function eventList() {
   return objEntries(ST.events).map(([id, e]) => ({ id, ...e }))
     .filter(e => e && e.date);
 }
+/* 연속 일정(endDate, 선택) — 시작일 하루짜리는 endDate 가 없거나 시작일과 같다.
+   `e.date <= ymd <= (e.endDate || e.date)` 인 날 모두에 그 일정이 걸린 것으로 본다. */
+function evEndOf(e) {
+  const s = String((e && e.endDate) || '');
+  return /^\d{4}-\d{2}-\d{2}$/.test(s) && s > String(e.date) ? s : String(e.date);
+}
+function evCovers(e, ymd) { return !!e && !!e.date && e.date <= ymd && ymd <= evEndOf(e); }
+function calNextDay(ymd) {
+  const a = String(ymd).split('-').map(Number);
+  const d = new Date(Date.UTC(a[0], (a[1] || 1) - 1, (a[2] || 1) + 1));
+  return calYmd(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate());
+}
+/* 기간 일정의 작은 날짜 범위 `11.24~11.26` — 하루짜리면 빈 글자 */
+function calRangeLabel(e) {
+  const end = evEndOf(e);
+  if (end === String(e.date)) return '';
+  const a = String(e.date).split('-').map(Number), b = end.split('-').map(Number);
+  return a[1] + '.' + a[2] + '~' + b[1] + '.' + b[2];
+}
 function eventsOn(ymd) {
-  return eventList().filter(e => e.date === ymd)
+  return eventList().filter(e => evCovers(e, ymd))
     .sort((a, b) => String(a.time || '99:99').localeCompare(String(b.time || '99:99')) || (a.at || 0) - (b.at || 0));
 }
 /* 할 일 카드 맨 위(진행률 바 바로 아래)의 📅 오늘 일정 배너 — 오늘(한국시간) 일정이 없으면 아예 안 그린다.
@@ -3777,16 +3807,25 @@ function todayEventsHtml() {
 }
 function eventDots(ym) {
   const map = {};
-  eventList().forEach(e => { if (e.date.slice(0, 7) === ym) map[e.date] = (map[e.date] || 0) + 1; });
+  eventList().forEach(e => {
+    const end = evEndOf(e);
+    let cur = String(e.date);
+    for (let i = 0; cur <= end && i < 400; i++) {
+      if (cur.slice(0, 7) === ym) map[cur] = (map[cur] || 0) + 1;
+      cur = calNextDay(cur);
+    }
+  });
   return map;
 }
 function evRowHtml(e) {
   const tone = calPillTone(e);
+  const range = calRangeLabel(e);
   return '<li class="cal-ev-li"><button type="button" class="cal-ev" data-evedit="' + esc(e.id) + '" ' +
     'aria-label="' + esc(CAL_WHO_NAME[calWhoOf(e)] + ' · ' +
-      (e.time ? e.time + ' ' : '') + e.title + ' — 고치기') + '">' +
+      (e.time ? e.time + ' ' : '') + e.title + (range ? ' · ' + range + ' 연속 일정' : '') + ' — 고치기') + '">' +
     '<span class="ew-dot ' + tone + '" aria-hidden="true"></span>' +
     '<span class="ex">' + esc(e.title) + '</span>' +
+    (range ? '<span class="er">' + esc(range) + '</span>' : '') +
     (e.time ? '<span class="et">' + esc(e.time) + '</span>' : '') +
     (e.note ? '<span class="en" aria-hidden="true">📝</span>' : '') +
   '</button></li>';
@@ -3829,9 +3868,14 @@ function calPaint() {
   const last = new Date(Date.UTC(y, m, 0)).getUTCDate();
   const weeks = Math.ceil((first + last) / 7);
   const byDate = {};
+  /* 연속 일정은 `date`~`endDate` 의 모든 날 칸에 같은 배지를 올린다 */
   eventList().forEach(e => {
-    if (e.date.slice(0, 7) !== CAL.ym) return;
-    (byDate[e.date] = byDate[e.date] || []).push(e);
+    const end = evEndOf(e);
+    let cur = String(e.date);
+    for (let i = 0; cur <= end && i < 400; i++) {
+      if (cur.slice(0, 7) === CAL.ym) (byDate[cur] = byDate[cur] || []).push(e);
+      cur = calNextDay(cur);
+    }
   });
   Object.keys(byDate).forEach(k => byDate[k].sort(
     (a, b) => String(a.time || '99:99').localeCompare(String(b.time || '99:99')) || (a.at || 0) - (b.at || 0)));
@@ -3883,6 +3927,28 @@ function calSelect(ymd) {
   calPaint();
 }
 
+/* 일정 시트 `끝나는 날` — 비우거나 시작일과 같으면 하루 일정(endDate 없음) */
+function evEndSet(v) {
+  const el = $('#evEnd');
+  if (!el) return;
+  el.min = String(CAL.sel || '');
+  el.value = String(v || '');
+  paintEvEnd();
+}
+function evEndPick() {
+  const el = $('#evEnd');
+  const v = String((el && el.value) || '').trim();
+  return /^\d{4}-\d{2}-\d{2}$/.test(v) && v > String(CAL.sel) ? v : '';
+}
+/* 시트 아래 작은 안내 — `하루 일정` 또는 `11.24~11.26 · 3일 일정` */
+function paintEvEnd() {
+  const hint = $('#evEndHint');
+  if (!hint) return;
+  const end = evEndPick();
+  if (!end) { hint.textContent = '하루 일정'; return; }
+  const days = Math.round((Date.parse(end + 'T00:00:00Z') - Date.parse(String(CAL.sel) + 'T00:00:00Z')) / 86400000) + 1;
+  hint.textContent = calRangeLabel({ date: CAL.sel, endDate: end }) + ' · ' + days + '일 일정';
+}
 function eventSheetOpen() { return !$('#eventSheet').classList.contains('hidden'); }
 function showEventSheet() {
   $('#eventSheet').classList.remove('hidden');
@@ -3904,6 +3970,7 @@ function openEventAdd() {
   $('#evName').value = '';
   $('#evTime').value = '';
   $('#evNote').value = '';
+  evEndSet('');                          /* 새 일정은 하루로 시작 */
   $('#evDel').classList.add('hidden');
   evLinkSel = 'none';
   paintEvLink();
@@ -3922,6 +3989,7 @@ function openEventEdit(id) {
   $('#evName').value = String(e.title == null ? '' : e.title);
   $('#evTime').value = String(e.time || '');
   $('#evNote').value = String(e.note == null ? '' : e.note);
+  evEndSet(evEndOf(e) === String(e.date) ? '' : evEndOf(e));   /* 저장된 기간이 있으면 그대로 보여 준다 */
   $('#evDel').classList.remove('hidden');
   evLinkSel = evLinkTargetOf(id);        /* 이미 연결된 할 일이 있으면 그 대상으로 보여 준다 */
   paintEvLink();
@@ -3954,12 +4022,14 @@ async function saveEvent(e) {
     time: $('#evTime').value || '',
     note: $('#evNote').value.trim(),
     who: who,                               /* 달력 배지 색(공통 노랑·세은 분홍·찬규 파랑) */
+    endDate: evEndPick() || null,           /* 연속 일정 끝나는 날 — 같거나 비었으면 null 로 필드를 지운다 */
     at: before && before.at ? before.at : Date.now(),
     by: (before && before.by) || ME || ''
   };
   if (before) body.editedAt = Date.now();
   ST.events = ST.events || {};
   ST.events[id] = Object.assign({}, before || {}, body);
+  if (!ST.events[id].endDate) delete ST.events[id].endDate;   /* 하루짜리는 필드 없이 */
   closeEvent();
   try {
     /* 예전에는 PUT 이라 다른 필드(구글 캘린더에서 온 값 등)까지 지웠다 — 이제 보낸 필드만 바꾼다 */
@@ -4320,6 +4390,8 @@ function initApp() {
   const evCancelBtn = $('#evCancel'); if (evCancelBtn) evCancelBtn.addEventListener('click', closeEvent);
   const evDelBtn = $('#evDel'); if (evDelBtn) evDelBtn.addEventListener('click', armEvDel);
   const evTimeClearBtn = $('#evTimeClear'); if (evTimeClearBtn) evTimeClearBtn.addEventListener('click', () => { $('#evTime').value = ''; });
+  const evEndInput = $('#evEnd'); if (evEndInput) evEndInput.addEventListener('input', paintEvEnd);
+  const evEndClearBtn = $('#evEndClear'); if (evEndClearBtn) evEndClearBtn.addEventListener('click', () => { evEndSet(''); });
   const evSheet = $('#eventSheet');
   if (evSheet) evSheet.addEventListener('click', e => { if (e.target.dataset.evclose === '1') closeEvent(); });
   const evLinkBox = $('#evLink');
