@@ -260,7 +260,7 @@
   .panel h2{margin:0;font-size:clamp(16px,2vw,22px);font-weight:900;letter-spacing:-.03em}
 
   /* 추가·수정 */
-  .seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#F7F2DF;border-radius:14px;padding:5px}
+  .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#F7F2DF;border-radius:14px;padding:5px}
   .seg button{padding:11px 6px;border-radius:11px;font-weight:900;font-size:clamp(13px,1.7vw,17px);color:#6E6A58}
   .seg button.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(120,95,0,.12)}
 
@@ -1027,6 +1027,7 @@
     <div class="seg" id="ownerSeg">
       <button type="button" data-owner="seeun">👩🏻 세은</button>
       <button type="button" data-owner="chankyu">👨🏻 찬규</button>
+      <button type="button" data-owner="both">👫 같이</button>
     </div>
     <div class="field">
       <span class="ico" id="iconPreview" aria-hidden="true">👩🏻</span>
@@ -1073,6 +1074,7 @@
     <div class="seg" id="noteOwnerSeg">
       <button type="button" data-owner="seeun">👩🏻 세은</button>
       <button type="button" data-owner="chankyu">👨🏻 찬규</button>
+      <button type="button" data-owner="both">👫 같이</button>
     </div>
     <div class="field">
       <span class="ico" id="noteIcon" aria-hidden="true">👩🏻</span>
@@ -1172,8 +1174,10 @@ const DB = 'https://bubulife-678ac-default-rtdb.firebaseio.com';
 const ROOM_RE = /^[A-Za-z0-9_-]{8,64}$/;
 const OWNER = {
   seeun:   { name: '세은', emoji: '👩🏻' },
-  chankyu: { name: '찬규', emoji: '👨🏻' }
+  chankyu: { name: '찬규', emoji: '👨🏻' },
+  both:    { name: '같이', emoji: '👫' }   /* 둘 함께 하는 일 — 할 일 한 개를 두 사람 탭에 같이 보여 준다 */
 };
+/* 사람 두 명 — 접속 시간·한마디·탭은 이 두 사람만 쓴다(같이(both)는 사람이 아니라 담당자 표시다). */
 const OWNER_ORDER = ['seeun', 'chankyu'];
 
 
@@ -1230,6 +1234,11 @@ function toast(msg, cls) {
 function ownerIcon(owner) { return (OWNER[owner] || OWNER.seeun).emoji; }
 function iconFor(t) { return ownerIcon(ownerOf(t)); }
 function ownerOf(t) { return OWNER[t.owner] ? t.owner : 'seeun'; }
+/* 그 사람 탭에 보이는 담당자인가 — 내 것 + 둘 함께(both).
+   both 는 할 일 한 개(owner:'both')를 두 탭이 같이 보므로 어느 탭에서 제목·메모·오늘할일·요일·완료/복구·삭제를
+   고쳐도 다른 탭에 그대로 따라간다. */
+function ownerMatches(t, owner) { const o = ownerOf(t); return o === owner || o === 'both'; }
+function todosOf(owner) { return todoList().filter(t => ownerMatches(t, owner)); }
 /* 화면 순서 그룹 — 0: 오늘할일(맨 위) · 5: 오늘 완료한 일 · 10~16: 요일 지정(오늘 요일=10, 내일=11 … 6일 뒤=16) ·
    20: 일반 · 30: 🗓️ 이후 · 40: 📅 일정에서 만든 할 일(맨 밑, 일정 날짜 가까운 순) · 50: 지난 날 완료(목록에 안 보임, 완료됨 시트에서만)
    그룹 번호가 곰 정렬 순서다. 요일 항목은 한국시간 오늘 요일에서 가장 먼저 다가오는 요일로 그룹을 정하고
@@ -1277,10 +1286,10 @@ function sortTodos(arr) {
 function isDoneToday(t) { return !!(t && t.done && t.doneDate && t.doneDate === kstParts().ymd); }
 /* 카드에 보이는 목록 = 미완료 + 오늘 완료(어제 이전에 끝낸 일은 완료됨 시트로) */
 function visibleTodos(owner) {
-  return sortTodos(todoList().filter(t => ownerOf(t) === owner && (!t.done || isDoneToday(t))));
+  return sortTodos(todosOf(owner).filter(t => !t.done || isDoneToday(t)));
 }
 function openTodos(owner) {   /* 아직 안 한 일만 */
-  return sortTodos(todoList().filter(t => ownerOf(t) === owner && !t.done));
+  return sortTodos(todosOf(owner).filter(t => !t.done));
 }
 
 /* ============ 📅 요일 지정 (이번만 · 매주 반복) ============
@@ -1547,8 +1556,13 @@ function linkedTodosOf(evId) {
 /* 이 일정에 연결된 할 일로 지금 고를 값을 되살린다(둘 다 있으면 both) */
 function evLinkTargetOf(evId) {
   const has = { seeun: false, chankyu: false };
-  linkedTodosOf(evId).forEach(t => { has[ownerOf(t)] = true; });
-  if (has.seeun && has.chankyu) return 'both';
+  let shared = false;
+  linkedTodosOf(evId).forEach(t => {
+    const o = ownerOf(t);
+    if (o === 'both') shared = true; else has[o] = true;
+  });
+  /* 담당자를 같이(both)로 바꿔 두 사람 몫을 한 항목으로 쓰고 있으면 그것이 둘 다를 덮는다 */
+  if (shared || (has.seeun && has.chankyu)) return 'both';
   return has.seeun ? 'seeun' : has.chankyu ? 'chankyu' : 'none';
 }
 function paintEvLink() {
@@ -1612,7 +1626,21 @@ async function syncEventTodos(evId, ev, prev, target) {
   const linked = linkedTodosOf(evId);
   const body = {}, drop = [];
   const keep = {};
+  /* 두 사람 몫을 같이(both) 한 항목 하나로 바꾼 경우 — 그 항목을 그대로 고치고 사람별로 새로 만들지 않는다 */
+  const shared = want.length === 2 ? linked.find(t => ownerOf(t) === 'both') : null;
+  if (shared) {
+    keep[shared.id] = 1;
+    const upd = { eventDate: ev.date, updatedAt: now };
+    if (!shared.text || shared.text === (prev && prev.title)) upd.text = ev.title;
+    if (shared.eventDate !== ev.date) {
+      if (ev.date === ymd) { if (!shared.done) { upd.today = true; upd.lastTodayAutoDate = ymd; } }
+      else if (shared.today && shared.lastTodayAutoDate) upd.today = false;
+    }
+    Object.assign(shared, upd);
+    Object.keys(upd).forEach(k => { body['todos/' + shared.id + '/' + k] = upd[k]; });
+  }
   want.forEach(owner => {
+    if (shared) return;                 /* 함께 한 항목 하나가 두 사람 몫 */
     const cur = linked.find(t => ownerOf(t) === owner);
     if (cur) {
       keep[cur.id] = 1;
@@ -2346,7 +2374,8 @@ function rowHtml(t) {
 }
 function cardHtml(owner) {
   const info = OWNER[owner];
-  const all = todoList().filter(t => ownerOf(t) === owner);
+  /* 진행 바는 이 탭에 보이는 목록 기준 — 함께(both) 한 일도 두 탭 모두에 들어간다 */
+  const all = todosOf(owner);
   const open = openTodos(owner);
   const show = visibleTodos(owner);
   const doneN = all.length - open.length;
@@ -2390,7 +2419,7 @@ function paintAddDock() {
   b.dataset.owner = OWNER[TAB] ? TAB : 'seeun';
 }
 function setTab(owner) {
-  if (owner !== 'workout' && owner !== 'cal' && !OWNER[owner]) return;
+  if (owner === 'both' || (owner !== 'workout' && owner !== 'cal' && !OWNER[owner])) return;
   const changed = TAB !== owner;
   TAB = owner;
   closeAllSwipes();
@@ -2510,7 +2539,7 @@ function syncSheetFlag() {
 let sayOwner = 'seeun';
 function sayOpen() { return !$('#saySheet').classList.contains('hidden'); }
 function openSay(owner) {
-  if (!OWNER[owner]) return;
+  if (!OWNER[owner] || owner === 'both') return;   /* 한마디는 사람에게만 */
   sayOwner = owner;
   $('#sayTitle').textContent = '💬 ' + OWNER[owner].name + '에게 한마디';
   $('#sayIcon').textContent = ownerIcon(owner);
@@ -2717,7 +2746,9 @@ async function saveNote(e) {
                    lastResetDate: t.lastResetDate, updatedAt: t.updatedAt };
   const body = { text: text, note: note || null, owner: noteOwner,
                  icon: ownerIcon(noteOwner), updatedAt: now };
-  if (ownerChanged) body.order = nextOrder(noteOwner);
+  /* 담당자를 바꿔 저장하면 그 사람 목록의 맨 위로 — 다만 같이(both)로 바꿀 때는 지금 자리를 지킨다
+     (한 항목을 두 탭이 같이 보므로 원래 있던 자리에서 두 사람 목록에 함께 끼어드는 게 자연스럽다) */
+  if (ownerChanged && noteOwner !== 'both') body.order = nextOrder(noteOwner);
   /* 🗓️ 이후로 바꿔 저장하면 그 담당자 목록의 제일 밑으로 */
   if (later && !t.later) body.order = lastOrder(noteOwner, id);
   if (later) {
@@ -2973,13 +3004,13 @@ function closeSheet() {
 }
 function nextOrder(owner) {
   /* 새 할 일은 맨 아래가 아니라 맨 위 — 최소 order 보다 하나 앞으로 */
-  const arr = todoList().filter(t => ownerOf(t) === owner);
+  const arr = todosOf(owner);
   if (!arr.length) return 0;
   return Math.min(...arr.map(t => typeof t.order === 'number' ? t.order : 0)) - 1;
 }
 /* 🗓️ 이후는 늘 제일 밑 — 그 담당자 미완료 목록의 가장 큰 order + 1 */
 function lastOrder(owner, exceptId) {
-  const arr = todoList().filter(t => ownerOf(t) === owner && t.id !== exceptId && !t.done);
+  const arr = todosOf(owner).filter(t => t.id !== exceptId && !t.done);
   const max = arr.reduce((m, t) => typeof t.order === 'number' ? Math.max(m, t.order) : m, -1);
   return max + 1;
 }
@@ -3028,6 +3059,14 @@ function addTodoMeta() {
   if (days.indexOf(dow) >= 0) { meta.today = true; meta.lastTodayAutoDate = ymd; }
   return meta;
 }
+/* 지금 보고 있는 사람 탭(일정·운동 탭이면 이 기기 사람) — 같이(both) 새 항목의 자리를 잴 때 쓴다.
+   both 항목만 모아 자리를 제면 두 사람 목록에서 엉뚱한 곳으로 튀므로, 지금 눈에 보이는 사람 목록 기준으로 넣는다. */
+function basePerson() {
+  if (OWNER[TAB] && TAB !== 'both') return TAB;
+  if (OWNER[ME] && ME !== 'both') return ME;
+  if (OWNER[lastOwner] && lastOwner !== 'both') return lastOwner;
+  return 'seeun';
+}
 async function saveTodo(e) {
   if (e) e.preventDefault();
   const text = $('#textInput').value.trim();
@@ -3036,7 +3075,7 @@ async function saveTodo(e) {
   const icon = ownerIcon(draft.owner);
   const id = newId();
   const meta = addTodoMeta();                 /* 요일·오늘할일·이후 */
-  const place = placeOrder(draft.owner, meta);   /* 그룹 안 매주 반복 항목들 바로 아래(이후는 맨 끝) */
+  const place = placeOrder(draft.owner === 'both' ? basePerson() : draft.owner, meta);   /* 그룹 안 매주 반복 항목들 바로 아래(이후는 맨 끝) */
   const obj = {
     id, text, icon, owner: draft.owner, done: false,
     order: place.order, createdAt: now, updatedAt: now
@@ -3044,8 +3083,10 @@ async function saveTodo(e) {
   Object.assign(obj, meta);
   ST.todos[id] = obj;
   place.moves.forEach(m => { const t = ST.todos[m.id]; if (t) t.order = m.to; });
-  lastOwner = draft.owner; localStorage.setItem('bubu.owner', lastOwner);
-  const justOwner = draft.owner;   /* 방금 넣은 사람 — 그 탭을 열어서 바로 보이게 */
+  /* 마지막으로 고른 사람은 다음 추가 시트의 기본값 — 같이(both)는 사람이 아니라 남기지 않는다 */
+  if (draft.owner !== 'both') { lastOwner = draft.owner; localStorage.setItem('bubu.owner', lastOwner); }
+  /* 방금 넣은 할 일이 보이도록 — 같이(both)는 지금 보고 있는 탭에도 그대로 보인다 */
+  const justOwner = draft.owner === 'both' ? basePerson() : draft.owner;
   closeSheet();
   if (TAB !== justOwner) TAB = justOwner;
   render();
@@ -3429,7 +3470,7 @@ function sortInsertByOrder(id) {
   sortIds = arr;
 }
 function openSort(owner) {
-  if (!OWNER[owner]) return;
+  if (!OWNER[owner] || owner === 'both') return;   /* 순서 편집기는 사람 탭에서만 */
   closeAllSwipes();
   sortOwner = owner;
   sortIds = openTodos(owner).map(t => t.id);
