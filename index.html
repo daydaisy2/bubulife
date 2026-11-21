@@ -1212,7 +1212,7 @@ function ownerIcon(owner) { return (OWNER[owner] || OWNER.seeun).emoji; }
 function iconFor(t) { return ownerIcon(ownerOf(t)); }
 function ownerOf(t) { return OWNER[t.owner] ? t.owner : 'seeun'; }
 /* 화면 순서 그룹 — 0: 오늘할일(맨 위) · 5: 오늘 완료한 일 · 10~16: 요일 지정(오늘 요일=10, 내일=11 … 6일 뒤=16) ·
-   20: 일반 · 30: 🗓️ 이후(제일 밑) · 40: 지난 날 완료(목록에 안 보임, 완료됨 시트에서만)
+   18: 📅 일정에서 만든 할 일(일정 날짜 가까운 순) · 20: 일반 · 30: 🗓️ 이후(제일 밑) · 40: 지난 날 완료(목록에 안 보임, 완료됨 시트에서만)
    그룹 번호가 곰 정렬 순서다. 요일 항목은 한국시간 오늘 요일에서 가장 먼저 다가오는 요일로 그룹을 정하고
    같은 그룹 안에서는 order 오름차순이라 ▲▼·드래그는 그룹(같은 요일) 안에서만 움직인다. */
 function dayOffsetOf(days) {
@@ -1232,14 +1232,21 @@ function rankOf(t) {
   if (t.done) return isDoneToday(t) ? 5 : 40;      /* 5: 오늘 완료(오늘할일 바로 아래), 40: 목록에 없음 */
   if (t.today) return 0;
   if (t.later) return 30;
+  /* 📅 일정에서 만든 할 일은 요일 지정(10~16) 다음·일반(20) 앞에 따로 모은다 — 일반 할 일과 섞이지 않게 */
+  if (t.linkedEventId && t.eventDate) return 18;
   const days = repeatOf(t);
   return days.length ? 10 + dayRankOf(days) : 20;
 }
 function sortTodos(arr) {
-  /* 오늘할일 → 오늘 완료 → 요일(오늘 기준 다가오는 순서) → 일반 → 이후 — 그룹 안에서는 order 오름차순(그리고 만든 순서) */
+  /* 오늘할일 → 오늘 완료 → 요일(오늘 기준 다가오는 순서) → 📅 일정 할 일(날짜 가까운 순) → 일반 → 이후
+     그룹 안에서는 일정 날짜(eventDate) 오름차순 → order 오름차순 → 만든 순서.
+     달력에서 어떤 순서로 일정을 눌러도 늘 가까운 날짜가 위로 온다. */
   return arr.slice().sort((a, b) => {
     const ar = rankOf(a), br = rankOf(b);
     if (ar !== br) return ar - br;
+    const ae = a.eventDate ? String(a.eventDate) : '';
+    const be = b.eventDate ? String(b.eventDate) : '';
+    if (ae && be && ae !== be) return ae.localeCompare(be);   /* 둘 다 일정 날짜가 있으면 날짜순 */
     const ao = typeof a.order === 'number' ? a.order : Number.MAX_SAFE_INTEGER;
     const bo = typeof b.order === 'number' ? b.order : Number.MAX_SAFE_INTEGER;
     if (ao !== bo) return ao - bo;
@@ -1605,7 +1612,7 @@ async function syncEventTodos(evId, ev, prev, target) {
     const obj = { id: id, text: ev.title, icon: ownerIcon(owner), owner: owner, done: false,
                   linkedEventId: evId, eventDate: ev.date, createdAt: now, updatedAt: now };
     if (ev.date === ymd) { obj.today = true; obj.lastTodayAutoDate = ymd; }
-    const place = placeOrder(owner, ev.date === ymd ? { today: true } : {});
+    const place = placeOrder(owner, ev.date === ymd ? { today: true } : { linkedEventId: evId, eventDate: ev.date });
     obj.order = place.order;
     ST.todos[id] = obj;
     place.moves.forEach(m => {
