@@ -1182,7 +1182,7 @@ async function applyRepeatResets() {
   if (!jobs.length) { applyRepeatToday(); return 0; }
   repBusy = true;
   render();
-  try { await Promise.all(jobs); toast('🔁 오늘 반복 할 일을 다시 올렸어요'); }
+  try { await Promise.all(jobs); }        /* 조용히 되살린다 — 완료 알림 토스트는 띄우지 않는다 */
   finally { repBusy = false; }
   applyRepeatToday();        /* 되살린 뒤에도 오늘 요일 반복 항목은 오늘할일로 */
   return jobs.length;
@@ -1393,11 +1393,10 @@ function woPaint() {
   const line = $('#woDate');
   if (line) line.textContent = (d.getMonth() + 1) + '월 ' + d.getDate() + '일 ' + WO_WEEK[d.getDay()] +
     '요일 · 운동 ' + WO_TOTAL + '개';
-  /* 오늘 다 채우면 한 번만 축하 */
+  /* 오늘 다 채우면 한 번만 표시(축하 토스트는 띄우지 않는다) */
   if (st.done === st.total && WOST.celebrated !== WOST.date) {
     WOST.celebrated = WOST.date;
     woSave();
-    toast('오늘 운동 ' + WO_TOTAL + '개 모두 완료! 💛');
   } else if (st.done < st.total && WOST.celebrated === WOST.date) {
     WOST.celebrated = '';
     woSave();
@@ -1409,9 +1408,8 @@ function woToggle(id) {
   const on = !WOST.checks[id];
   if (on) WOST.checks[id] = 1; else delete WOST.checks[id];
   woSave();
-  const st = woPaint();
+  woPaint();
   if (navigator.vibrate) { try { navigator.vibrate(on ? 14 : [8, 26, 8]); } catch (e) {} }
-  if (!(on && st.done === st.total)) toast(on ? '✓ 완료했어요' : '체크를 해제했어요');
 }
 /* 날짜가 바뀌면 오늘 운동을 새로 시작(지난 날은 7일 기록만 남김) */
 function woRollover() {
@@ -1435,7 +1433,7 @@ function woTick() {
   let cur = '';
   try { cur = localStorage.getItem(WO_KEY) || ''; } catch (e) {}
   if (cur !== woRaw) woLoad();     /* 세은 운동 앱 등 다른 화면에서 체크했으면 다시 읽어 맞춘다 */
-  if (woRollover()) { woPaint(); toast('날짜가 바뀌어 오늘 운동이 새로 시작됐어요'); return; }
+  if (woRollover()) { woPaint(); return; }
   woPaint();
 }
 function woResetOpen() { return !$('#woReset').classList.contains('hidden'); }
@@ -1455,7 +1453,6 @@ function woResetNow() {
   WOST.celebrated = '';
   woSave();
   woPaint();
-  toast('오늘 운동 기록을 지웠어요');
 }
 function initWo() {
   woLoad();
@@ -1728,7 +1725,7 @@ async function saveSay(e) {
   const next = { text: text, at: Date.now() };
   ST.say[owner] = next;
   closeSay(); render();
-  try { await put('say/' + owner, next); toast('한마디를 남겼어요'); }
+  try { await put('say/' + owner, next); }
   catch (err) {
     if (hadBefore) ST.say[owner] = before; else delete ST.say[owner];
     render(); toast('저장하지 못했어요');
@@ -1738,7 +1735,7 @@ async function clearSay(owner, before, hadBefore) {
   ST.say = ST.say || {};
   delete ST.say[owner];
   render();
-  try { await del('say/' + owner); toast('한마디를 비웠어요'); }
+  try { await del('say/' + owner); }
   catch (err) {
     if (hadBefore) ST.say[owner] = before;
     render(); toast('비우지 못했어요');
@@ -1771,7 +1768,6 @@ function setMe(who) {
   touchSeen(true);
   TAB = who;
   render();
-  toast(ownerIcon(who) + ' ' + OWNER[who].name + ' 님 기기로 설정했어요');
 }
 
 /* ============ 안드로이드 뒤로가기 — 열린 시트만 닫기 ============
@@ -2066,7 +2062,6 @@ async function toggleToday(id) {
   render();
   try {
     await patch('todos/' + id, next);
-    toast(nextToday ? '오늘 할 일로 표시했어요' : '오늘표시를 꺼어요');
   } catch (e) {
     restoreTodo(t, before);
     render();
@@ -2085,7 +2080,7 @@ async function toggle(id) {
   if (nextDone && !isOnce(t) && repeatOf(t).length) next.lastResetDate = kstParts().ymd;
   Object.assign(t, next);
   render();
-  try { await patch('todos/' + id, next); toast(nextDone ? '완료했어요' : '다시 할 일로 옮겼어요'); }
+  try { await patch('todos/' + id, next); }
   catch (e) { Object.assign(t, before); render(); toast('저장하지 못했어요'); }
 }
 
@@ -2205,7 +2200,7 @@ async function saveTodo(e) {
   }
   const body = {}; body['todos/' + id] = obj;
   place.moves.forEach(m => { body['todos/' + m.id + '/order'] = m.to; });
-  try { await patchRoom(body); toast(icon + ' 추가했어요'); }
+  try { await patchRoom(body); }
   catch (err) {
     place.moves.forEach(m => {
       const t = ST.todos[m.id]; if (!t) return;
@@ -2219,7 +2214,7 @@ async function removeTodo(id) {
   if (openSwipeId === id) openSwipeId = null;
   delete ST.todos[id];
   render();
-  try { await del('todos/' + id); toast('삭제했어요'); return true; }
+  try { await del('todos/' + id); return true; }
   catch (e) { ST.todos[id] = t; render(); toast('삭제하지 못했어요'); return false; }
 }
 function armDelete() {
@@ -2843,7 +2838,6 @@ async function sortToggleToday(id, btn) {
   render();                       /* 메인 화면 알약도 같이 맞춘다(순서 목록은 그대로) */
   try {
     await patch('todos/' + id, next);
-    toast(on ? '오늘 할 일로 표시했어요' : '오늘표시를 껐어요');
   } catch (e) {
     restoreTodo(t, before);
     paintTodayBtn(btn, !!before.today);
@@ -2959,7 +2953,6 @@ function addMemo() {
   saveMemos();
   inp.value = '';
   paintMemoList();
-  toast('메모를 추가했어요');
   inp.focus();
 }
 let memoClearTimer = null;
@@ -3183,7 +3176,7 @@ function initApp() {
   $('#memoCopy').addEventListener('click', async () => {
     if (!MEMOS.length) { toast('복사할 메모가 없어요'); return; }
     const text = '부부 할일 수정 요청:\n' + MEMOS.map(m => '- ' + m.text).join('\n');
-    try { await copyText(text); toast('복사했어요! 피클 채팅에 붙여넣기 해 주세요'); }
+    try { await copyText(text); }
     catch (err) { toast('복사하지 못했어요 — 메모를 길게 눌러 복사해 주세요'); }
   });
   $('#memoClear').addEventListener('click', e => {
@@ -3200,7 +3193,6 @@ function initApp() {
     saveMemos();
     paintMemoList();
     resetMemoClear();
-    toast('메모를 모두 지웠어요');
   });
   paintMemoBadge();
 
