@@ -356,15 +356,22 @@
   .cal-today-btn{flex:0 0 auto;height:32px;padding:0 13px;border-radius:999px;background:transparent;color:var(--navy);
                  font-size:12px;font-weight:900;letter-spacing:-.02em;border:1.5px solid #E3D79A}
   .cal-today-btn:active{background:var(--cream)}
-  .cal-week{flex:0 0 auto;display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px}
+  .cal-week{flex:0 0 auto;display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;
+            touch-action:pan-y}
   .cal-wd{text-align:center;font-size:10.5px;font-weight:900;color:#9A9478;letter-spacing:-.02em}
   .cal-wd.sun{color:#C0705F}
   .cal-wd.sat{color:#5E7FB5}
   .cal-grid{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:repeat(7,1fr);
-            grid-auto-rows:minmax(0,1fr);gap:3px}
+            grid-auto-rows:minmax(0,1fr);gap:3px;touch-action:pan-y}
+  /* 📅 좌우 스와이프 — 손가락을 따라 조금 밀리고(cal-sw), 달이 바뀌면 살짝 미끄러지며 들어온다 */
+  .cal-grid.cal-sw{transition:none;will-change:transform}
+  .cal-grid.cal-slide-l{animation:calSlideL .2s ease-out}
+  .cal-grid.cal-slide-r{animation:calSlideR .2s ease-out}
+  @keyframes calSlideL{from{transform:translateX(16%);opacity:.45}to{transform:none;opacity:1}}
+  @keyframes calSlideR{from{transform:translateX(-16%);opacity:.45}to{transform:none;opacity:1}}
   .cal-cell{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
             min-width:0;min-height:0;padding:4px 2px 3px;border-radius:10px;background:#FCFAF1;font:inherit;
-            overflow:hidden;transition:background .14s}
+            overflow:hidden;transition:background .14s;touch-action:pan-y}
   .cal-cell.empty{visibility:hidden;pointer-events:none}
   .cal-cell .cn{display:grid;place-items:center;flex:0 0 auto;width:28px;height:28px;border-radius:50%;
                 font-size:clamp(13px,1.8vw,15.5px);font-weight:800;color:#2C2A22;line-height:1}
@@ -3927,6 +3934,78 @@ function calSelect(ymd) {
   calPaint();
 }
 
+/* ===== 📅 달력 좌우 스와이프 — 이전 달 · 다음 달 =====
+   · 왼쪽으로 밀면 다음 달(▶), 오른쪽으로 밀면 지난달(◀) — 위 버튼과 같은 동작
+   · 위아래로 먼저 움직였거나(스크롤) 짧게 스친 경우는 스와이프로 치지 않는다(날짜 탭 그대로)
+   · 스와이프가 끝나면 따라오는 click 한 번을 삼켜 엉뚱한 날짜가 골라지지 않게 한다 */
+const CAL_SWIPE_MIN = 45;     /* 이만큼 옆으로 밀면 달을 넘긴다 */
+const CAL_SWIPE_START = 10;   /* 이만큼 움직이면 가로인지 세로인지 정한다 */
+const CAL_SWIPE_RATIO = 1.2;  /* |dx| > |dy| * 1.2 일 때만 가로 스와이프 */
+let calSw = null;             /* 진행 중인 스와이프 {source, x0, y0, dx, dy, axis} */
+let calSwMute = false;        /* 스와이프 직후의 click 한 번을 삼킨다 */
+let calSwMuteTimer = 0;
+let calSlideTimer = 0;
+function calSwArea(target) {
+  if (!target || !target.closest) return false;
+  return !!(target.closest('#calGrid') || target.closest('.cal-week'));
+}
+function calSwRest() {
+  const grid = $('#calGrid');
+  if (grid) { grid.style.transform = ''; grid.classList.remove('cal-sw'); }
+}
+function calSwStart(x, y, target, source) {
+  if (calSw) calSwCancel();
+  /* 새로 손을 대면 지난 스와이프의 click 억제는 끝난 것으로 본다(다음 탭은 그대로) */
+  calSwMute = false;
+  clearTimeout(calSwMuteTimer);
+  if (!calSwArea(target) || eventSheetOpen()) return;
+  calSw = { source: source, x0: x, y0: y, dx: 0, dy: 0, axis: null };
+}
+function calSwMove(x, y, ev) {
+  const s = calSw;
+  if (!s) return;
+  s.dx = x - s.x0; s.dy = y - s.y0;
+  if (!s.axis) {
+    if (Math.abs(s.dx) < CAL_SWIPE_START && Math.abs(s.dy) < CAL_SWIPE_START) return;
+    /* 세로가 더 뚜렷하면 스크롤에 맡기고 이번 제스처는 끝까지 스와이프로 치지 않는다 */
+    s.axis = Math.abs(s.dx) > Math.abs(s.dy) * CAL_SWIPE_RATIO ? 'x' : 'y';
+  }
+  if (s.axis !== 'x') return;
+  if (ev && ev.cancelable) ev.preventDefault();   /* 가로 제스처를 브라우저(뒤로가기)에 뺏기지 않게 */
+  const grid = $('#calGrid');
+  if (!grid) return;
+  grid.classList.add('cal-sw');
+  grid.style.transform = 'translateX(' + Math.round(s.dx * 0.3) + 'px)';   /* 손가락을 살짝 따라온다 */
+}
+function calSwEnd() {
+  const s = calSw;
+  if (!s) return;
+  calSw = null;
+  if (s.axis !== 'x') return;
+  const far = Math.abs(s.dx) >= CAL_SWIPE_MIN;
+  calSwRest();
+  if (!far) return;
+  /* 스와이프였으니 뒤따르는 click 은 누르지 않은 것으로 친다 */
+  calSwMute = true;
+  clearTimeout(calSwMuteTimer);
+  calSwMuteTimer = setTimeout(() => { calSwMute = false; }, 700);
+  const step = s.dx < 0 ? 1 : -1;                 /* 왼쪽으로 밀면 다음 달, 오른쪽이면 지난달 */
+  calMove(step);
+  const grid = $('#calGrid');
+  if (grid) {
+    grid.classList.remove('cal-slide-l', 'cal-slide-r');
+    void grid.offsetWidth;                        /* 같은 애니메이션을 다시 틀기 위해 */
+    grid.classList.add(step > 0 ? 'cal-slide-l' : 'cal-slide-r');
+    clearTimeout(calSlideTimer);
+    calSlideTimer = setTimeout(() => grid.classList.remove('cal-slide-l', 'cal-slide-r'), 260);
+  }
+  if (navigator.vibrate) { try { navigator.vibrate(6); } catch (err) {} }
+}
+function calSwCancel() {
+  calSw = null;
+  calSwRest();
+}
+
 /* 일정 시트 `끝나는 날` — 비우거나 시작일과 같으면 하루 일정(endDate 없음) */
 function evEndSet(v) {
   const el = $('#evEnd');
@@ -4377,6 +4456,46 @@ function initApp() {
   const calTodayBtn = $('#calToday'); if (calTodayBtn) calTodayBtn.addEventListener('click', calGoToday);
   const calAddBtn = $('#calAdd'); if (calAddBtn) calAddBtn.addEventListener('click', openEventAdd);
   const calGridBox = $('#calGrid');
+  /* 📅 좌우 스와이프로 이전 달·다음 달 — 요일 줄과 날짜 칸에서만 시작한다 */
+  const calCardBox = $('.cal-card');
+  if (calCardBox) {
+    calCardBox.addEventListener('touchstart', e => {
+      if (!e.touches || e.touches.length !== 1) { calSwCancel(); return; }
+      const t = e.touches[0];
+      calSwStart(t.clientX, t.clientY, e.target, 'touch');
+    }, { passive: true });
+    calCardBox.addEventListener('touchmove', e => {
+      if (!calSw || calSw.source !== 'touch') return;
+      const t = e.touches && e.touches[0]; if (!t) return;
+      calSwMove(t.clientX, t.clientY, e);   /* passive:false — 가로로 판정되면 여기서 preventDefault */
+    }, { passive: false });
+    calCardBox.addEventListener('touchend', e => {
+      if (calSw && calSw.source === 'touch') calSwEnd();
+    }, { passive: true });
+    calCardBox.addEventListener('touchcancel', e => {
+      if (calSw && calSw.source === 'touch') calSwCancel();
+    }, { passive: true });
+    /* 마우스·펜은 pointer 로 (손가락은 위 touch 핸들러가 맡는다) */
+    calCardBox.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'touch') return;
+      if (e.button !== undefined && e.button > 0) return;
+      calSwStart(e.clientX, e.clientY, e.target, 'mouse');
+    });
+    window.addEventListener('pointermove', e => {
+      if (!calSw || calSw.source !== 'mouse') return;
+      calSwMove(e.clientX, e.clientY, e);
+    }, { passive: false });
+    window.addEventListener('pointerup', e => {
+      if (calSw && calSw.source === 'mouse') calSwEnd();
+    });
+    window.addEventListener('pointercancel', e => {
+      if (calSw && calSw.source === 'mouse') calSwCancel();
+    });
+  }
+  if (calGridBox) calGridBox.addEventListener('click', e => {
+    /* 스와이프 직후 따라오는 click 은 날짜 선택으로 치지 않는다 */
+    if (calSwMute) { calSwMute = false; e.preventDefault(); e.stopPropagation(); }
+  }, true);
   if (calGridBox) calGridBox.addEventListener('click', e => {
     const c = e.target.closest('[data-cday]');
     if (c) { e.preventDefault(); calSelect(c.dataset.cday); }
