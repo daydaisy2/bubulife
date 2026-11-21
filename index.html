@@ -481,9 +481,8 @@
   .shop-mini{flex:0 0 auto;height:30px;padding:0 10px;border-radius:9px;font-size:11.5px;font-weight:900;
              letter-spacing:-.02em;white-space:nowrap}
   .shop-mini.save{background:var(--navy);color:#fff}
-  .shop-mini.del{width:30px;padding:0;display:grid;place-items:center;background:#fff;color:#C0BAA2;
-                 font-size:11px}
-  .shop-mini.del.confirm{width:auto;padding:0 8px;background:#E45B3C;color:#fff}
+  .shop-mini.del{width:auto;padding:0 9px;display:grid;place-items:center;background:#fff;color:#C0392B;
+                 border:1.5px solid #F3CFC7;font-size:11px}
   .shop-empty{margin:0;padding:11px;text-align:center;background:var(--cream);border-radius:12px;
               font-size:11.5px;font-weight:800;color:#A9A48D;letter-spacing:-.02em}
 
@@ -3828,7 +3827,6 @@ const SHOP_MAX = 40;
 let shopFormOpen = false;
 let shopNewOwner = '';   /* 추가할 때 고른 담당 */
 let shopEditId = '';     /* 이름을 고치고 있는 항목 */
-let shopDelId = '';      /* 지우기를 한 번 누른 항목 */
 let shopShown = '';      /* 목록을 마지막으로 그린 서명 */
 
 function shopItems() {
@@ -3851,8 +3849,7 @@ function shopRowHtml(it) {
       '<input class="shop-edit-in" id="shopEdit" type="text" maxlength="' + SHOP_MAX + '" value="' +
         esc(it.text) + '" aria-label="살 것 이름 고치기" autocomplete="off">' +
       '<button class="shop-mini save" type="button" data-shop-savetext="' + it.id + '">저장</button>' +
-      '<button class="shop-mini del' + (shopDelId === it.id ? ' confirm' : '') + '" type="button" data-shop-del="' +
-        it.id + '" aria-label="지우기">' + (shopDelId === it.id ? '지우기?' : '✕') + '</button>' +
+      '<button class="shop-mini del" type="button" data-shop-del="' + it.id + '" aria-label="' + esc(it.text) + ' 지우기">🗑 지우기</button>' +
     '</div>';
   }
   const on = it.owner === 'seeun', on2 = it.owner === 'chankyu';
@@ -3886,7 +3883,6 @@ function shopPaint() {
     const again = $('#shopEdit');
     if (again && again.value !== typed) again.value = typed;
   }
-  shopDelPaint();
 }
 function shopOpenForm(open) {
   shopFormOpen = !!open;
@@ -3966,7 +3962,6 @@ async function shopToggleDone(id) {
 function shopStartEdit(id) {
   if (!(ST.shopping || {})[id]) return;
   shopEditId = id;
-  shopDelId = '';
   shopShown = '';
   shopPaint();
   const inp = $('#shopEdit');
@@ -3974,7 +3969,6 @@ function shopStartEdit(id) {
 }
 function shopEndEdit() {
   shopEditId = '';
-  shopDelId = '';
   shopShown = '';
   shopPaint();
 }
@@ -3987,27 +3981,16 @@ async function shopSaveText(id) {
   const before = it.text;
   it.text = text;
   it.updatedAt = Date.now();
-  shopEditId = ''; shopDelId = '';
+  shopEditId = '';
   shopShown = ''; shopPaint();
   try { await patch('shopping/' + id, { text: text, updatedAt: it.updatedAt }); }
   catch (e) { it.text = before; shopShown = ''; shopPaint(); toast('저장하지 못했어요'); }
 }
 function shopAskDelete(id) {
-  if (shopDelId === id) { shopDeleteNow(id); return; }
-  shopDelId = id;
-  /* 목록을 다시 그리지 않고 그 버튼만 바꿔 단다 — 고치던 글자·포커스가 그대로 남는다.
-     확인 상태는 시간으로 저절로 풀지 않고, 다른 곳을 누르거나 그 줄을 나가면 풀린다 */
-  shopDelPaint();
-}
-function shopDelPaint() {
-  $$('#shopList [data-shop-del]').forEach(b => {
-    const on = b.dataset.shopDel === shopDelId;
-    b.classList.toggle('confirm', on);
-    b.textContent = on ? '지우기?' : '✕';
-  });
+  /* 삭제는 이름을 고치는 줄(수정 상태)에서만 나오므로 한 번에 지운다 */
+  shopDeleteNow(id);
 }
 async function shopDeleteNow(id) {
-  shopDelId = '';
   const before = (ST.shopping || {})[id];
   if (!before) return;
   delete ST.shopping[id];
