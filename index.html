@@ -2017,19 +2017,41 @@ async function del(path) {
 }
 
 /* ============ 오늘할일 표시 ============ */
+/* 오늘할일을 켤 때 함께 저장할 요일.
+   · 매주 반복 항목은 정해 둔 요일(매일·평일·월수금 …)을 그대로 둔다.
+   · 이미 이번만으로 요일이 있는 항목도 그 요일을 덮어쓰지 않는다.
+   · 요일이 없는 일반 할 일(또는 🗓️ 이후)은 오늘 요일을 이번만으로 붙여
+     제목 앞 동그라미에 오늘 요일 배지(예: 토)가 바로 뜨게 한다. */
+function todayOnPatch(t) {
+  const { ymd, dow } = kstParts();
+  const next = { today: true, lastTodayAutoDate: ymd, updatedAt: Date.now() };
+  if (repeatOf(t).length) return next;        /* 정해 둔 요일은 건드리지 않는다 */
+  next.repeatMode = 'once';
+  next.repeatDays = [dow];
+  if (t.later) next.later = null;             /* 요일이 생기면 🗓️ 이후는 푼다 */
+  return next;
+}
+/* 저장 실패 때 되돌리기 — 그 항목을 켜기 전 모습 그대로 되돌린다 */
+function snapTodo(t) { return JSON.parse(JSON.stringify(t)); }
+function restoreTodo(t, snap) {
+  Object.keys(t).forEach(k => { delete t[k]; });
+  Object.assign(t, snap);
+}
 async function toggleToday(id) {
   const t = ST.todos[id]; if (!t) return;
-  const before = { today: !!t.today, lastTodayAutoDate: t.lastTodayAutoDate || null, updatedAt: t.updatedAt };
+  const before = snapTodo(t);
   const nextToday = !t.today;
-  /* 손으로 켜거나 끈 날은 반복 자동 켜기가 다시 건드리지 않게 날짜를 남긴다 */
-  const next = { today: nextToday, lastTodayAutoDate: kstParts().ymd, updatedAt: Date.now() };
+  /* 손으로 켜거나 끈 날은 반복 자동 켜기가 다시 건드리지 않게 날짜를 남긴다.
+     끌 때는 today 만 끄고 요일 배지는 그대로 둔다. */
+  const next = nextToday ? todayOnPatch(t)
+                         : { today: false, lastTodayAutoDate: kstParts().ymd, updatedAt: Date.now() };
   Object.assign(t, next);
   render();
   try {
     await patch('todos/' + id, next);
     toast(nextToday ? '오늘 할 일로 표시했어요' : '오늘표시를 꺼어요');
   } catch (e) {
-    Object.assign(t, before);
+    restoreTodo(t, before);
     render();
     toast('저장하지 못했어요');
   }
@@ -2087,6 +2109,27 @@ function nextOrder(owner) {
   if (!arr.length) return 0;
   return Math.min(...arr.map(t => typeof t.order === 'number' ? t.order : 0)) - 1;
 }
+/* 매주 반복 항목 — 새 할 일이 바로 아래로 들어갈 기준 줄 */
+function isWeeklyRepeat(t) {
+  return !isLater(t) && !isOnce(t) && repeatOf(t).length > 0;
+}
+/* 새 할 일 자리 = 그 담당자의 미완료 목록(맨 위→아래)에서 마지막 매주 반복 항목 바로 아래.
+   매주 반복 항목이 하나도 없으면 맨 위. 그 아래 항목들은 order 를 하나씩 뒤로 민다.
+   돌려주는 moves 는 order 가 바뀌는 기존 항목들 — 저장은 방 전체 PATCH 한 번으로 보낸다. */
+function placeOrder(owner) {
+  const list = openTodos(owner);
+  let k = 0;
+  list.forEach((t, i) => { if (isWeeklyRepeat(t)) k = i + 1; });
+  const seq = list.map(t => t.id);
+  seq.splice(k, 0, null);                     /* 새 항목이 들어갈 자리 */
+  const moves = [];
+  seq.forEach((id, i) => {
+    if (!id) return;
+    const t = ST.todos[id]; if (!t) return;
+    if (t.order !== i) moves.push({ id: id, to: i, from: typeof t.order === 'number' ? t.order : null });
+  });
+  return { order: k, moves: moves };
+}
 async function saveTodo(e) {
   if (e) e.preventDefault();
   const text = $('#textInput').value.trim();
@@ -2094,9 +2137,10 @@ async function saveTodo(e) {
   const now = Date.now();
   const icon = ownerIcon(draft.owner);
   const id = newId();
+  const place = placeOrder(draft.owner);      /* 매주 반복 항목들 바로 아래 자리 */
   const obj = {
     id, text, icon, owner: draft.owner, done: false,
-    order: nextOrder(draft.owner), createdAt: now, updatedAt: now
+    order: place.order, createdAt: now, updatedAt: now
   };
   if (addRepeatMode === 'later') {
     obj.later = true;                     /* 🗓️ 요일 없이 나중에 할 일 */
@@ -2109,16 +2153,30 @@ async function saveTodo(e) {
     if (days.indexOf(dow) >= 0) { obj.today = true; obj.lastTodayAutoDate = ymd; }
   }
   ST.todos[id] = obj;
+  place.moves.forEach(m => { const t = ST.todos[m.id]; if (t) t.order = m.to; });
   lastOwner = draft.owner; localStorage.setItem('bubu.owner', lastOwner);
   const justOwner = draft.owner;   /* 방금 넣은 사람 — 그 탭을 열어서 바로 보이게 */
   closeSheet();
   if (TAB !== justOwner) TAB = justOwner;
   render();
-  /* 방금 추가한 할 일이 맨 위에 보이도록 그 카드의 목록을 맨 위로 */
+  /* 방금 추가한 할 일이 보이도록 그 줄로 목록만 살짝 내린다(매주 반복 아래 자리) */
   const lst = $('.rows[data-owner="' + justOwner + '"]');
-  if (lst) lst.scrollTop = 0;
-  try { await put('todos/' + id, obj); toast(icon + ' 추가했어요'); }
-  catch (err) { delete ST.todos[id]; render(); toast('저장하지 못했어요'); }
+  const rowEl = lst ? lst.querySelector('.row[data-id="' + id + '"]') : null;
+  if (lst && rowEl) {
+    const r = rowEl.getBoundingClientRect(), lr = lst.getBoundingClientRect();
+    if (r.bottom > lr.bottom) lst.scrollTop += (r.bottom - lr.bottom) + 8;
+    else if (r.top < lr.top) lst.scrollTop -= (lr.top - r.top) + 8;
+  }
+  const body = {}; body['todos/' + id] = obj;
+  place.moves.forEach(m => { body['todos/' + m.id + '/order'] = m.to; });
+  try { await patchRoom(body); toast(icon + ' 추가했어요'); }
+  catch (err) {
+    place.moves.forEach(m => {
+      const t = ST.todos[m.id]; if (!t) return;
+      if (m.from === null) delete t.order; else t.order = m.from;
+    });
+    delete ST.todos[id]; render(); toast('저장하지 못했어요');
+  }
 }
 async function removeTodo(id) {
   const t = ST.todos[id]; if (!t) return false;
@@ -2693,18 +2751,21 @@ function sortStep(id, dir) {
 /* 순서 편집기 안 `오늘할일` 토글 — 그 자리에서 바로 켜고 끄고 Firebase 에도 바로 보낸다 */
 async function sortToggleToday(id, btn) {
   const t = ST.todos[id]; if (!t) return;
-  const before = { today: !!t.today, lastTodayAutoDate: t.lastTodayAutoDate || null, updatedAt: t.updatedAt };
+  const before = snapTodo(t);
   const on = !t.today;
-  const next = { today: on, lastTodayAutoDate: kstParts().ymd, updatedAt: Date.now() };
+  const next = on ? todayOnPatch(t)
+                  : { today: false, lastTodayAutoDate: kstParts().ymd, updatedAt: Date.now() };
   Object.assign(t, next);
   paintTodayBtn(btn, on);
+  paintSort();                    /* 요일 동그라미 배지도 바로 맞춘다 */
   render();                       /* 메인 화면 알약도 같이 맞춘다(순서 목록은 그대로) */
   try {
     await patch('todos/' + id, next);
     toast(on ? '오늘 할 일로 표시했어요' : '오늘표시를 껐어요');
   } catch (e) {
-    Object.assign(t, before);
+    restoreTodo(t, before);
     paintTodayBtn(btn, !!before.today);
+    paintSort();
     render();
     toast('저장하지 못했어요');
   }
