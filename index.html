@@ -415,77 +415,6 @@
     .cal-pill{line-height:1.2;padding:1px 3px}
   }
 
-  /* ---------- 🛒 사야할 것 (v46) — 📅 일정 탭 달력 아래 ---------- */
-  .shop-card{flex:0 0 auto;display:flex;flex-direction:column;gap:7px;
-             border-radius:var(--radius);padding:clamp(9px,1.2vw,14px) clamp(10px,1.3vw,15px)}
-  /* 달력 카드만 높이를 나눠 갖고, 사야할 것 카드는 내용만큼만 쓴다 */
-  .cal-pane > .card.shop-card{flex:0 0 auto;min-height:0;overflow:hidden}
-  .shop-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px}
-  .shop-tit{margin:0;display:flex;align-items:center;gap:.3em;font-size:clamp(14px,1.9vw,17px);
-            font-weight:900;letter-spacing:-.03em;color:var(--ink)}
-  .shop-emoji{font-size:1.05em;line-height:1}
-  .shop-add{flex:0 0 auto;height:30px;padding:0 12px;border-radius:10px;background:var(--navy);color:#fff;
-            font-size:12px;font-weight:900;letter-spacing:-.02em;white-space:nowrap}
-  .shop-add:active{background:#2A2690}
-  .shop-add.close{background:var(--cream);color:#6E6A58;border:1.5px solid #EFE8CF}
-  .shop-form{flex:0 0 auto;display:flex;flex-direction:column;gap:6px;
-             background:var(--cream);border-radius:14px;padding:8px}
-  .shop-input{width:100%;height:38px;padding:0 11px;border-radius:11px;background:#fff;
-              border:1.5px solid var(--cream-line);color:var(--ink);font:inherit;
-              font-size:14px;font-weight:800;letter-spacing:-.02em;-webkit-appearance:none;appearance:none}
-  .shop-input::placeholder{color:#C6C0A8;font-weight:700}
-  .shop-input:focus{outline:none;border-color:var(--navy)}
-  .shop-form-row{display:flex;align-items:center;gap:6px}
-  .shop-own{flex:1 1 auto;display:flex;gap:5px;min-width:0}
-  .shop-chip{flex:0 0 auto;height:30px;padding:0 12px;border-radius:999px;background:#fff;
-             border:1.5px solid var(--cream-line);color:#8A8471;font-size:11.5px;font-weight:900;
-             letter-spacing:-.02em;transition:background .14s,color .14s,border-color .14s}
-  .shop-chip.on{background:#FBDDE2;border-color:#F4BFC8;color:#C0505C}
-  .shop-chip[data-newown="chankyu"].on{background:#DBE8FB;border-color:#B9D2F3;color:#3F6EA8}
-  .shop-save{flex:0 0 auto;height:30px;padding:0 14px;border-radius:10px;background:var(--navy);
-             color:#fff;font-size:12px;font-weight:900;letter-spacing:-.02em}
-  .shop-save:active{background:#151253}
-  .shop-list{flex:0 1 auto;min-height:0;display:flex;flex-direction:column;gap:5px;
-             overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;
-             max-height:min(30vh,224px)}
-  .shop-list::-webkit-scrollbar{width:5px}
-  .shop-list::-webkit-scrollbar-thumb{background:#EDE7D1;border-radius:999px}
-  .shop-row{flex:0 0 auto;display:flex;align-items:center;gap:6px;background:var(--cream);
-            border-radius:13px;padding:6px 7px 6px 12px;min-width:0}
-  .shop-rows{min-width:0}
-  .shop-name{flex:1 1 auto;min-width:0;padding:2px 0;text-align:left;font-size:clamp(12.5px,1.75vw,14.5px);
-             font-weight:800;letter-spacing:-.02em;color:#2C2A22;line-height:1.35;
-             overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .shop-name:active{opacity:.6}
-  .shop-row.done .shop-name{color:#9C977F;text-decoration:line-through;
-            text-decoration-color:#B9B39A;text-decoration-thickness:1.5px}
-  .shop-tags{flex:0 0 auto;display:flex;align-items:center;gap:4px}
-  .shop-tag{flex:0 0 auto;height:26px;padding:0 9px;border-radius:999px;background:#fff;
-            border:1.5px solid var(--cream-line);color:#A9A48D;font-size:11px;font-weight:900;
-            letter-spacing:-.03em;white-space:nowrap;line-height:1;
-            transition:background .14s,color .14s,border-color .14s}
-  .shop-tag:active{opacity:.7}
-  .shop-tag.on.seeun{background:#FBDDE2;border-color:#F4BFC8;color:#C0505C}
-  .shop-tag.on.chankyu{background:#DBE8FB;border-color:#B9D2F3;color:#3F6EA8}
-  .shop-tag.donetag{display:flex;align-items:center;gap:3px;padding:0 8px}
-  .shop-tag.donetag.on{background:var(--mint);border-color:#B9DCB4;color:var(--green-text)}
-  .shop-tag .dot{width:8px;height:8px;border-radius:50%;border:1.6px solid #D6D0B8;background:#fff}
-  .shop-tag.donetag.on .dot{display:none}
-  .shop-tag .tk{display:none;font-size:11px;line-height:1}
-  .shop-tag.donetag.on .tk{display:inline}
-  .shop-row.editing{background:#FFF9E0;box-shadow:inset 0 0 0 1.5px #EBDC63}
-  .shop-edit-in{flex:1 1 auto;min-width:0;height:32px;padding:0 9px;border-radius:9px;background:#fff;
-                border:1.5px solid var(--navy);color:var(--ink);font:inherit;font-size:13.5px;
-                font-weight:800;letter-spacing:-.02em;-webkit-appearance:none;appearance:none}
-  .shop-edit-in:focus{outline:none}
-  .shop-mini{flex:0 0 auto;height:30px;padding:0 10px;border-radius:9px;font-size:11.5px;font-weight:900;
-             letter-spacing:-.02em;white-space:nowrap}
-  .shop-mini.save{background:var(--navy);color:#fff}
-  .shop-mini.del{width:auto;padding:0 9px;display:grid;place-items:center;background:#fff;color:#C0392B;
-                 border:1.5px solid #F3CFC7;font-size:11px}
-  .shop-empty{margin:0;padding:11px;text-align:center;background:var(--cream);border-radius:12px;
-              font-size:11.5px;font-weight:800;color:#A9A48D;letter-spacing:-.02em}
-
   .ev-row{display:flex;gap:8px;align-items:center}
   .ev-row .field{flex:1 1 auto;min-width:0}
   #evName{flex:1 1 auto;min-width:0;border:0;background:none;padding:12px 0;font:inherit;font-weight:800;
@@ -808,7 +737,7 @@
     .wo-t{font-size:13px}
   }
 
-  /* ---------- ⚖️ 오늘 몸무게 (v46) ---------- */
+  /* ---------- ⚖️ 오늘 몸무게 (v48) — 왼쪽 입력 · 오른쪽 꺾은선 ---------- */
   .wt-card{flex:0 0 auto;background:#fff;border-radius:20px;padding:13px 14px 12px;
            box-shadow:0 12px 26px -22px rgba(80,64,0,.5)}
   .wt-head{display:flex;align-items:center;gap:8px}
@@ -826,53 +755,52 @@
   .wt-date.today{background:var(--navy);border-color:var(--navy);color:#fff}
   .wt-dinput{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;
              opacity:0;cursor:pointer;-webkit-appearance:none;appearance:none}
-  .wt-big{display:flex;align-items:baseline;gap:5px;margin-top:8px;padding:0 2px;min-height:34px}
-  .wt-num{font-size:32px;font-weight:900;letter-spacing:-.05em;line-height:1;color:var(--navy);
-          font-variant-numeric:tabular-nums}
-  .wt-num.none{color:#D5CFB8}
-  .wt-unit{font-size:12px;font-weight:900;color:#9A94AE}
-  .wt-diff{margin-left:auto;flex:0 0 auto;padding:3px 8px;border-radius:999px;background:var(--cream);
-           color:#7C765C;font-size:11px;font-weight:900;letter-spacing:-.02em;
-           font-variant-numeric:tabular-nums;white-space:nowrap}
-  .wt-diff.down{background:var(--mint);color:var(--green-text)}
-  .wt-diff.up{background:#FDE5DE;color:#B4482C}
-  .wt-form{display:flex;align-items:center;gap:5px;margin-top:8px}
-  .wt-in{flex:1 1 auto;min-width:0;height:40px;padding:0 12px;border-radius:13px;
-         background:var(--cream);border:1.5px solid var(--cream-line);color:var(--ink);
-         font:inherit;font-size:18px;font-weight:900;letter-spacing:-.02em;
-         font-variant-numeric:tabular-nums;-webkit-appearance:none;appearance:none}
+  /* 본문 — 좁은 왼쪽(입력·저장) + 넓은 오른쪽(그래프) */
+  .wt-body{display:grid;grid-template-columns:clamp(88px,24vw,112px) minmax(0,1fr);gap:9px;
+           margin-top:9px;align-items:stretch}
+  .wt-left{display:flex;flex-direction:column;justify-content:space-between;gap:5px;min-width:0}
+  .wt-field{flex:0 0 auto;display:flex;align-items:baseline;gap:3px;height:40px;padding:0 7px;
+            border-radius:12px;background:var(--cream);border:1.5px solid var(--cream-line);
+            transition:background .14s,border-color .14s}
+  .wt-field:focus-within{background:#fff;border-color:var(--navy)}
+  .wt-in{flex:1 1 auto;min-width:0;width:100%;border:0;background:none;padding:0;text-align:center;
+         font:inherit;font-size:clamp(18px,2.6vw,23px);font-weight:900;letter-spacing:-.04em;
+         color:var(--navy);font-variant-numeric:tabular-nums;
+         -webkit-appearance:none;appearance:none}
   .wt-in::placeholder{color:#CFC9B0;font-weight:800}
-  .wt-in:focus{outline:none;background:#fff;border-color:var(--navy)}
-  .wt-kg{flex:0 0 auto;font-size:11.5px;font-weight:900;color:#9A94AE}
-  .wt-save{flex:0 0 auto;height:40px;padding:0 15px;border-radius:13px;background:var(--navy);
-           color:#fff;font-size:13px;font-weight:900;letter-spacing:-.03em;white-space:nowrap;
-           transition:background .16s}
+  .wt-in:focus{outline:none}
+  .wt-kg{flex:0 0 auto;font-size:10px;font-weight:900;color:#9A94AE}
+  .wt-save{flex:0 0 auto;height:29px;border-radius:9px;background:var(--navy);color:#fff;
+           font-size:11.5px;font-weight:900;letter-spacing:-.03em;transition:background .16s,color .16s}
   .wt-save:active{background:#151253}
   .wt-save.ok{background:var(--green)}
-  .wt-list{margin-top:10px;display:flex;flex-direction:column;gap:5px}
-  .wt-lhead{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 2px}
-  .wt-lhead span{font-size:10.5px;font-weight:900;color:#A9A48D;letter-spacing:-.02em}
-  .wt-more{flex:0 0 auto;padding:2px 7px;border-radius:8px;background:var(--cream);
-           color:#8A8674;font-size:10px;font-weight:900;letter-spacing:-.02em}
-  .wt-more:active{background:#F1EBCE}
-  .wt-rec{display:flex;align-items:center;gap:6px;background:var(--cream);border-radius:11px;
-          padding:5px 6px 5px 9px}
-  .wt-rec.sel{background:#FFF6C9;box-shadow:inset 0 0 0 1.5px #EBDC63}
-  .wt-rd{flex:0 0 auto;width:56px;font-size:10.5px;font-weight:900;color:#6E6A58;
-         letter-spacing:-.03em;white-space:nowrap;font-variant-numeric:tabular-nums}
-  .wt-rw{flex:1 1 auto;font-size:13px;font-weight:900;color:var(--ink);
-         font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-  .wt-rw em{font-style:normal;font-size:9.5px;font-weight:900;color:#9A94AE;margin-left:1px}
-  .wt-rdiff{flex:0 0 auto;min-width:34px;text-align:right;font-size:10.5px;font-weight:900;
-            color:#B4AF98;font-variant-numeric:tabular-nums}
-  .wt-rdiff.down{color:var(--green-text)}
-  .wt-rdiff.up{color:#B4482C}
-  .wt-rdel{flex:0 0 auto;width:22px;height:22px;border-radius:8px;display:grid;place-items:center;
-           background:#fff;color:#C0BAA2;font-size:10px;font-weight:900;line-height:1}
-  .wt-rdel:active{background:#FADBD2;color:#C0392B}
-  .wt-rdel.confirm{width:auto;padding:0 6px;background:#E45B3C;color:#fff}
-  .wt-empty{margin:0;padding:9px;text-align:center;background:var(--cream);border-radius:11px;
-            font-size:11px;font-weight:800;color:#A9A48D;letter-spacing:-.02em}
+  .wt-save.del{background:var(--cream);color:#B4482C;box-shadow:inset 0 0 0 1.5px #F0CEC4}
+  .wt-save.del.confirm{background:#E45B3C;color:#fff;box-shadow:none}
+  .wt-diff{align-self:center;max-width:100%;padding:2px 7px;border-radius:999px;background:var(--cream);
+           color:#7C765C;font-size:9.5px;font-weight:900;letter-spacing:-.02em;
+           font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .wt-diff.down{background:var(--mint);color:var(--green-text)}
+  .wt-diff.up{background:#FDE5DE;color:#B4482C}
+  .wt-right{position:relative;min-width:0;display:flex;align-items:stretch;
+            height:clamp(94px,25vw,112px)}
+  .wt-chart{display:block;width:100%;height:100%;overflow:visible;touch-action:manipulation}
+  .wt-chart .axis{stroke:#EDE7D2;stroke-width:1;stroke-dasharray:3 4}
+  .wt-chart .area{fill:var(--navy);opacity:.07}
+  .wt-chart .ln{fill:none;stroke:var(--navy);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .wt-chart .pt{fill:#fff;stroke:var(--navy);stroke-width:2;transition:r .12s}
+  .wt-chart .pt.on{fill:var(--navy);stroke:var(--navy);stroke-width:2}
+  .wt-chart .halo{fill:var(--navy);opacity:.14}
+  .wt-chart .pt{pointer-events:none}
+  .wt-chart .vl{font-weight:900;letter-spacing:-.03em;fill:#6E6A58;
+                paint-order:stroke;stroke:#fff;stroke-width:2.6px;stroke-linejoin:round;pointer-events:none}
+  .wt-chart .vl.on{fill:var(--navy)}
+  .wt-chart .xd{font-weight:800;fill:#A9A48D;letter-spacing:-.02em;pointer-events:none}
+  .wt-chart .xd.on{fill:var(--navy);font-weight:900}
+  .wt-chart rect.hit{fill:transparent;cursor:pointer}
+  .wt-ph{flex:1 1 auto;display:grid;place-content:center;text-align:center;
+         border:1.5px dashed #EDE7D1;border-radius:13px;background:#FFFDF6;
+         font-size:9.5px;font-weight:800;color:#B3AD94;letter-spacing:-.02em;line-height:1.6}
+  .wt-ph b{display:block;font-size:13px;color:#D8D2BA;font-weight:900;letter-spacing:-.02em}
 
   /* ---------- 입장 잠금 ---------- */
   body.locked{overflow:hidden}
@@ -979,24 +907,7 @@
         <button type="button" id="calAdd" class="cal-add">＋ 일정</button>
       </div>
     </div>
-    <section class="card shop-card" aria-label="사야할 것">
-      <div class="shop-head">
-        <h2 class="shop-tit"><span class="shop-emoji" aria-hidden="true">🛒</span> 사야할 것</h2>
-        <button type="button" class="shop-add" id="shopAdd">+ 추가</button>
-      </div>
-      <div class="shop-form hidden" id="shopForm">
-        <input id="shopInput" class="shop-input" type="text" placeholder="살 것 이름 (예: 방수팩)"
-               autocomplete="off" spellcheck="false" maxlength="40" aria-label="살 것 이름">
-        <div class="shop-form-row">
-          <div class="shop-own" id="shopOwn" role="group" aria-label="담당 고르기">
-            <button type="button" class="shop-chip" data-newown="seeun" aria-pressed="false">세은</button>
-            <button type="button" class="shop-chip" data-newown="chankyu" aria-pressed="false">찬규</button>
-          </div>
-          <button type="button" class="shop-save" id="shopSave">넣기</button>
-        </div>
-      </div>
-      <div class="shop-list" id="shopList"></div>
-    </section>
+  </section>
   </section>
   <div class="add-dock">
     <button id="addBig" class="card-add" type="button" aria-label="할 일 추가">
@@ -1928,16 +1839,17 @@ function initWo() {
   woPaint();
 }
 
-/* ============ ⚖️ 오늘 몸무게 — 매일 한 줄 기록 (v46) ============
+/* ============ ⚖️ 오늘 몸무게 — 왼쪽 입력 · 오른쪽 꺾은선 (v48) ============
    운동 탭 맨 위 카드. 저장은 방(rooms/{room}/weights/{YYYY-MM-DD})에
    { weight: 52.3, updatedAt: 169... } 모양으로 남긴다.
-   장비를 바꾸거나 캐시를 지워도 기록이 남게 하려고 기기(localStorage)에는 두지 않는다. */
+   장비를 바꾸거나 캐시를 지워도 기록이 남게 하려고 기기(localStorage)에는 두지 않는다.
+   카드는 좌(입력·저장)·우(최근 기록 꺾은선) 두 칸 — 아래 목록은 두지 않는다. */
 const WT_MIN = 20, WT_MAX = 300;    /* 오타(0.5, 500)를 거르는 넉넉한 범위 */
+const WT_PTS = 7;                   /* 그래프에 그릴 최근 기록 수 */
 let wtDate = '';        /* 카드에서 고른 날짜 — 기본은 한국 오늘 */
 let wtSticky = false;   /* true = 손으로 고른 지난 날, false = 오늘을 따라간다 */
-let wtShown = '';       /* 최근 기록 목록을 마지막으로 그린 서명 — 같으면 DOM 을 건드리지 않는다 */
-let wtAll = false;      /* 최근 기록 펼쳐 보기 */
-let wtDelDate = '', wtDelT = null, wtSaveT = null;
+let wtDelArm = false;   /* 저장 칸이 '지우기' 확인을 기다리는 중 */
+let wtDelT = null, wtSaveT = null;
 
 function wtTodayYmd() { return kstParts().ymd; }
 function wtYmdAdd(ymd, n) {
@@ -1990,43 +1902,138 @@ function wtCardHtml() {
         '<button class="wt-arrow" type="button" id="wtNext" aria-label="다음 날">▶</button>' +
       '</div>' +
     '</div>' +
-    '<div class="wt-big">' +
-      '<span class="wt-num none" id="wtNum">--</span><span class="wt-unit">kg</span>' +
-      '<span class="wt-diff hidden" id="wtDiff"></span>' +
+    '<div class="wt-body">' +
+      '<div class="wt-left">' +
+        '<span class="wt-field">' +
+          '<input class="wt-in" id="wtInput" type="text" inputmode="decimal" placeholder="00.0"' +
+            ' autocomplete="off" spellcheck="false" maxlength="6" aria-label="몸무게 입력">' +
+          '<span class="wt-kg" aria-hidden="true">kg</span>' +
+        '</span>' +
+        '<span class="wt-diff hidden" id="wtDiff"></span>' +
+        '<button class="wt-save" type="button" id="wtSave">저장</button>' +
+      '</div>' +
+      '<div class="wt-right" id="wtChartBox"></div>' +
     '</div>' +
-    '<div class="wt-form">' +
-      '<input class="wt-in" id="wtInput" type="text" inputmode="decimal" placeholder="00.0"' +
-        ' autocomplete="off" spellcheck="false" maxlength="6" aria-label="몸무게 입력">' +
-      '<span class="wt-kg" aria-hidden="true">kg</span>' +
-      '<button class="wt-save" type="button" id="wtSave">저장</button>' +
-    '</div>' +
-    '<div class="wt-list" id="wtList"></div>' +
   '</section>';
 }
-function wtListHtml(ds) {
-  if (!ds.length) return '<p class="wt-empty">아직 기록이 없어요 · 오늘 몸무게를 한 번 남겨 보세요</p>';
-  const show = wtAll ? ds : ds.slice(0, 7);
-  let html = '<div class="wt-lhead"><span>최근 기록</span>' +
-    (ds.length > 7 ? '<button class="wt-more" type="button" data-wtmore="1">' +
-      (wtAll ? '접기' : (ds.length - 7) + '일 더 보기') + '</button>' : '') +
-    '</div>';
-  html += show.map(d => {
-    const w = wtWeightAt(d), pv = wtPrevOf(d);
-    let dtxt = '', dcls = '';
-    if (pv && w != null) {
-      const dd = Math.round((w - pv.weight) * 10) / 10;
-      dtxt = (dd > 0 ? '+' : '') + dd.toFixed(1);
-      dcls = dd < 0 ? ' down' : dd > 0 ? ' up' : '';
-    }
-    const tag = d === wtTodayYmd() ? '오늘' : wtLabel(d);
-    return '<div class="wt-rec' + (d === wtDate ? ' sel' : '') + '" data-wtrow="' + d + '">' +
-      '<span class="wt-rd">' + tag + '</span>' +
-      '<span class="wt-rw">' + (w == null ? '-' : w.toFixed(1)) + '<em>kg</em></span>' +
-      '<span class="wt-rdiff' + dcls + '">' + dtxt + '</span>' +
-      '<button class="wt-rdel" type="button" data-wtdel="' + d + '" aria-label="' + wtLabel(d) + ' 몸무게 기록 지우기">✕</button>' +
-    '</div>';
+/* 그래프에 그릴 날짜 — 최근 WT_PTS개를 날짜 오름차순으로.
+   카드에서 고른 날이 그보다 앞이면 그 날까지 보여 준다(고른 점이 늘 그래프 안에 있게). */
+function wtChartDates() {
+  const today = wtTodayYmd();
+  const all = Object.keys(ST.weights || {})
+    .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d) && d <= today && wtWeightAt(d) != null)
+    .sort();
+  if (!all.length) return all;
+  let end = all.length - 1;
+  const k = wtDate ? all.indexOf(wtDate) : -1;
+  if (k >= 0 && k < all.length - WT_PTS) end = k;
+  return all.slice(Math.max(0, end - WT_PTS + 1), end + 1);
+}
+/* 오른쪽 칸 — 점·선·아래 연한 채움. 점(날짜 칸)을 누르면 그 날로 이동한다 */
+function wtChartHtml() {
+  const box = $('#wtChartBox');
+  const ds = wtChartDates();
+  if (!ds.length) {
+    return '<div class="wt-ph"><b>⚖️</b>기록을 남기면<br>여기에 그래프가 그려져요</div>';
+  }
+  const W = Math.max(140, Math.round((box && box.clientWidth) || 206));
+  const H = Math.max(86, Math.round((box && box.clientHeight) || 104));
+  const n = ds.length;
+  const vals = ds.map(d => wtWeightAt(d));
+  let lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+  /* 위아래로 조금 여유를 둬서 점이 테두리에 붙지 않게(1~2kg 차이도 읽히게) */
+  if (hi - lo < 0.6) { const mid = (hi + lo) / 2; lo = mid - 0.3; hi = mid + 0.3; }
+  const padY = (hi - lo) * 0.18;
+  lo -= padY; hi += padY;
+  const padX = 14, padT = 15, padB = 16;
+  const top = padT, base = H - padB;
+  const xOf = i => n === 1 ? W / 2 : padX + (W - padX * 2) * i / (n - 1);
+  const yOf = v => base - (v - lo) / (hi - lo) * (base - top);
+  const xs = ds.map((_, i) => xOf(i));
+  const ys = vals.map(yOf);
+  const sel = ds.indexOf(wtDate);
+
+  const line = n > 1 ? '<path class="ln" d="' +
+    xs.map((x, i) => (i ? 'L' : 'M') + x.toFixed(1) + ' ' + ys[i].toFixed(1)).join(' ') + '"></path>' : '';
+  const area = n > 1 ? '<path class="area" d="M' + xs[0].toFixed(1) + ' ' + base.toFixed(1) + ' ' +
+    xs.map((x, i) => 'L' + x.toFixed(1) + ' ' + ys[i].toFixed(1)).join(' ') +
+    ' L' + xs[n - 1].toFixed(1) + ' ' + base.toFixed(1) + ' Z"></path>' : '';
+  /* 기록이 하나뿐이면 그 높이에 가는 수평선을 그어 준다(점이 허공에 뜬 것처럼 보이지 않게) */
+  const flat = n === 1 ? '<line class="axis" x1="' + padX + '" y1="' + ys[0].toFixed(1) +
+    '" x2="' + (W - padX) + '" y2="' + ys[0].toFixed(1) + '"></line>' : '';
+  const halo = sel >= 0 && n > 1
+    ? '<circle class="halo" cx="' + xs[sel].toFixed(1) + '" cy="' + ys[sel].toFixed(1) + '" r="8.5"></circle>' : '';
+  const pts = ds.map((d, i) => '<circle class="pt' + (i === sel ? ' on' : '') + '" cx="' + xs[i].toFixed(1) +
+    '" cy="' + ys[i].toFixed(1) + '" r="' + (i === sel ? 4.4 : 3.1) +
+    '" stroke-width="' + (i === sel ? 2.2 : 1.9) + '"></circle>').join('');
+
+  /* 점 위 몸무게 숫자 — 고른 점·마지막 점부터 자리를 잡고, 겹치면 그 숫자는 생략 */
+  const fsV = n <= 3 ? 9.8 : n <= 5 ? 8.9 : 8.3;
+  const order = [];
+  if (sel >= 0) order.push(sel);
+  if (order.indexOf(n - 1) < 0) order.push(n - 1);
+  for (let i = 0; i < n; i++) if (order.indexOf(i) < 0) order.push(i);
+  const placed = [], labTxt = {};
+  order.forEach(i => {
+    const txt = vals[i].toFixed(1);
+    const w = txt.length * fsV * 0.63 + 3, h = fsV + 1.4;
+    const x = Math.min(Math.max(xs[i] - w / 2, 1), W - 1 - w);
+    let y = ys[i] - 4.5 - h;
+    const clash = yy => placed.some(b => x < b[2] && x + w > b[0] && yy < b[3] && yy + h > b[1]);
+    if (clash(y) || y < 0) y = ys[i] + 5;
+    if (clash(y)) return;
+    placed.push([x, y, x + w, y + h]);
+    labTxt[i] = '<text class="vl' + (i === sel ? ' on' : '') + '" x="' + xs[i].toFixed(1) + '" y="' +
+      (y + fsV * 0.94).toFixed(1) + '" font-size="' + fsV + '" text-anchor="middle">' + txt + '</text>';
+  });
+  const labs = ds.map((_, i) => labTxt[i] || '').join('');
+
+  /* 아래 날짜 — 7개까지는 다 보이고, 넘칠 만큼 좁으면 하나 걸러 */
+  const fsX = 8;
+  const slot = n > 1 ? (W - padX * 2) / (n - 1) : W;
+  const every = slot < 21 ? 2 : 1;
+  const xd = ds.map((d, i) => {
+    if (n > 1 && every === 2 && i !== n - 1 && i !== sel && i % 2) return '';
+    const p = String(d).split('-');
+    const txt = (+p[1]) + '.' + p[2];
+    const x = Math.min(Math.max(xs[i], 10), W - 10);
+    return '<text class="xd' + (i === sel ? ' on' : '') + '" x="' + x.toFixed(1) + '" y="' +
+      (base + 11).toFixed(1) + '" font-size="' + fsX + '" text-anchor="middle">' + txt + '</text>';
   }).join('');
-  return html;
+
+  /* 누르는 칸 — 점을 정확히 누르지 않아도 그 날로 간다 */
+  const hits = ds.map((d, i) => {
+    const left = i === 0 ? 0 : (xs[i - 1] + xs[i]) / 2;
+    const right = i === n - 1 ? W : (xs[i] + xs[i + 1]) / 2;
+    return '<rect class="hit" x="' + left.toFixed(1) + '" y="0" width="' + Math.max(7, right - left).toFixed(1) +
+      '" height="' + H + '" data-wtpt="' + d + '"></rect>';
+  }).join('');
+
+  return '<svg class="wt-chart" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" ' +
+    'role="img" aria-label="최근 몸무게 꺾은선 그래프 — ' + n + '일 기록">' +
+    '<line class="axis" x1="' + padX + '" y1="' + base.toFixed(1) + '" x2="' + (W - padX) + '" y2="' + base.toFixed(1) + '"></line>' +
+    flat + area + line + halo + pts + labs + xd + hits + '</svg>';
+}
+/* 저장 칸 문구 — 입력이 비어 있고 그 날 기록이 있으면 '지우기' */
+function wtSyncSave() {
+  const btn = $('#wtSave');
+  if (!btn) return;
+  if (btn.classList.contains('ok')) return;
+  const inp = $('#wtInput');
+  const empty = !String((inp && inp.value) || '').trim();
+  const has = wtWeightAt(wtDate) != null;
+  const del = empty && has;
+  if (wtDelArm) {
+    if (btn.className !== 'wt-save del confirm') btn.className = 'wt-save del confirm';
+    if (btn.textContent !== '지우기?') btn.textContent = '지우기?';
+    btn.setAttribute('aria-label', wtLabel(wtDate) + ' 몸무게 기록 지우기');
+    return;
+  }
+  const cls = 'wt-save' + (del ? ' del' : '');
+  if (btn.className !== cls) btn.className = cls;
+  const txt = del ? '지우기' : '저장';
+  if (btn.textContent !== txt) btn.textContent = txt;
+  btn.setAttribute('aria-label', del ? wtLabel(wtDate) + ' 몸무게 기록 지우기' : wtLabel(wtDate) + ' 몸무게 저장');
 }
 function wtPaint() {
   if (!$('#wtCard')) return;
@@ -2035,24 +2042,20 @@ function wtPaint() {
   const cur = wtWeightAt(wtDate);
   const prev = wtPrevOf(wtDate);
 
-  const num = $('#wtNum');
-  if (num) {
-    const txt = cur == null ? '--' : cur.toFixed(1);
-    if (num.textContent !== txt) num.textContent = txt;
-    num.classList.toggle('none', cur == null);
-  }
   const dif = $('#wtDiff');
   if (dif) {
     let cls = 'wt-diff hidden', txt = '';
     if (cur != null && prev) {
       const dd = Math.round((cur - prev.weight) * 10) / 10;
       cls = 'wt-diff' + (dd < 0 ? ' down' : dd > 0 ? ' up' : '');
-      txt = '직전 대비 ' + (dd > 0 ? '+' : '') + dd.toFixed(1) + 'kg';
+      txt = '직전 ' + (dd > 0 ? '+' : '') + dd.toFixed(1);
     } else if (cur != null) {
       cls = 'wt-diff'; txt = '첫 기록';
     }
     if (dif.className !== cls) dif.className = cls;
     if (dif.textContent !== txt) dif.textContent = txt;
+    dif.setAttribute('title', prev && cur != null ? '직전 기록(' + wtLabel(prev.date) + ') 대비 ' +
+      (cur - prev.weight > 0 ? '+' : '') + (Math.round((cur - prev.weight) * 10) / 10).toFixed(1) + 'kg' : '');
   }
   const db = $('#wtDateBtn');
   if (db) {
@@ -2081,16 +2084,9 @@ function wtPaint() {
     const txt = cur == null ? '' : cur.toFixed(1);
     if (inp.value !== txt) inp.value = txt;
   }
-  const box = $('#wtList');
-  if (box) {
-    const ds = wtDates();
-    const sig = ds.map(d => d + ':' + wtWeightAt(d)).join(',') + '|' + wtDate + '|' + wtAll;
-    if (sig !== wtShown) {
-      wtShown = sig;
-      box.innerHTML = wtListHtml(ds);
-      wtDelDate = '';
-    }
-  }
+  const box = $('#wtChartBox');
+  if (box) box.innerHTML = wtChartHtml();
+  wtSyncSave();
 }
 function wtPick(d) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(d || ''))) return;
@@ -2098,6 +2094,8 @@ function wtPick(d) {
   if (d > today) d = today;
   wtDate = d;
   wtSticky = (d !== today);
+  wtDelArm = false;
+  clearTimeout(wtDelT);
   wtPaint();
 }
 function wtStep(n) {
@@ -2105,59 +2103,67 @@ function wtStep(n) {
   if (d > wtTodayYmd()) return;
   wtPick(d);
 }
+function wtArmDelete() {
+  wtDelArm = true;
+  clearTimeout(wtDelT);
+  wtSyncSave();
+  wtDelT = setTimeout(() => { wtDelArm = false; wtSyncSave(); }, 4000);
+}
 async function wtSaveNow() {
   const inp = $('#wtInput');
   if (!inp) return;
+  const date = wtDate || wtTodayYmd();
   const raw = String(inp.value || '').trim().replace(',', '.');
+  /* 빈 값으로 저장 = 그 날 기록 지우기 — 한 번 더 눌러 확인한다 */
+  if (!raw) {
+    if (wtWeightAt(date) != null) {
+      if (!wtDelArm) { wtArmDelete(); return; }
+      await wtDeleteNow(date);
+      return;
+    }
+    toast('몸무게를 숫자로 적어 주세요');
+    try { inp.focus(); } catch (e) {}
+    return;
+  }
   const n = Number(raw);
-  if (!raw || !isFinite(n) || n < WT_MIN || n > WT_MAX) {
+  if (!isFinite(n) || n < WT_MIN || n > WT_MAX) {
     toast('몸무게를 숫자로 적어 주세요');
     try { inp.focus(); } catch (e) {}
     return;
   }
   const w = Math.round(n * 10) / 10;
-  const date = wtDate || wtTodayYmd();
+  wtDelArm = false;
+  clearTimeout(wtDelT);
   ST.weights = ST.weights || {};
   const before = ST.weights[date] || null;
   ST.weights[date] = { weight: w, updatedAt: Date.now() };
   wtPaint();
   inp.value = w.toFixed(1);
+  wtSyncSave();
   const btn = $('#wtSave');
-  const say = () => { if (btn) { btn.textContent = '저장'; btn.classList.remove('ok'); } };
+  const say = () => { if (btn) { btn.classList.remove('ok'); wtSyncSave(); } };
   try {
     await put('weights/' + date, ST.weights[date]);
   } catch (e) {
     if (before) ST.weights[date] = before; else delete ST.weights[date];
     wtPaint();
+    inp.value = before ? Number(before.weight).toFixed(1) : '';
+    wtSyncSave();
     say();
     toast('저장하지 못했어요');
     return;
   }
   if (btn) {
+    btn.className = 'wt-save ok';
     btn.textContent = '✓ 저장';
-    btn.classList.add('ok');
     clearTimeout(wtSaveT);
     wtSaveT = setTimeout(say, 1200);
   }
   if (navigator.vibrate) { try { navigator.vibrate(14); } catch (e) {} }
 }
-function wtAskDelete(date) {
-  if (wtDelDate === date) { wtDeleteNow(date); return; }
-  wtDelDate = date;
-  $$('#wtList [data-wtdel]').forEach(b => {
-    const on = b.dataset.wtdel === date;
-    b.classList.toggle('confirm', on);
-    b.textContent = on ? '지우기?' : '✕';
-  });
-  clearTimeout(wtDelT);
-  wtDelT = setTimeout(() => {
-    wtDelDate = '';
-    $$('#wtList [data-wtdel]').forEach(b => { b.classList.remove('confirm'); b.textContent = '✕'; });
-  }, 3000);
-}
 async function wtDeleteNow(date) {
   clearTimeout(wtDelT);
-  wtDelDate = '';
+  wtDelArm = false;
   const before = (ST.weights || {})[date];
   if (!before) return;
   delete ST.weights[date];
@@ -3793,7 +3799,6 @@ function calPaint() {
     const daySig = CAL.sel + '|' + dayHtml;
     if (calDaySig !== daySig) { box.innerHTML = dayHtml; calDaySig = daySig; }
   }
-  shopPaint();
 }
 function calMove(step) {
   calInit();
@@ -3819,191 +3824,6 @@ function calSelect(ymd) {
   calPaint();
 }
 
-/* ============ 🛒 사야할 것 (v46) ============
-   📅 일정 탭 달력 아래 목록. 저장: rooms/{room}/shopping/{id}
-   = { text, owner: 'seeun'|'chankyu'|'', done, order, createdAt, updatedAt }
-   담당·완료는 그 항목만 PATCH 해서 다른 항목을 건드리지 않는다. */
-const SHOP_MAX = 40;
-let shopFormOpen = false;
-let shopNewOwner = '';   /* 추가할 때 고른 담당 */
-let shopEditId = '';     /* 이름을 고치고 있는 항목 */
-let shopShown = '';      /* 목록을 마지막으로 그린 서명 */
-
-function shopItems() {
-  return Object.entries(ST.shopping || {})
-    .filter(([, v]) => v && typeof v === 'object')
-    .map(([id, v]) => ({
-      id: id,
-      text: String(v.text == null ? '' : v.text).trim(),
-      owner: (v.owner === 'seeun' || v.owner === 'chankyu') ? v.owner : '',
-      done: !!v.done,
-      order: Number(v.order) || 0,
-      createdAt: Number(v.createdAt) || 0
-    }))
-    .filter(it => it.text)
-    .sort((a, b) => (a.order - b.order) || (a.createdAt - b.createdAt));
-}
-function shopRowHtml(it) {
-  if (it.id === shopEditId) {
-    return '<div class="shop-row editing" data-shop-row="' + it.id + '">' +
-      '<input class="shop-edit-in" id="shopEdit" type="text" maxlength="' + SHOP_MAX + '" value="' +
-        esc(it.text) + '" aria-label="살 것 이름 고치기" autocomplete="off">' +
-      '<button class="shop-mini save" type="button" data-shop-savetext="' + it.id + '">저장</button>' +
-      '<button class="shop-mini del" type="button" data-shop-del="' + it.id + '" aria-label="' + esc(it.text) + ' 지우기">🗑 지우기</button>' +
-    '</div>';
-  }
-  const on = it.owner === 'seeun', on2 = it.owner === 'chankyu';
-  return '<div class="shop-row' + (it.done ? ' done' : '') + '" data-shop-row="' + it.id + '">' +
-    '<button class="shop-name" type="button" data-shop-edit="' + it.id + '">' + esc(it.text) + '</button>' +
-    '<div class="shop-tags">' +
-      '<button class="shop-tag seeun' + (on ? ' on' : '') + '" type="button" data-shop-owner="' + it.id +
-        '" data-owner="seeun" aria-pressed="' + (on ? 'true' : 'false') + '">세은</button>' +
-      '<button class="shop-tag chankyu' + (on2 ? ' on' : '') + '" type="button" data-shop-owner="' + it.id +
-        '" data-owner="chankyu" aria-pressed="' + (on2 ? 'true' : 'false') + '">찬규</button>' +
-      '<button class="shop-tag donetag' + (it.done ? ' on' : '') + '" type="button" data-shop-done="' + it.id +
-        '" aria-pressed="' + (it.done ? 'true' : 'false') + '">' +
-        '<span class="dot" aria-hidden="true"></span><span class="tk" aria-hidden="true">✓</span>완료</button>' +
-    '</div>' +
-  '</div>';
-}
-function shopPaint() {
-  const list = $('#shopList');
-  if (!list) return;
-  const items = shopItems();
-  const sig = items.map(it => it.id + '~' + it.text + '~' + it.owner + '~' + (it.done ? 1 : 0) + '~' + it.order).join('|') +
-    '|e' + shopEditId;
-  if (sig === shopShown) return;
-  shopShown = sig;
-  /* 이름을 고치는 중이면 치던 글자를 잃지 않게 잠시 받아 둔다 */
-  const typing = $('#shopEdit');
-  const typed = typing ? typing.value : null;
-  list.innerHTML = items.length ? items.map(shopRowHtml).join('')
-    : '<p class="shop-empty">아직 없어요 · 오른쪽 + 추가로 넣어 보세요</p>';
-  if (typed != null && shopEditId) {
-    const again = $('#shopEdit');
-    if (again && again.value !== typed) again.value = typed;
-  }
-}
-function shopOpenForm(open) {
-  shopFormOpen = !!open;
-  const f = $('#shopForm');
-  if (f) f.classList.toggle('hidden', !shopFormOpen);
-  const add = $('#shopAdd');
-  if (add) {
-    add.textContent = shopFormOpen ? '닫기' : '+ 추가';
-    add.classList.toggle('close', shopFormOpen);
-  }
-  if (!shopFormOpen) {
-    shopNewOwner = '';
-    $$('#shopOwn [data-newown]').forEach(b => { b.classList.remove('on'); b.setAttribute('aria-pressed', 'false'); });
-  } else {
-    const inp = $('#shopInput');
-    if (inp) { try { inp.focus(); } catch (e) {} }
-  }
-}
-function shopPickNewOwner(owner) {
-  shopNewOwner = (shopNewOwner === owner) ? '' : owner;
-  $$('#shopOwn [data-newown]').forEach(b => {
-    const on = b.dataset.newown === shopNewOwner;
-    b.classList.toggle('on', on);
-    b.setAttribute('aria-pressed', on ? 'true' : 'false');
-  });
-}
-async function shopAddItem() {
-  const inp = $('#shopInput');
-  if (!inp) return;
-  const text = String(inp.value || '').trim().slice(0, SHOP_MAX);
-  if (!text) { toast('살 것을 적어 주세요'); try { inp.focus(); } catch (e) {} return; }
-  const items = shopItems();
-  const order = items.length ? Math.max.apply(null, items.map(i => i.order)) + 1 : 1;
-  const id = 'sh' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
-  const now = Date.now();
-  const item = { text: text, owner: shopNewOwner || '', done: false, order: order, createdAt: now, updatedAt: now };
-  ST.shopping = ST.shopping || {};
-  ST.shopping[id] = item;
-  inp.value = '';
-  shopNewOwner = '';                     /* 다음 품목은 다시 담당 없음부터 */
-  $$('#shopOwn [data-newown]').forEach(b => { b.classList.remove('on'); b.setAttribute('aria-pressed', 'false'); });
-  shopShown = '';
-  shopPaint();
-  if (navigator.vibrate) { try { navigator.vibrate(10); } catch (e) {} }
-  try { await put('shopping/' + id, item); }
-  catch (e) {
-    delete ST.shopping[id];
-    shopShown = ''; shopPaint();
-    toast('저장하지 못했어요');
-    return;
-  }
-  const again = $('#shopInput');
-  if (again && shopFormOpen) { try { again.focus(); } catch (e) {} }
-}
-async function shopSetOwner(id, owner) {
-  const it = (ST.shopping || {})[id];
-  if (!it) return;
-  const before = it.owner == null ? '' : it.owner;
-  const next = (before === owner) ? '' : owner;   /* 같은 사람을 다시 누르면 해제 */
-  it.owner = next;
-  it.updatedAt = Date.now();
-  shopShown = ''; shopPaint();
-  try { await patch('shopping/' + id, { owner: next, updatedAt: it.updatedAt }); }
-  catch (e) { it.owner = before; shopShown = ''; shopPaint(); toast('저장하지 못했어요'); }
-}
-async function shopToggleDone(id) {
-  const it = (ST.shopping || {})[id];
-  if (!it) return;
-  const before = !!it.done;
-  it.done = !before;
-  it.updatedAt = Date.now();
-  shopShown = ''; shopPaint();
-  if (navigator.vibrate) { try { navigator.vibrate(it.done ? 12 : [8, 22, 8]); } catch (e) {} }
-  try { await patch('shopping/' + id, { done: it.done, updatedAt: it.updatedAt }); }
-  catch (e) { it.done = before; shopShown = ''; shopPaint(); toast('저장하지 못했어요'); }
-}
-function shopStartEdit(id) {
-  if (!(ST.shopping || {})[id]) return;
-  shopEditId = id;
-  shopShown = '';
-  shopPaint();
-  const inp = $('#shopEdit');
-  if (inp) { try { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); } catch (e) {} }
-}
-function shopEndEdit() {
-  shopEditId = '';
-  shopShown = '';
-  shopPaint();
-}
-async function shopSaveText(id) {
-  const inp = $('#shopEdit');
-  const it = (ST.shopping || {})[id];
-  if (!inp || !it) return;
-  const text = String(inp.value || '').trim().slice(0, SHOP_MAX);
-  if (!text) { toast('이름을 적어 주세요'); return; }
-  const before = it.text;
-  it.text = text;
-  it.updatedAt = Date.now();
-  shopEditId = '';
-  shopShown = ''; shopPaint();
-  try { await patch('shopping/' + id, { text: text, updatedAt: it.updatedAt }); }
-  catch (e) { it.text = before; shopShown = ''; shopPaint(); toast('저장하지 못했어요'); }
-}
-function shopAskDelete(id) {
-  /* 삭제는 이름을 고치는 줄(수정 상태)에서만 나오므로 한 번에 지운다 */
-  shopDeleteNow(id);
-}
-async function shopDeleteNow(id) {
-  const before = (ST.shopping || {})[id];
-  if (!before) return;
-  delete ST.shopping[id];
-  shopEditId = '';
-  shopShown = ''; shopPaint();
-  try { await del('shopping/' + id); }
-  catch (e) {
-    ST.shopping = ST.shopping || {};
-    ST.shopping[id] = before;
-    shopShown = ''; shopPaint();
-    toast('지우지 못했어요');
-  }
-}
 function eventSheetOpen() { return !$('#eventSheet').classList.contains('hidden'); }
 function showEventSheet() {
   $('#eventSheet').classList.remove('hidden');
@@ -4215,11 +4035,9 @@ function initApp() {
     if (e.target.closest('#wtPrev')) { e.preventDefault(); wtStep(-1); return; }
     if (e.target.closest('#wtNext')) { e.preventDefault(); wtStep(1); return; }
     if (e.target.closest('#wtSave')) { e.preventDefault(); wtSaveNow(); return; }
-    if (e.target.closest('[data-wtmore]')) { e.preventDefault(); wtAll = !wtAll; wtShown = ''; wtPaint(); return; }
-    const wdel = e.target.closest('[data-wtdel]');
-    if (wdel) { e.preventDefault(); e.stopPropagation(); wtAskDelete(wdel.dataset.wtdel); return; }
-    const wrow = e.target.closest('[data-wtrow]');
-    if (wrow) { e.preventDefault(); wtPick(wrow.dataset.wtrow); return; }
+    /* 그래프의 점(날짜 칸)을 누르면 그 날 기록으로 — 입력칸이 그 날 값으로 바뀐다 */
+    const wpt = e.target.closest('[data-wtpt]');
+    if (wpt) { e.preventDefault(); wtPick(wpt.dataset.wtpt); return; }
   });
   if (woPane) {
     /* 날짜 고르기(휴대폰 기본 달력) — 값이 비어 돌아오면 지금 고른 날짜로 되돌린다 */
@@ -4227,7 +4045,7 @@ function initApp() {
       if (!e.target || e.target.id !== 'wtDateInput') return;
       const v = e.target.value;
       if (v) wtPick(v);
-      else { wtShown = ''; wtPaint(); }
+      else wtPaint();
     });
     /* 몸무게 칸은 숫자와 소수점 하나만 — 소수점은 첫째 자리까지 */
     woPane.addEventListener('input', e => {
@@ -4238,6 +4056,10 @@ function initApp() {
       if (i >= 0) v = v.slice(0, i + 1) + v.slice(i + 1).replace(/\./g, '').slice(0, 1);
       if (v.length > 6) v = v.slice(0, 6);
       if (v !== el.value) el.value = v;
+      /* 칸을 비우면 저장 칸이 '지우기'로 바뀐다 (빈 값 저장 = 그 날 기록 지우기) */
+      wtDelArm = false;
+      clearTimeout(wtDelT);
+      wtSyncSave();
     });
     woPane.addEventListener('keydown', e => {
       if (e.target && e.target.id === 'wtInput' && e.key === 'Enter') { e.preventDefault(); wtSaveNow(); }
@@ -4427,32 +4249,6 @@ function initApp() {
   if (calEventsBox) calEventsBox.addEventListener('click', e => {
     const b = e.target.closest('[data-evedit]');
     if (b) { e.preventDefault(); openEventEdit(b.dataset.evedit); }
-  });
-  /* 🛒 사야할 것 — 추가·담당·완료·이름 고치기·지우기 */
-  const calPaneBox = $('#calPane');
-  if (calPaneBox) calPaneBox.addEventListener('click', e => {
-    if (e.target.closest('#shopAdd')) { e.preventDefault(); shopOpenForm(!shopFormOpen); return; }
-    if (e.target.closest('#shopSave')) { e.preventDefault(); shopAddItem(); return; }
-    const chip = e.target.closest('[data-newown]');
-    if (chip) { e.preventDefault(); shopPickNewOwner(chip.dataset.newown); return; }
-    const ow = e.target.closest('[data-shop-owner]');
-    if (ow) { e.preventDefault(); shopSetOwner(ow.dataset.shopOwner, ow.dataset.owner); return; }
-    const dn = e.target.closest('[data-shop-done]');
-    if (dn) { e.preventDefault(); shopToggleDone(dn.dataset.shopDone); return; }
-    const ed = e.target.closest('[data-shop-edit]');
-    if (ed) { e.preventDefault(); shopStartEdit(ed.dataset.shopEdit); return; }
-    const sv = e.target.closest('[data-shop-savetext]');
-    if (sv) { e.preventDefault(); shopSaveText(sv.dataset.shopSavetext); return; }
-    const dl = e.target.closest('[data-shop-del]');
-    if (dl) { e.preventDefault(); shopAskDelete(dl.dataset.shopDel); return; }
-    /* 목록 밖을 누르면 이름 고치기를 끝낸다 */
-    if (shopEditId && !e.target.closest('.shop-row.editing')) shopEndEdit();
-  });
-  if (calPaneBox) calPaneBox.addEventListener('keydown', e => {
-    if (!e.target) return;
-    if (e.target.id === 'shopInput' && e.key === 'Enter') { e.preventDefault(); shopAddItem(); return; }
-    if (e.target.id === 'shopEdit' && e.key === 'Enter') { e.preventDefault(); shopSaveText(shopEditId); return; }
-    if (e.target.id === 'shopEdit' && e.key === 'Escape') { e.preventDefault(); shopEndEdit(); }
   });
   const eventForm = $('#eventForm'); if (eventForm) eventForm.addEventListener('submit', saveEvent);
   const evCancelBtn = $('#evCancel'); if (evCancelBtn) evCancelBtn.addEventListener('click', closeEvent);
