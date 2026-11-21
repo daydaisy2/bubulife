@@ -1978,7 +1978,7 @@ function wtChartHtml() {
     const txt = vals[i].toFixed(1);
     const w = txt.length * fsV * 0.63 + 3, h = fsV + 1.4;
     const x = Math.min(Math.max(xs[i] - w / 2, 1), W - 1 - w);
-    let y = ys[i] - 4.5 - h;
+    let y = ys[i] - 7 - h;
     const clash = yy => placed.some(b => x < b[2] && x + w > b[0] && yy < b[3] && yy + h > b[1]);
     if (clash(y) || y < 0) y = ys[i] + 5;
     if (clash(y)) return;
