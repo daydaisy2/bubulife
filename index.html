@@ -737,6 +737,72 @@
     .wo-t{font-size:13px}
   }
 
+  /* ---------- ⚖️ 오늘 몸무게 (v46) ---------- */
+  .wt-card{flex:0 0 auto;background:#fff;border-radius:20px;padding:13px 14px 12px;
+           box-shadow:0 12px 26px -22px rgba(80,64,0,.5)}
+  .wt-head{display:flex;align-items:center;gap:8px}
+  .wt-tit{min-width:0;flex:1 1 auto}
+  .wt-nav{flex:0 0 auto;display:flex;align-items:center;gap:4px}
+  .wt-arrow{flex:0 0 auto;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;
+            background:var(--cream);color:#6E6A58;font-size:9px;font-weight:900;line-height:1;
+            border:1.5px solid #EFE8CF;transition:background .14s}
+  .wt-arrow:active{background:#F1EBCE}
+  .wt-arrow:disabled{opacity:.32}
+  .wt-dwrap{position:relative;display:inline-flex;flex:0 0 auto}
+  .wt-date{height:24px;padding:0 8px;border-radius:8px;background:var(--cream);
+           border:1.5px solid #EFE8CF;color:#4A4426;font-size:10.5px;font-weight:900;
+           letter-spacing:-.03em;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .wt-date.today{background:var(--navy);border-color:var(--navy);color:#fff}
+  .wt-dinput{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;
+             opacity:0;cursor:pointer;-webkit-appearance:none;appearance:none}
+  .wt-big{display:flex;align-items:baseline;gap:5px;margin-top:8px;padding:0 2px;min-height:34px}
+  .wt-num{font-size:32px;font-weight:900;letter-spacing:-.05em;line-height:1;color:var(--navy);
+          font-variant-numeric:tabular-nums}
+  .wt-num.none{color:#D5CFB8}
+  .wt-unit{font-size:12px;font-weight:900;color:#9A94AE}
+  .wt-diff{margin-left:auto;flex:0 0 auto;padding:3px 8px;border-radius:999px;background:var(--cream);
+           color:#7C765C;font-size:11px;font-weight:900;letter-spacing:-.02em;
+           font-variant-numeric:tabular-nums;white-space:nowrap}
+  .wt-diff.down{background:var(--mint);color:var(--green-text)}
+  .wt-diff.up{background:#FDE5DE;color:#B4482C}
+  .wt-form{display:flex;align-items:center;gap:5px;margin-top:8px}
+  .wt-in{flex:1 1 auto;min-width:0;height:40px;padding:0 12px;border-radius:13px;
+         background:var(--cream);border:1.5px solid var(--cream-line);color:var(--ink);
+         font:inherit;font-size:18px;font-weight:900;letter-spacing:-.02em;
+         font-variant-numeric:tabular-nums;-webkit-appearance:none;appearance:none}
+  .wt-in::placeholder{color:#CFC9B0;font-weight:800}
+  .wt-in:focus{outline:none;background:#fff;border-color:var(--navy)}
+  .wt-kg{flex:0 0 auto;font-size:11.5px;font-weight:900;color:#9A94AE}
+  .wt-save{flex:0 0 auto;height:40px;padding:0 15px;border-radius:13px;background:var(--navy);
+           color:#fff;font-size:13px;font-weight:900;letter-spacing:-.03em;white-space:nowrap;
+           transition:background .16s}
+  .wt-save:active{background:#151253}
+  .wt-save.ok{background:var(--green)}
+  .wt-list{margin-top:10px;display:flex;flex-direction:column;gap:5px}
+  .wt-lhead{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 2px}
+  .wt-lhead span{font-size:10.5px;font-weight:900;color:#A9A48D;letter-spacing:-.02em}
+  .wt-more{flex:0 0 auto;padding:2px 7px;border-radius:8px;background:var(--cream);
+           color:#8A8674;font-size:10px;font-weight:900;letter-spacing:-.02em}
+  .wt-more:active{background:#F1EBCE}
+  .wt-rec{display:flex;align-items:center;gap:6px;background:var(--cream);border-radius:11px;
+          padding:5px 6px 5px 9px}
+  .wt-rec.sel{background:#FFF6C9;box-shadow:inset 0 0 0 1.5px #EBDC63}
+  .wt-rd{flex:0 0 auto;width:56px;font-size:10.5px;font-weight:900;color:#6E6A58;
+         letter-spacing:-.03em;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .wt-rw{flex:1 1 auto;font-size:13px;font-weight:900;color:var(--ink);
+         font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .wt-rw em{font-style:normal;font-size:9.5px;font-weight:900;color:#9A94AE;margin-left:1px}
+  .wt-rdiff{flex:0 0 auto;min-width:34px;text-align:right;font-size:10.5px;font-weight:900;
+            color:#B4AF98;font-variant-numeric:tabular-nums}
+  .wt-rdiff.down{color:var(--green-text)}
+  .wt-rdiff.up{color:#B4482C}
+  .wt-rdel{flex:0 0 auto;width:22px;height:22px;border-radius:8px;display:grid;place-items:center;
+           background:#fff;color:#C0BAA2;font-size:10px;font-weight:900;line-height:1}
+  .wt-rdel:active{background:#FADBD2;color:#C0392B}
+  .wt-rdel.confirm{width:auto;padding:0 6px;background:#E45B3C;color:#fff}
+  .wt-empty{margin:0;padding:9px;text-align:center;background:var(--cream);border-radius:11px;
+            font-size:11px;font-weight:800;color:#A9A48D;letter-spacing:-.02em}
+
   /* ---------- 입장 잠금 ---------- */
   body.locked{overflow:hidden}
   #lock{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:22px;background:var(--yellow);overflow-y:auto}
@@ -1069,7 +1135,7 @@ if (!ROOM_RE.test(ROOM)) {
   ROOM = ROOM_RE.test(saved) ? saved : '';
 }
 
-const ST = { todos: {}, lastSeen: {}, say: {}, memos: {}, events: {} };
+const ST = { todos: {}, lastSeen: {}, say: {}, memos: {}, events: {}, weights: {} };
 let es = null, retry = 0, pollTimer = null, gotSnapshot = false;
 let drag = null;
 let openSwipeId = null;   /* 스와이프로 열어 둔 항목 — 다시 그려도 열린 채로 유지 */
@@ -1649,6 +1715,7 @@ function woRowHtml(it) {
 function woBuild() {
   const pane = $('#woPane'); if (!pane) return;
   pane.innerHTML =
+    wtCardHtml() +
     '<div class="wo-sum" id="woSum">' +
       '<div class="wo-sum-top">' +
         '<span class="wo-cnt"><b id="woDone">0</b>/<span id="woTotal">' + WO_TOTAL + '</span> 완료</span>' +
@@ -1711,6 +1778,7 @@ function woPaint() {
     WOST.celebrated = '';
     woSave();
   }
+  wtPaint();
   return st;
 }
 function woToggle(id) {
@@ -1769,6 +1837,249 @@ function initWo() {
   woBuild();
   woRollover();
   woPaint();
+}
+
+/* ============ ⚖️ 오늘 몸무게 — 매일 한 줄 기록 (v46) ============
+   운동 탭 맨 위 카드. 저장은 방(rooms/{room}/weights/{YYYY-MM-DD})에
+   { weight: 52.3, updatedAt: 169... } 모양으로 남긴다.
+   장비를 바꾸거나 캐시를 지워도 기록이 남게 하려고 기기(localStorage)에는 두지 않는다. */
+const WT_MIN = 20, WT_MAX = 300;    /* 오타(0.5, 500)를 거르는 넉넉한 범위 */
+let wtDate = '';        /* 카드에서 고른 날짜 — 기본은 한국 오늘 */
+let wtSticky = false;   /* true = 손으로 고른 지난 날, false = 오늘을 따라간다 */
+let wtShown = '';       /* 최근 기록 목록을 마지막으로 그린 서명 — 같으면 DOM 을 건드리지 않는다 */
+let wtAll = false;      /* 최근 기록 펼쳐 보기 */
+let wtDelDate = '', wtDelT = null, wtSaveT = null;
+
+function wtTodayYmd() { return kstParts().ymd; }
+function wtYmdAdd(ymd, n) {
+  const p = String(ymd || wtTodayYmd()).split('-');
+  const d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2]) + n * 86400000);
+  const y = d.getUTCFullYear(), m = d.getUTCMonth() + 1, dd = d.getUTCDate();
+  return y + '-' + (m < 10 ? '0' + m : m) + '-' + (dd < 10 ? '0' + dd : dd);
+}
+function wtDowOf(ymd) {
+  const p = String(ymd).split('-');
+  return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])).getUTCDay();
+}
+function wtLabel(ymd) {   /* 11.21(토) */
+  const p = String(ymd).split('-');
+  return (+p[1]) + '.' + p[2] + '(' + WO_WEEK[wtDowOf(ymd)] + ')';
+}
+/* 방에 쌓인 값 읽기 — 숫자로 와도, {weight} 로 와도 같은 무게로 본다 */
+function wtWeightAt(ymd) {
+  const v = (ST.weights || {})[ymd];
+  if (v == null) return null;
+  const n = typeof v === 'number' ? v : Number(v && v.weight);
+  return isFinite(n) && n >= WT_MIN && n <= WT_MAX ? Math.round(n * 10) / 10 : null;
+}
+function wtDates() {   /* 기록이 있는 날짜 — 최근이 앞 */
+  return Object.keys(ST.weights || {})
+    .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d) && wtWeightAt(d) != null)
+    .sort((a, b) => (a < b ? 1 : -1));
+}
+/* 그 날보다 앞선 가장 가까운 기록 — 직전 대비를 재는 기준 */
+function wtPrevOf(ymd) {
+  const ds = Object.keys(ST.weights || {})
+    .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d) && d < ymd && wtWeightAt(d) != null)
+    .sort();
+  if (!ds.length) return null;
+  const d = ds[ds.length - 1];
+  return { date: d, weight: wtWeightAt(d) };
+}
+function wtCardHtml() {
+  return '<section class="wt-card" id="wtCard" aria-label="몸무게 기록">' +
+    '<div class="wt-head">' +
+      '<span class="wo-ico" aria-hidden="true">⚖️</span>' +
+      '<div class="wt-tit"><h2 class="wo-name">오늘 몸무게</h2>' +
+        '<span class="wo-meta" id="wtSub">매일 한 번 재고 적어 두기</span></div>' +
+      '<div class="wt-nav">' +
+        '<button class="wt-arrow" type="button" id="wtPrev" aria-label="이전 날">◀</button>' +
+        '<span class="wt-dwrap">' +
+          '<button class="wt-date" type="button" id="wtDateBtn" aria-label="날짜 고르기">오늘</button>' +
+          '<input type="date" class="wt-dinput" id="wtDateInput" aria-label="몸무게 기록 날짜">' +
+        '</span>' +
+        '<button class="wt-arrow" type="button" id="wtNext" aria-label="다음 날">▶</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="wt-big">' +
+      '<span class="wt-num none" id="wtNum">--</span><span class="wt-unit">kg</span>' +
+      '<span class="wt-diff hidden" id="wtDiff"></span>' +
+    '</div>' +
+    '<div class="wt-form">' +
+      '<input class="wt-in" id="wtInput" type="text" inputmode="decimal" placeholder="00.0"' +
+        ' autocomplete="off" spellcheck="false" maxlength="6" aria-label="몸무게 입력">' +
+      '<span class="wt-kg" aria-hidden="true">kg</span>' +
+      '<button class="wt-save" type="button" id="wtSave">저장</button>' +
+    '</div>' +
+    '<div class="wt-list" id="wtList"></div>' +
+  '</section>';
+}
+function wtListHtml(ds) {
+  if (!ds.length) return '<p class="wt-empty">아직 기록이 없어요 · 오늘 몸무게를 한 번 남겨 보세요</p>';
+  const show = wtAll ? ds : ds.slice(0, 7);
+  let html = '<div class="wt-lhead"><span>최근 기록</span>' +
+    (ds.length > 7 ? '<button class="wt-more" type="button" data-wtmore="1">' +
+      (wtAll ? '접기' : (ds.length - 7) + '일 더 보기') + '</button>' : '') +
+    '</div>';
+  html += show.map(d => {
+    const w = wtWeightAt(d), pv = wtPrevOf(d);
+    let dtxt = '', dcls = '';
+    if (pv && w != null) {
+      const dd = Math.round((w - pv.weight) * 10) / 10;
+      dtxt = (dd > 0 ? '+' : '') + dd.toFixed(1);
+      dcls = dd < 0 ? ' down' : dd > 0 ? ' up' : '';
+    }
+    const tag = d === wtTodayYmd() ? '오늘' : wtLabel(d);
+    return '<div class="wt-rec' + (d === wtDate ? ' sel' : '') + '" data-wtrow="' + d + '">' +
+      '<span class="wt-rd">' + tag + '</span>' +
+      '<span class="wt-rw">' + (w == null ? '-' : w.toFixed(1)) + '<em>kg</em></span>' +
+      '<span class="wt-rdiff' + dcls + '">' + dtxt + '</span>' +
+      '<button class="wt-rdel" type="button" data-wtdel="' + d + '" aria-label="' + wtLabel(d) + ' 몸무게 기록 지우기">✕</button>' +
+    '</div>';
+  }).join('');
+  return html;
+}
+function wtPaint() {
+  if (!$('#wtCard')) return;
+  const today = wtTodayYmd();
+  if (!wtDate || !wtSticky || wtDate > today) wtDate = today;
+  const cur = wtWeightAt(wtDate);
+  const prev = wtPrevOf(wtDate);
+
+  const num = $('#wtNum');
+  if (num) {
+    const txt = cur == null ? '--' : cur.toFixed(1);
+    if (num.textContent !== txt) num.textContent = txt;
+    num.classList.toggle('none', cur == null);
+  }
+  const dif = $('#wtDiff');
+  if (dif) {
+    let cls = 'wt-diff hidden', txt = '';
+    if (cur != null && prev) {
+      const dd = Math.round((cur - prev.weight) * 10) / 10;
+      cls = 'wt-diff' + (dd < 0 ? ' down' : dd > 0 ? ' up' : '');
+      txt = '직전 대비 ' + (dd > 0 ? '+' : '') + dd.toFixed(1) + 'kg';
+    } else if (cur != null) {
+      cls = 'wt-diff'; txt = '첫 기록';
+    }
+    if (dif.className !== cls) dif.className = cls;
+    if (dif.textContent !== txt) dif.textContent = txt;
+  }
+  const db = $('#wtDateBtn');
+  if (db) {
+    const isToday = wtDate === today;
+    const txt = isToday ? '오늘' : wtLabel(wtDate);
+    if (db.textContent !== txt) db.textContent = txt;
+    db.classList.toggle('today', isToday);
+  }
+  const di = $('#wtDateInput');
+  if (di) {
+    if (di.value !== wtDate) di.value = wtDate;
+    if (di.max !== today) di.max = today;
+  }
+  const sub = $('#wtSub');
+  if (sub) {
+    const p = wtDate.split('-');
+    const txt = (wtDate === today ? '오늘 · ' : '') + (+p[1]) + '월 ' + (+p[2]) + '일 ' +
+      WO_WEEK[wtDowOf(wtDate)] + '요일';
+    if (sub.textContent !== txt) sub.textContent = txt;
+  }
+  const nx = $('#wtNext');
+  if (nx) nx.disabled = wtDate >= today;
+  const inp = $('#wtInput');
+  if (inp && document.activeElement !== inp) {
+    const txt = cur == null ? '' : cur.toFixed(1);
+    if (inp.value !== txt) inp.value = txt;
+  }
+  const box = $('#wtList');
+  if (box) {
+    const ds = wtDates();
+    const sig = ds.map(d => d + ':' + wtWeightAt(d)).join(',') + '|' + wtDate + '|' + wtAll;
+    if (sig !== wtShown) {
+      wtShown = sig;
+      box.innerHTML = wtListHtml(ds);
+      wtDelDate = '';
+    }
+  }
+}
+function wtPick(d) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(d || ''))) return;
+  const today = wtTodayYmd();
+  if (d > today) d = today;
+  wtDate = d;
+  wtSticky = (d !== today);
+  wtPaint();
+}
+function wtStep(n) {
+  const d = wtYmdAdd(wtDate || wtTodayYmd(), n);
+  if (d > wtTodayYmd()) return;
+  wtPick(d);
+}
+async function wtSaveNow() {
+  const inp = $('#wtInput');
+  if (!inp) return;
+  const raw = String(inp.value || '').trim().replace(',', '.');
+  const n = Number(raw);
+  if (!raw || !isFinite(n) || n < WT_MIN || n > WT_MAX) {
+    toast('몸무게를 숫자로 적어 주세요');
+    try { inp.focus(); } catch (e) {}
+    return;
+  }
+  const w = Math.round(n * 10) / 10;
+  const date = wtDate || wtTodayYmd();
+  ST.weights = ST.weights || {};
+  const before = ST.weights[date] || null;
+  ST.weights[date] = { weight: w, updatedAt: Date.now() };
+  wtPaint();
+  inp.value = w.toFixed(1);
+  const btn = $('#wtSave');
+  const say = () => { if (btn) { btn.textContent = '저장'; btn.classList.remove('ok'); } };
+  try {
+    await put('weights/' + date, ST.weights[date]);
+  } catch (e) {
+    if (before) ST.weights[date] = before; else delete ST.weights[date];
+    wtPaint();
+    say();
+    toast('저장하지 못했어요');
+    return;
+  }
+  if (btn) {
+    btn.textContent = '✓ 저장';
+    btn.classList.add('ok');
+    clearTimeout(wtSaveT);
+    wtSaveT = setTimeout(say, 1200);
+  }
+  if (navigator.vibrate) { try { navigator.vibrate(14); } catch (e) {} }
+}
+function wtAskDelete(date) {
+  if (wtDelDate === date) { wtDeleteNow(date); return; }
+  wtDelDate = date;
+  $$('#wtList [data-wtdel]').forEach(b => {
+    const on = b.dataset.wtdel === date;
+    b.classList.toggle('confirm', on);
+    b.textContent = on ? '지우기?' : '✕';
+  });
+  clearTimeout(wtDelT);
+  wtDelT = setTimeout(() => {
+    wtDelDate = '';
+    $$('#wtList [data-wtdel]').forEach(b => { b.classList.remove('confirm'); b.textContent = '✕'; });
+  }, 3000);
+}
+async function wtDeleteNow(date) {
+  clearTimeout(wtDelT);
+  wtDelDate = '';
+  const before = (ST.weights || {})[date];
+  if (!before) return;
+  delete ST.weights[date];
+  wtPaint();
+  try {
+    await del('weights/' + date);
+  } catch (e) {
+    ST.weights = ST.weights || {};
+    ST.weights[date] = before;
+    wtPaint();
+    toast('지우지 못했어요');
+  }
 }
 
 /* ============ 마지막 접속 시간 ============ */
@@ -2300,6 +2611,7 @@ function connect() {
       ST.say = (m.data && m.data.say) || {};
       ST.memos = (m.data && m.data.memos) || {};
       ST.events = (m.data && m.data.events) || {};
+      ST.weights = (m.data && m.data.weights) || {};
       gotSnapshot = true;
       seenSelfGuard();
       applyRepeatResets();
@@ -2339,6 +2651,7 @@ function setAt(path, data) {
     ST.say = (data && data.say) || {};
     ST.memos = (data && data.memos) || {};
     ST.events = (data && data.events) || {};
+    ST.weights = (data && data.weights) || {};
     seenSelfGuard();
     applyRepeatResets();
     return;
@@ -2367,6 +2680,7 @@ async function syncNow(quiet) {
     ST.say = d.say || {};
     ST.memos = d.memos || {};
     ST.events = d.events || {};
+    ST.weights = d.weights || {};
     gotSnapshot = true;
     seenSelfGuard();
     if (!es) setLive('live');
@@ -3611,13 +3925,41 @@ function initApp() {
   const addBig = $('#addBig');
   if (addBig) addBig.addEventListener('click', () => { closeAllSwipes(); openAdd(TAB); });
 
-  /* 💪 운동 탭 — 체크 토글과 오늘 리셋 */
+  /* 💪 운동 탭 — 체크 토글과 오늘 리셋 + ⚖️ 몸무게 카드 */
   const woPane = $('#woPane');
   if (woPane) woPane.addEventListener('click', e => {
     const hit = e.target.closest('[data-wo-hit]');
     if (hit) { e.preventDefault(); woToggle(hit.dataset.woHit); return; }
-    if (e.target.closest('#woResetOpen')) { e.preventDefault(); openWoReset(); }
+    if (e.target.closest('#woResetOpen')) { e.preventDefault(); openWoReset(); return; }
+    /* ⚖️ 오늘 몸무게 */
+    if (e.target.closest('#wtPrev')) { e.preventDefault(); wtStep(-1); return; }
+    if (e.target.closest('#wtNext')) { e.preventDefault(); wtStep(1); return; }
+    if (e.target.closest('#wtSave')) { e.preventDefault(); wtSaveNow(); return; }
+    if (e.target.closest('[data-wtmore]')) { e.preventDefault(); wtAll = !wtAll; wtShown = ''; wtPaint(); return; }
+    const wdel = e.target.closest('[data-wtdel]');
+    if (wdel) { e.preventDefault(); e.stopPropagation(); wtAskDelete(wdel.dataset.wtdel); return; }
+    const wrow = e.target.closest('[data-wtrow]');
+    if (wrow) { e.preventDefault(); wtPick(wrow.dataset.wtrow); return; }
   });
+  if (woPane) {
+    /* 날짜 고르기(휴대폰 기본 달력) */
+    woPane.addEventListener('change', e => {
+      if (e.target && e.target.id === 'wtDateInput') wtPick(e.target.value || wtTodayYmd());
+    });
+    /* 몸무게 칸은 숫자와 소수점 하나만 — 소수점은 첫째 자리까지 */
+    woPane.addEventListener('input', e => {
+      const el = e.target;
+      if (!el || el.id !== 'wtInput') return;
+      let v = String(el.value || '').replace(/[^0-9.]/g, '');
+      const i = v.indexOf('.');
+      if (i >= 0) v = v.slice(0, i + 1) + v.slice(i + 1).replace(/\./g, '').slice(0, 1);
+      if (v.length > 6) v = v.slice(0, 6);
+      if (v !== el.value) el.value = v;
+    });
+    woPane.addEventListener('keydown', e => {
+      if (e.target && e.target.id === 'wtInput' && e.key === 'Enter') { e.preventDefault(); wtSaveNow(); }
+    });
+  }
   $('#woResetYes').addEventListener('click', woResetNow);
   $('#woResetNo').addEventListener('click', closeWoReset);
   $('#woReset').addEventListener('click', e => { if (e.target.dataset.wrclose === '1') closeWoReset(); });
