@@ -324,48 +324,118 @@
              min-height:112px;outline:none;transition:border-color .15s}
   #noteInput:focus{border-color:var(--navy)}
 
-  /* ---------- 📝 공동 메모 탭 ---------- */
-  .memo-pane{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
-  .memo-pane > .card{flex:1 1 auto}
+  /* ---------- 📝 공동 메모 탭 (위: 공동 달력 / 아래: 공동 메모 — 반반) ---------- */
+  .memo-pane{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:var(--gap)}
+  .memo-pane > .card{flex:1 1 0;min-height:0}
   .memo-pane.tabsw > .card{animation:tabIn .2s cubic-bezier(.2,.8,.2,1)}
-  .memo-pane .avatar{background:#F3EEDC;font-size:clamp(15px,1.9vw,22px)}
-  .mem-sub{font-size:10.5px;font-weight:800;color:#948E74;letter-spacing:-.02em;line-height:1.35;white-space:nowrap}
-  .memo-left{flex:0 0 auto;background:var(--mint);color:var(--green);border-radius:999px;
-             font-size:clamp(10.5px,1.4vw,12px);font-weight:900;letter-spacing:-.02em;padding:3px 9px;white-space:nowrap}
-  .memo-write{flex:0 0 auto;display:flex;flex-direction:column;gap:6px}
-  #memoTabInput{width:100%;border:2px solid var(--line);border-radius:14px;background:var(--cream);
-                padding:9px 11px;font:inherit;font-weight:700;font-size:clamp(13.5px,1.8vw,17px);line-height:1.4;
-                letter-spacing:-.02em;color:var(--ink);resize:none;min-height:58px;max-height:120px;outline:none;
-                transition:border-color .15s,background .15s}
-  #memoTabInput:focus{border-color:var(--navy);background:#fff}
-  .memo-write-row{display:flex;gap:6px;align-items:stretch}
-  .memo-write-row .add{flex:1 1 0;min-height:42px;border-radius:13px;background:var(--navy);color:#fff;
-                       font-weight:900;font-size:clamp(13px,1.7vw,16px);letter-spacing:-.02em}
-  .memo-write-row .cp{flex:0 0 auto;padding:0 13px;min-height:42px;border-radius:13px;background:var(--cream);
-                      color:#6E6A58;font-weight:900;font-size:clamp(12px,1.55vw,14px);letter-spacing:-.02em}
-  .memo-write-row button:active{transform:translateY(1px)}
+
+  /* 📅 공동 달력 (위쪽 반) */
+  .cal-card{padding:clamp(7px,1vw,11px) clamp(8px,1.1vw,13px);gap:4px;overflow:hidden}
+  .cal-head{flex:0 0 auto;display:flex;align-items:center;gap:4px;margin-bottom:1px}
+  .cal-nav{flex:0 0 auto;width:28px;height:28px;border-radius:50%;background:transparent;color:var(--navy);
+           font-size:12px;font-weight:900;display:grid;place-items:center;line-height:1}
+  .cal-nav:active{background:var(--cream)}
+  .cal-title{flex:1 1 auto;min-width:0;text-align:center;font-size:clamp(14px,1.95vw,17px);font-weight:900;
+             letter-spacing:-.03em;color:var(--navy);white-space:nowrap}
+  .cal-today-btn{flex:0 0 auto;height:28px;padding:0 11px;border-radius:999px;background:transparent;color:var(--navy);
+                 font-size:11.5px;font-weight:900;letter-spacing:-.02em;border:1.5px solid #E3D79A}
+  .cal-today-btn:active{background:var(--cream)}
+  .cal-week{flex:0 0 auto;display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:1px}
+  .cal-wd{text-align:center;font-size:10px;font-weight:900;color:#9A9478;letter-spacing:-.02em}
+  .cal-wd.sun{color:#C0705F}
+  .cal-wd.sat{color:#5E7FB5}
+  .cal-grid{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:repeat(7,1fr);
+            grid-auto-rows:minmax(0,1fr);gap:1px}
+  .cal-cell{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+            min-width:0;min-height:0;padding:1px 0 0;border-radius:0;background:transparent;font:inherit;
+            overflow:hidden;transition:background .14s}
+  .cal-cell.empty{visibility:hidden;pointer-events:none}
+  .cal-cell .cn{display:grid;place-items:center;flex:0 0 auto;width:22px;height:22px;border-radius:50%;
+                font-size:clamp(11px,1.5vw,13.5px);font-weight:800;color:#2C2A22;line-height:1}
+  .cal-cell.today .cn{background:var(--navy);color:var(--yellow);font-weight:900}
+  .cal-cell.sel .cn{background:var(--navy);color:var(--yellow);font-weight:900}
+  .cal-cell:active .cn{background:var(--cream)}
+  .cal-cell.today:active .cn,.cal-cell.sel:active .cn{background:var(--navy)}
+  /* 날짜 아래 일정 제목 미리보기 알약(최대 2개 + +N) */
+  .cal-pills{display:flex;flex-direction:column;gap:.5px;width:100%;min-width:0;padding:0 1px;margin-top:1px}
+  .cal-pill{display:block;width:100%;min-width:0;font-size:9px;line-height:1.15;font-weight:800;letter-spacing:-.03em;
+            padding:0 2px;border-radius:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
+  .cal-pill.pink{background:#FDE7E9;color:#B4565F}
+  .cal-pill.yellow{background:#FCF0C6;color:#8A6D18}
+  .cal-pill.blue{background:#E4EEFB;color:#4B6FA8}
+  .cal-pill.green{background:#E4F3E2;color:#4C7A46}
+  .cal-cell.sel .cal-pill{box-shadow:0 0 0 1px rgba(255,255,255,.6) inset}
+  .cal-more{position:absolute;top:1px;right:1px;font-size:7.5px;font-weight:900;color:#9C9578;line-height:1;
+            letter-spacing:-.02em}
+  .cal-grid.six-weeks .cal-cell .cn{width:20px;height:20px;font-size:10.5px}
+  /* 선택한 날 일정 — 크림 한 줄 상자 */
+  .cal-day{flex:0 0 auto;display:flex;align-items:center;gap:8px;background:var(--cream);border-radius:14px;
+           padding:6px 8px 6px 11px;min-height:46px;max-height:86px;margin-top:2px}
+  .cal-day-title{flex:0 0 auto;font-size:clamp(12.5px,1.7vw,15px);font-weight:900;color:var(--navy);
+                 letter-spacing:-.03em;white-space:nowrap}
+  .cal-events{list-style:none;margin:0;padding:0;flex:1 1 auto;min-width:0;min-height:0;max-height:72px;
+              overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:1px;scrollbar-width:thin}
+  .cal-ev{display:flex;align-items:baseline;gap:5px;width:100%;min-width:0;background:none;padding:1px 0;
+          text-align:left;font:inherit}
+  .cal-ev .ex{flex:1 1 auto;min-width:0;font-size:clamp(12px,1.6vw,15px);font-weight:800;color:#2C2A22;
+              letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cal-ev .et{flex:0 0 auto;font-size:10px;font-weight:900;color:#8A8467;letter-spacing:-.02em}
+  .cal-ev .en{flex:0 0 auto;font-size:9.5px;opacity:.7}
+  .cal-empty{font-size:11.5px;font-weight:800;color:#A8A28A}
+  .cal-add{flex:0 0 auto;height:34px;padding:0 12px;border-radius:11px;background:var(--navy);color:#fff;
+           font-size:clamp(11.5px,1.55vw,13.5px);font-weight:900;letter-spacing:-.02em}
+  .cal-add:active{background:#2A2690}
+
+  /* 공동 메모 (아래쪽 반) */
+  .memo-head{padding:0 1px}
+  .memo-pane .avatar{background:#F3EEDC;font-size:clamp(14px,1.8vw,20px)}
+  .memo-new{flex:0 0 auto;display:flex;align-items:center;gap:7px;background:var(--cream);
+            border:1.6px solid var(--cream-line);border-radius:999px;padding:3px 6px 3px 5px;transition:border-color .15s,background .15s}
+  .memo-new:focus-within{border-color:#E3D79A;background:#fff}
+  .memo-plus{flex:0 0 auto;width:28px;height:28px;border-radius:50%;background:#EFE9D3;color:#8C8668;
+             font-size:15px;font-weight:900;display:grid;place-items:center;line-height:1}
+  .memo-plus:active{background:#E6DFC4}
+  #memoTabInput{flex:1 1 auto;min-width:0;border:0;background:none;padding:8px 0;
+                font:inherit;font-weight:800;font-size:clamp(13.5px,1.8vw,16.5px);letter-spacing:-.02em;
+                color:var(--ink);outline:none}
+  #memoTabInput::placeholder{color:#A8A28A;font-weight:800}
+  .memo-cp2{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:transparent;color:#8C8668;
+            font-size:13px;display:grid;place-items:center;opacity:.8}
+  .memo-cp2:active{background:#EFE9D3}
   .mem-list{list-style:none;margin:0;padding:0 2px 0 0;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
-            display:flex;flex-direction:column;gap:7px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
-  .mem-item{display:flex;align-items:flex-start;gap:8px;background:var(--cream);border-radius:14px;padding:8px 10px;
+            display:flex;flex-direction:column;gap:6px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .mem-item{display:flex;align-items:center;gap:8px;background:var(--cream);border-radius:14px;padding:7px 10px;
             border:1.6px solid transparent;transition:background .15s,border-color .15s}
   .mem-item.done{background:#F1F8EF;border-color:#DCEBD8}
-  .mem-check{flex:0 0 auto;width:22px;height:22px;margin-top:1px;border-radius:50%;border:2px solid #D8D2B8;background:#fff;
-             display:grid;place-items:center;font-size:11px;font-weight:900;color:#fff;transition:background .15s,border-color .15s}
-  .mem-item.done .mem-check{background:var(--green);border-color:var(--green)}
-  .mem-body{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px;text-align:left;
+  .mem-av{flex:0 0 auto;width:24px;height:24px;border-radius:50%;background:#fff;display:grid;place-items:center;
+          font-size:14px;line-height:1;box-shadow:0 1px 2px rgba(120,95,0,.12)}
+  .mem-body{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:1px;text-align:left;
             background:none;border:0;padding:0;font:inherit;cursor:pointer}
-  .mem-text{font-size:clamp(13.5px,1.8vw,16.5px);font-weight:800;color:#2C2A22;line-height:1.4;letter-spacing:-.02em;
-            white-space:pre-line;word-break:break-word}
+  .mem-text{font-size:clamp(13.5px,1.8vw,16.5px);font-weight:800;color:#2C2A22;line-height:1.35;letter-spacing:-.02em;
+            display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
   .mem-item.done .mem-text{color:#6C7A66;text-decoration:line-through;text-decoration-color:#8FB98B;text-decoration-thickness:2px}
-  .mem-meta{font-size:10.5px;font-weight:800;color:#98927A;letter-spacing:-.02em}
-  .mem-x{flex:0 0 auto;width:24px;height:24px;border-radius:8px;background:#FBEAE7;color:#C0392B;
-         font-size:11px;font-weight:900;display:grid;place-items:center}
-  .mem-x:active{background:#F6D9D4}
-  .mem-empty{margin:auto;padding:22px 6px;text-align:center;font-size:13px;font-weight:800;color:var(--muted);line-height:1.6}
+  .mem-meta{font-size:10px;font-weight:800;color:#A09A80;letter-spacing:-.02em}
+  .mem-empty{margin:auto;padding:14px 6px;text-align:center;font-size:12.5px;font-weight:800;color:var(--muted);line-height:1.6}
+  .memo-done-btn{width:100%;min-height:46px;border-radius:14px;background:var(--cream);color:#4A4636;
+                 font-weight:900;font-size:clamp(13px,1.7vw,15.5px);letter-spacing:-.02em}
+  .memo-done-btn.on{background:var(--mint);color:var(--green)}
+  .memo-done-btn:active{transform:translateY(1px)}
   #memoEditInput{width:100%;border:2px solid var(--line);border-radius:14px;padding:12px 13px;background:#fff;
                  font:inherit;font-weight:700;font-size:clamp(14px,1.9vw,18px);line-height:1.45;letter-spacing:-.02em;
                  color:var(--ink);resize:vertical;min-height:118px;outline:none;transition:border-color .15s}
   #memoEditInput:focus{border-color:var(--navy)}
+  .ev-row{display:flex;gap:8px;align-items:center}
+  .ev-row .field{flex:1 1 auto;min-width:0}
+  #evName{flex:1 1 auto;min-width:0;border:0;background:none;padding:12px 0;font:inherit;font-weight:800;
+          font-size:clamp(15px,2vw,19px);letter-spacing:-.02em;color:var(--ink);outline:none}
+  #evTime{border:0;background:none;padding:12px 0;font:inherit;font-weight:800;font-size:clamp(14px,1.9vw,18px);
+          color:var(--ink);outline:none;min-width:0}
+  #evNote{width:100%;border:2px solid var(--line);border-radius:14px;padding:10px 12px;background:#fff;
+          font:inherit;font-weight:700;font-size:clamp(13.5px,1.8vw,17px);line-height:1.45;letter-spacing:-.02em;
+          color:var(--ink);resize:vertical;min-height:62px;outline:none;transition:border-color .15s}
+  #evNote:focus{border-color:var(--navy)}
+  .ev-sub{flex:0 0 auto;height:38px;padding:0 12px;border-radius:12px;background:var(--cream);color:#6E6A58;
+          font-size:12px;font-weight:900;letter-spacing:-.02em}
   /* 헤더 ✅ 완료됨 — 📝·🔒 와 같은 크기·모양의 둥근 버튼 */
   .done-btn{position:relative;flex:0 0 auto;width:32px;height:32px;border-radius:12px;display:grid;place-items:center;
             background:rgba(255,255,255,.55);font-size:14px;line-height:1;color:var(--navy);
@@ -749,21 +819,35 @@
   </header>
   <main id="board" class="board"></main>
   <section id="woPane" class="wo-pane hidden" aria-label="오늘 운동"></section>
-  <section id="memoPane" class="memo-pane hidden" aria-label="공동 메모">
-    <div class="card">
-      <div class="card-head">
-        <span class="who"><span class="avatar" aria-hidden="true">📝</span>
-          <span class="who-txt"><span class="name">공동 메모</span>
-            <span class="mem-sub" id="memoTabSub">둘 다 같이 보고 적어요</span></span></span>
-        <span class="memo-left" id="memoTabLeft">0개</span>
+  <section id="memoPane" class="memo-pane hidden" aria-label="공동 달력과 공동 메모">
+    <div class="card cal-card">
+      <div class="cal-head">
+        <button type="button" id="calPrev" class="cal-nav" aria-label="지난달">◀</button>
+        <span class="cal-title" id="calTitle">2026년 11월</span>
+        <button type="button" id="calNext" class="cal-nav" aria-label="다음달">▶</button>
+        <button type="button" id="calToday" class="cal-today-btn">오늘</button>
       </div>
-      <div class="memo-write">
-        <textarea id="memoTabInput" rows="2" maxlength="300" placeholder="둘 다 볼 메모를 적어 주세요"
-                  enterkeyhint="done" aria-label="공동 메모 입력"></textarea>
-        <div class="memo-write-row">
-          <button type="button" id="memoTabAdd" class="add">＋ 메모 추가</button>
-          <button type="button" id="memoTabCopy" class="cp">📋 전체 복사</button>
-        </div>
+      <div class="cal-week" aria-hidden="true">
+        <span class="cal-wd sun">일</span><span class="cal-wd">월</span><span class="cal-wd">화</span>
+        <span class="cal-wd">수</span><span class="cal-wd">목</span><span class="cal-wd">금</span>
+        <span class="cal-wd sat">토</span>
+      </div>
+      <div class="cal-grid" id="calGrid" role="grid" aria-label="공동 달력"></div>
+      <div class="cal-day">
+        <span class="cal-day-title" id="calDayTitle">11.21(토)</span>
+        <ul id="calEvents" class="cal-events"></ul>
+        <button type="button" id="calAdd" class="cal-add">＋ 일정</button>
+      </div>
+    </div>
+    <div class="card memo-card">
+      <div class="card-head memo-head">
+        <span class="who"><span class="avatar" aria-hidden="true">📝</span>
+          <span class="who-txt"><span class="name">공동 메모</span></span></span>
+      </div>
+      <div class="memo-new">
+        <button type="button" id="memoTabAdd" class="memo-plus" aria-label="메모 추가">＋</button>
+        <input id="memoTabInput" type="text" maxlength="300" placeholder="새 메모 입력..." aria-label="공동 메모 입력">
+        <button type="button" id="memoTabCopy" class="memo-cp2" aria-label="전체 복사" title="전체 복사">📋</button>
       </div>
       <ul id="memoTabList" class="mem-list"></ul>
     </div>
@@ -935,6 +1019,26 @@
   </form>
 </div>
 
+<div id="eventSheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="evHead">
+  <div class="bd" data-evclose="1"></div>
+  <form id="eventForm" class="panel" autocomplete="off">
+    <div class="grab"></div>
+    <h2 id="evHead">📅 일정</h2>
+    <p class="hint" id="evDateHint" style="margin:-8px 0 0">11월 21일 (토)</p>
+    <div class="field"><span class="ico">✏️</span><input id="evName" type="text" maxlength="60" placeholder="일정 제목"></div>
+    <div class="ev-row">
+      <div class="field"><span class="ico">🕒</span><input id="evTime" type="time" aria-label="시간(선택)"></div>
+      <button type="button" id="evTimeClear" class="ev-sub">시간 없음</button>
+    </div>
+    <textarea id="evNote" rows="2" maxlength="200" placeholder="메모 (선택)"></textarea>
+    <div class="acts">
+      <button type="submit" class="save">저장</button>
+      <button type="button" class="ghost" id="evCancel">취소</button>
+    </div>
+    <button type="button" id="evDel" class="btn-del hidden">🗑 이 일정 삭제</button>
+  </form>
+</div>
+
 <div id="memoEditSheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="memoEditTitle">
   <div class="bd" data-meclose="1"></div>
   <form id="memoEditForm" class="panel" autocomplete="off">
@@ -946,6 +1050,7 @@
       <button type="submit" class="save">저장</button>
       <button type="button" class="ghost" id="memoEditCancel">취소</button>
     </div>
+    <button type="button" id="memoEditDone" class="memo-done-btn">☐ 확인 완료로 표시</button>
     <button type="button" id="memoEditDel" class="btn-del">🗑 이 메모 삭제</button>
   </form>
 </div>
@@ -978,7 +1083,7 @@ if (!ROOM_RE.test(ROOM)) {
   ROOM = ROOM_RE.test(saved) ? saved : '';
 }
 
-const ST = { todos: {}, lastSeen: {}, say: {}, memos: {} };
+const ST = { todos: {}, lastSeen: {}, say: {}, memos: {}, events: {} };
 let es = null, retry = 0, pollTimer = null, gotSnapshot = false;
 let drag = null;
 let openSwipeId = null;   /* 스와이프로 열어 둔 항목 — 다시 그려도 열린 채로 유지 */
@@ -1709,6 +1814,7 @@ function render() {
     $('#board').classList.add('hidden');
     $('#woPane').classList.add('hidden');
     $('#memoPane').classList.remove('hidden');
+    calPaint();
     paintMemoTab();
   } else if (TAB === 'workout') {
     $('#board').classList.add('hidden');
@@ -1773,6 +1879,7 @@ function closeDone() {
 function syncSheetFlag() {
   const open = !$('#sheet').classList.contains('hidden') || !$('#doneSheet').classList.contains('hidden') ||
                !$('#noteSheet').classList.contains('hidden') || !$('#memoEditSheet').classList.contains('hidden') ||
+               !$('#eventSheet').classList.contains('hidden') ||
                !$('#pickSheet').classList.contains('hidden') || !$('#saySheet').classList.contains('hidden') ||
                !$('#sortSheet').classList.contains('hidden') || !$('#woReset').classList.contains('hidden');
   document.body.classList.toggle('sheet-open', open);
@@ -1873,7 +1980,7 @@ let sheetSelfBack = false;     /* 정리를 위해 우리가 부른 history.back
 function anySheetOpen() {
   return !$('#sheet').classList.contains('hidden') ||
          !$('#noteSheet').classList.contains('hidden') ||
-         !$('#memoEditSheet').classList.contains('hidden') ||
+         !$('#memoEditSheet').classList.contains('hidden') || !$('#eventSheet').classList.contains('hidden') ||
          !$('#pickSheet').classList.contains('hidden') ||
          !$('#saySheet').classList.contains('hidden') ||
          !$('#sortSheet').classList.contains('hidden') ||
@@ -1906,6 +2013,7 @@ function closeTopSheet() {
   /* 위에 올라온 것부터 닫는다 — 순서 편집기 위에 열린 메모·수정 시트가 먼저, 편집기는 마지막 */
   if (!$('#noteSheet').classList.contains('hidden')) closeNote();
   else if (!$('#memoEditSheet').classList.contains('hidden')) closeMemoEdit();
+  else if (!$('#eventSheet').classList.contains('hidden')) closeEvent();
   else if (sortOpen()) closeSort();
   else if (sayOpen()) closeSay();
   else if (pickOpen()) closePick();
@@ -2035,6 +2143,7 @@ function connect() {
       ST.lastSeen = (m.data && m.data.lastSeen) || {};
       ST.say = (m.data && m.data.say) || {};
       ST.memos = (m.data && m.data.memos) || {};
+      ST.events = (m.data && m.data.events) || {};
       gotSnapshot = true;
       seenSelfGuard();
       applyRepeatResets();
@@ -2065,6 +2174,7 @@ function setAt(path, data) {
     ST.lastSeen = (data && data.lastSeen) || {};
     ST.say = (data && data.say) || {};
     ST.memos = (data && data.memos) || {};
+    ST.events = (data && data.events) || {};
     seenSelfGuard();
     applyRepeatResets();
     migrateLegacyMemos();
@@ -2093,6 +2203,7 @@ async function syncNow(quiet) {
     ST.lastSeen = d.lastSeen || {};
     ST.say = d.say || {};
     ST.memos = d.memos || {};
+    ST.events = d.events || {};
     gotSnapshot = true;
     seenSelfGuard();
     if (!es) setLive('live');
@@ -2987,6 +3098,234 @@ async function commitSort() {
   }
 }
 
+/* ============ 📅 공동 달력 (방 공유 일정) ============
+   rooms/{room}/events/{id} = { date:'YYYY-MM-DD', title, time:'HH:MM'|'', note, at, by, editedAt? }
+   날짜(한국시간 날짜 문자열)로 묶어 두 사람이 같이 보고 고친다. */
+let CAL = { ym: '', sel: '' };
+let evEditId = null, evDelTimer = null;
+
+function calToday() { return kstParts().ymd; }
+function calDayNum(ymd) { const a = String(ymd).split('-').map(Number); return a[2] || 1; }
+function calDowOf(ymd) {
+  const a = String(ymd).split('-').map(Number);
+  return new Date(Date.UTC(a[0], (a[1] || 1) - 1, a[2] || 1)).getUTCDay();
+}
+function calYmd(y, m, d) { return y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0'); }
+function calDayLabel(ymd) {
+  const a = String(ymd).split('-').map(Number);
+  return a[1] + '월 ' + a[2] + '일 (' + DAY_NAME[calDowOf(ymd)] + ')';
+}
+function calShortLabel(ymd) {
+  const a = String(ymd).split('-').map(Number);
+  return a[1] + '.' + a[2] + '(' + DAY_NAME[calDowOf(ymd)] + ')';
+}
+function calInit() {
+  if (CAL.ym && CAL.sel) return;
+  const t = calToday();
+  CAL.sel = t;
+  CAL.ym = t.slice(0, 7);
+}
+function eventList() {
+  return objEntries(ST.events).map(([id, e]) => ({ id, ...e }))
+    .filter(e => e && e.date);
+}
+function eventsOn(ymd) {
+  return eventList().filter(e => e.date === ymd)
+    .sort((a, b) => String(a.time || '99:99').localeCompare(String(b.time || '99:99')) || (a.at || 0) - (b.at || 0));
+}
+function eventDots(ym) {
+  const map = {};
+  eventList().forEach(e => { if (e.date.slice(0, 7) === ym) map[e.date] = (map[e.date] || 0) + 1; });
+  return map;
+}
+function evRowHtml(e) {
+  return '<li class="cal-ev-li"><button type="button" class="cal-ev" data-evedit="' + esc(e.id) + '" ' +
+    'aria-label="' + esc((e.time ? e.time + ' ' : '') + e.title + ' — 고치기') + '">' +
+    '<span class="ex">' + esc(e.title) + '</span>' +
+    (e.time ? '<span class="et">' + esc(e.time) + '</span>' : '') +
+    (e.note ? '<span class="en" aria-hidden="true">📝</span>' : '') +
+  '</button></li>';
+}
+/* 날짜 칸 — 숫자 아래에 일정 제목 알약 배지(최대 2개, 넘치면 +N) */
+const CAL_PILL_TONES = ['pink', 'yellow', 'blue', 'green'];
+function calPillTone(e) {
+  let h = 0;
+  const key = String(e.id || '') + String(e.title || '');
+  for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) % 997;
+  return CAL_PILL_TONES[h % CAL_PILL_TONES.length];
+}
+function calCellHtml(ymd, day, today, weeks, byDate) {
+  const evs = byDate[ymd] || [];
+  const n = evs.length;
+  const maxPills = weeks >= 6 ? 1 : 2;      /* 6주짜리 달은 1개만, 아니면 2개까지 */
+  const show = evs.slice(0, maxPills);
+  const rest = n - show.length;
+  const cls = 'cal-cell' + (ymd === today ? ' today' : '') + (ymd === CAL.sel ? ' sel' : '') + (n ? ' has-ev' : '');
+  return '<button type="button" class="' + cls + '" data-cday="' + ymd + '" role="gridcell" ' +
+    (ymd === CAL.sel ? 'aria-current="date" ' : '') +
+    'aria-label="' + esc(calDayLabel(ymd)) + (n ? ' 일정 ' + n + '개' : '') + '">' +
+    '<span class="cn">' + day + '</span>' +
+    (rest > 0 ? '<span class="cal-more" aria-hidden="true">+' + rest + '</span>' : '') +
+    '<span class="cal-pills">' +
+      show.map(e => '<span class="cal-pill ' + calPillTone(e) + '">' + esc(e.title) + '</span>').join('') +
+    '</span>' +
+  '</button>';
+}
+function calPaint() {
+  const grid = $('#calGrid');
+  if (!grid) return;
+  calInit();
+  const [y, m] = CAL.ym.split('-').map(Number);
+  const first = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();
+  const last = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const weeks = Math.ceil((first + last) / 7);
+  const byDate = {};
+  eventList().forEach(e => {
+    if (e.date.slice(0, 7) !== CAL.ym) return;
+    (byDate[e.date] = byDate[e.date] || []).push(e);
+  });
+  Object.keys(byDate).forEach(k => byDate[k].sort(
+    (a, b) => String(a.time || '99:99').localeCompare(String(b.time || '99:99')) || (a.at || 0) - (b.at || 0)));
+  const today = calToday();
+  grid.classList.toggle('six-weeks', weeks >= 6);
+  let html = '';
+  for (let i = 0; i < first; i++) html += '<button type="button" class="cal-cell empty" disabled></button>';
+  for (let d = 1; d <= last; d++) html += calCellHtml(calYmd(y, m, d), d, today, weeks, byDate);
+  grid.innerHTML = html;
+  const t = $('#calTitle'); if (t) t.textContent = y + '년 ' + m + '월';
+  const dt = $('#calDayTitle');
+  if (dt) dt.textContent = calShortLabel(CAL.sel);
+  const box = $('#calEvents');
+  if (box) {
+    const evs = eventsOn(CAL.sel);
+    box.innerHTML = evs.length ? evs.map(evRowHtml).join('')
+      : '<li class="cal-empty">일정 없음</li>';
+  }
+}
+function calMove(step) {
+  calInit();
+  let [y, m] = CAL.ym.split('-').map(Number);
+  m += step;
+  if (m < 1) { m = 12; y -= 1; } else if (m > 12) { m = 1; y += 1; }
+  CAL.ym = y + '-' + String(m).padStart(2, '0');
+  if (CAL.sel.slice(0, 7) !== CAL.ym) {
+    const t = calToday();
+    CAL.sel = t.slice(0, 7) === CAL.ym ? t : CAL.ym + '-01';
+  }
+  calPaint();
+}
+function calGoToday() {
+  const t = calToday();
+  CAL.sel = t; CAL.ym = t.slice(0, 7);
+  calPaint();
+}
+function calSelect(ymd) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(ymd || '')) return;
+  CAL.sel = ymd;
+  CAL.ym = ymd.slice(0, 7);
+  calPaint();
+}
+function eventSheetOpen() { return !$('#eventSheet').classList.contains('hidden'); }
+function showEventSheet() {
+  $('#eventSheet').classList.remove('hidden');
+  syncSheetFlag();
+  pushSheetHistory();
+}
+function resetEvDel() {
+  const b = $('#evDel');
+  if (!b) return;
+  b.classList.remove('confirm');
+  b.textContent = '🗑 이 일정 삭제';
+  clearTimeout(evDelTimer); evDelTimer = null;
+}
+function openEventAdd() {
+  calInit();
+  evEditId = null;
+  $('#evHead').textContent = '📅 일정 추가';
+  $('#evDateHint').textContent = calDayLabel(CAL.sel);
+  $('#evName').value = '';
+  $('#evTime').value = '';
+  $('#evNote').value = '';
+  $('#evDel').classList.add('hidden');
+  resetEvDel();
+  showEventSheet();
+}
+function openEventEdit(id) {
+  const e = (ST.events || {})[id];
+  if (!e) return;
+  if (e.date) { CAL.sel = e.date; CAL.ym = e.date.slice(0, 7); }
+  evEditId = id;
+  $('#evHead').textContent = '📅 일정 고치기';
+  $('#evDateHint').textContent = calDayLabel(CAL.sel);
+  $('#evName').value = String(e.title == null ? '' : e.title);
+  $('#evTime').value = String(e.time || '');
+  $('#evNote').value = String(e.note == null ? '' : e.note);
+  $('#evDel').classList.remove('hidden');
+  resetEvDel();
+  showEventSheet();
+}
+function closeEvent() {
+  $('#eventSheet').classList.add('hidden');
+  syncSheetFlag();
+  settleSheetHistory();
+  $('#evName').blur();
+  resetEvDel();
+  evEditId = null;
+  calPaint();
+}
+async function saveEvent(e) {
+  if (e) e.preventDefault();
+  calInit();
+  const title = $('#evName').value.trim();
+  if (!title) { $('#evName').focus(); toast('일정 제목을 적어 주세요'); return; }
+  const id = evEditId || ('e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
+  const before = (ST.events || {})[id] || null;
+  const body = {
+    date: CAL.sel,
+    title: title,
+    time: $('#evTime').value || '',
+    note: $('#evNote').value.trim(),
+    at: before && before.at ? before.at : Date.now(),
+    by: (before && before.by) || ME || ''
+  };
+  if (before) body.editedAt = Date.now();
+  ST.events = ST.events || {};
+  ST.events[id] = Object.assign({}, before || {}, body);
+  closeEvent();
+  try {
+    await put('events/' + id, body);      /* 두 사람 화면에 바로 보인다 */
+  } catch (err) {
+    if (before) ST.events[id] = before; else delete ST.events[id];
+    calPaint(); toast('저장하지 못했어요');
+  }
+}
+async function removeEvent(id) {
+  const e = (ST.events || {})[id];
+  if (!e) return;
+  delete ST.events[id];
+  calPaint();
+  try {
+    await del('events/' + id);
+  } catch (err) {
+    ST.events[id] = e; calPaint(); toast('삭제하지 못했어요');
+  }
+}
+function armEvDel() {
+  const b = $('#evDel');
+  if (!b) return;
+  if (b.classList.contains('confirm')) {
+    const id = evEditId;
+    resetEvDel();
+    closeEvent();
+    if (id) removeEvent(id);
+    return;
+  }
+  b.classList.add('confirm');
+  b.textContent = '한 번 더 누르면 삭제돼요';
+  clearTimeout(evDelTimer);
+  evDelTimer = setTimeout(resetEvDel, 3500);
+}
+
 /* ============ 📝 공동 메모 (방 공유) ============
    rooms/{room}/memos/{id} = { text, at, by, done?, doneAt?, editedAt? }
    두 사람이 같은 메모를 실시간으로 보고 적는다. 예전에 이 기기에만 저장해 두었던
@@ -3025,14 +3364,13 @@ function memoMetaText(m) {
 }
 function memoRowHtml(m) {
   const id = esc(m.id);
+  const av = OWNER[m.by] ? OWNER[m.by].emoji : '💛';
   return '<li class="mem-item' + (m.done ? ' done' : '') + '" data-memo="' + id + '">' +
-    '<button type="button" class="mem-check" data-mdone="' + id + '" aria-pressed="' + (m.done ? 'true' : 'false') + '" ' +
-      'aria-label="' + (m.done ? '확인 취소' : '확인 완료') + '">' + (m.done ? '✓' : '') + '</button>' +
+    '<span class="mem-av" aria-hidden="true">' + av + '</span>' +
     '<button type="button" class="mem-body" data-medit="' + id + '" aria-label="메모 고치기">' +
       '<span class="mem-text">' + esc(m.text) + '</span>' +
       '<span class="mem-meta">' + esc(memoMetaText(m)) + '</span>' +
     '</button>' +
-    '<button type="button" class="mem-x" data-mdel="' + id + '" aria-label="이 메모 삭제">✕</button>' +
   '</li>';
 }
 function paintMemoTab() {
@@ -3040,21 +3378,11 @@ function paintMemoTab() {
   if (!list) return;
   const ms = sharedMemos();
   list.innerHTML = ms.length ? ms.map(memoRowHtml).join('')
-    : '<li class="mem-empty">아직 같이 적은 메모가 없어요<br>둘 다 볼 메모를 위에 적어 보세요</li>';
-  const left = ms.filter(m => !m.done).length;
-  const l = $('#memoTabLeft');
-  if (l) l.textContent = ms.length ? (left ? left + '개 남음' : '모두 확인 ✓') : '0개';
-  const sub = $('#memoTabSub');
-  if (sub) sub.textContent = '두 사람이 같이 보고 적어요';
+    : '<li class="mem-empty">아직 같이 적은 메모가 없어요<br>위에 적어 보세요</li>';
 }
 function memoTabVisible() {
   const pane = $('#memoPane');
   return !!(pane && !pane.classList.contains('hidden'));
-}
-function autoGrowMemoInput(el) {
-  if (!el) return;
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
 async function addSharedMemo() {
@@ -3067,14 +3395,13 @@ async function addSharedMemo() {
   ST.memos = ST.memos || {};
   ST.memos[id] = memo;
   inp.value = '';
-  inp.style.height = '';
   paintMemoTab();
   const list = $('#memoTabList'); if (list) list.scrollTop = 0;
   try {
     await put('memos/' + id, memo);      /* 두 사람 화면에 바로 보인다 */
   } catch (e) {
     delete ST.memos[id]; paintMemoTab();
-    inp.value = text; autoGrowMemoInput(inp);
+    inp.value = text;
     toast('저장하지 못했어요');
   }
 }
@@ -3106,12 +3433,20 @@ async function removeSharedMemo(id) {
   }
 }
 
+function paintMemoEditDone(m) {
+  const b = $('#memoEditDone');
+  if (!b) return;
+  const on = !!(m && m.done);
+  b.classList.toggle('on', on);
+  b.textContent = on ? '☑ 확인 완료 — 다시 누르면 취소' : '☐ 확인 완료로 표시';
+}
 function openMemoEdit(id) {
   const m = (ST.memos || {})[id];
   if (!m) return;
   memoEditId = id;
   $('#memoEditInput').value = String(m.text == null ? '' : m.text);
-  $('#memoEditMeta').textContent = memoMetaText(m) + ' · 탭하면 고칠 수 있어요';
+  $('#memoEditMeta').textContent = memoMetaText(m);
+  paintMemoEditDone(m);
   resetMemoEditDel();
   $('#memoEditSheet').classList.remove('hidden');
   syncSheetFlag();
@@ -3419,7 +3754,7 @@ function initApp() {
     if (e.key === 'Enter') { e.preventDefault(); saveTodo(); }
   });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closePick(); closeSay(); closeSheet(); closeDone(); closeNote(); closeMemoEdit(); closeSort(); closeWoReset(); }
+    if (e.key === 'Escape') { closePick(); closeSay(); closeSheet(); closeDone(); closeNote(); closeMemoEdit(); closeEvent(); closeSort(); closeWoReset(); }
   });
 
   /* ⇅ 큰 화면 순서 편집 */
@@ -3468,32 +3803,55 @@ function initApp() {
     clearSay(owner, before, before != null);
   });
 
+  /* 📅 공동 달력 */
+  const calPrev = $('#calPrev'); if (calPrev) calPrev.addEventListener('click', () => calMove(-1));
+  const calNext = $('#calNext'); if (calNext) calNext.addEventListener('click', () => calMove(1));
+  const calTodayBtn = $('#calToday'); if (calTodayBtn) calTodayBtn.addEventListener('click', calGoToday);
+  const calAddBtn = $('#calAdd'); if (calAddBtn) calAddBtn.addEventListener('click', openEventAdd);
+  const calGridBox = $('#calGrid');
+  if (calGridBox) calGridBox.addEventListener('click', e => {
+    const c = e.target.closest('[data-cday]');
+    if (c) { e.preventDefault(); calSelect(c.dataset.cday); }
+  });
+  const calEventsBox = $('#calEvents');
+  if (calEventsBox) calEventsBox.addEventListener('click', e => {
+    const b = e.target.closest('[data-evedit]');
+    if (b) { e.preventDefault(); openEventEdit(b.dataset.evedit); }
+  });
+  const eventForm = $('#eventForm'); if (eventForm) eventForm.addEventListener('submit', saveEvent);
+  const evCancelBtn = $('#evCancel'); if (evCancelBtn) evCancelBtn.addEventListener('click', closeEvent);
+  const evDelBtn = $('#evDel'); if (evDelBtn) evDelBtn.addEventListener('click', armEvDel);
+  const evTimeClearBtn = $('#evTimeClear'); if (evTimeClearBtn) evTimeClearBtn.addEventListener('click', () => { $('#evTime').value = ''; });
+  const evSheet = $('#eventSheet');
+  if (evSheet) evSheet.addEventListener('click', e => { if (e.target.dataset.evclose === '1') closeEvent(); });
+
   /* 📝 공동 메모 탭 */
   const memoAdd = $('#memoTabAdd');
   if (memoAdd) memoAdd.addEventListener('click', addSharedMemo);
   const memoInp = $('#memoTabInput');
   if (memoInp) {
     memoInp.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); addSharedMemo(); }
+      if (e.key === 'Enter') { e.preventDefault(); addSharedMemo(); }
     });
-    memoInp.addEventListener('input', () => autoGrowMemoInput(memoInp));
   }
   const memoCopyBtn = $('#memoTabCopy');
   if (memoCopyBtn) memoCopyBtn.addEventListener('click', copySharedMemos);
   const memoListBox = $('#memoTabList');
   if (memoListBox) memoListBox.addEventListener('click', e => {
-    const t = e.target;
-    const mdel = t.closest('[data-mdel]');
-    if (mdel) { e.preventDefault(); e.stopPropagation(); removeSharedMemo(mdel.dataset.mdel); return; }
-    const mdone = t.closest('[data-mdone]');
-    if (mdone) { e.preventDefault(); e.stopPropagation(); toggleMemoDone(mdone.dataset.mdone); return; }
-    const medit = t.closest('[data-medit]');
-    if (medit) { e.preventDefault(); openMemoEdit(medit.dataset.medit); return; }
+    const medit = e.target.closest('[data-medit]');
+    if (medit) { e.preventDefault(); openMemoEdit(medit.dataset.medit); }
   });
   const memoEditForm = $('#memoEditForm');
   if (memoEditForm) memoEditForm.addEventListener('submit', saveMemoEdit);
   const memoEditCancelBtn = $('#memoEditCancel');
   if (memoEditCancelBtn) memoEditCancelBtn.addEventListener('click', closeMemoEdit);
+  const memoEditDoneBtn = $('#memoEditDone');
+  if (memoEditDoneBtn) memoEditDoneBtn.addEventListener('click', async () => {
+    const id = memoEditId;
+    if (!id) return;
+    await toggleMemoDone(id);
+    paintMemoEditDone((ST.memos || {})[id]);
+  });
   const memoEditDelBtn = $('#memoEditDel');
   if (memoEditDelBtn) memoEditDelBtn.addEventListener('click', armMemoEditDel);
   const memoEditSheet = $('#memoEditSheet');
