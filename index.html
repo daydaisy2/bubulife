@@ -208,8 +208,8 @@
   .card-add:active{transform:translateY(2px);box-shadow:0 0 0 #E9C92C, 0 2px 6px rgba(120,95,0,.14)}
   .card-add:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
 
-  /* ---------- 하단 고정 2탭 (👩🏻 세은 / 👨🏻 찬규) ---------- */
-  .person-tabs{flex:0 0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:7px;
+  /* ---------- 하단 고정 4탭 (📝 메모 / 💪 운동 / 👩🏻 세은 / 👨🏻 찬규) ---------- */
+  .person-tabs{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:7px;
                padding:7px;border-radius:22px 22px 0 0;
                background:rgba(255,255,255,.8);backdrop-filter:blur(10px);
                box-shadow:0 -6px 20px rgba(112,86,0,.14)}
@@ -324,12 +324,48 @@
              min-height:112px;outline:none;transition:border-color .15s}
   #noteInput:focus{border-color:var(--navy)}
 
-  /* 수정 요청 메모 */
-  .memo-btn{position:relative;flex:0 0 auto;width:32px;height:32px;border-radius:12px;display:grid;place-items:center;
-            background:rgba(255,255,255,.55);font-size:14px;line-height:1;color:var(--navy);
-            transition:background .18s,color .18s}
-  .memo-btn.has{background:var(--navy);color:#fff}
-  .memo-btn:active{transform:translateY(1px)}
+  /* ---------- 📝 공동 메모 탭 ---------- */
+  .memo-pane{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+  .memo-pane > .card{flex:1 1 auto}
+  .memo-pane.tabsw > .card{animation:tabIn .2s cubic-bezier(.2,.8,.2,1)}
+  .memo-pane .avatar{background:#F3EEDC;font-size:clamp(15px,1.9vw,22px)}
+  .mem-sub{font-size:10.5px;font-weight:800;color:#948E74;letter-spacing:-.02em;line-height:1.35;white-space:nowrap}
+  .memo-left{flex:0 0 auto;background:var(--mint);color:var(--green);border-radius:999px;
+             font-size:clamp(10.5px,1.4vw,12px);font-weight:900;letter-spacing:-.02em;padding:3px 9px;white-space:nowrap}
+  .memo-write{flex:0 0 auto;display:flex;flex-direction:column;gap:6px}
+  #memoTabInput{width:100%;border:2px solid var(--line);border-radius:14px;background:var(--cream);
+                padding:9px 11px;font:inherit;font-weight:700;font-size:clamp(13.5px,1.8vw,17px);line-height:1.4;
+                letter-spacing:-.02em;color:var(--ink);resize:none;min-height:58px;max-height:120px;outline:none;
+                transition:border-color .15s,background .15s}
+  #memoTabInput:focus{border-color:var(--navy);background:#fff}
+  .memo-write-row{display:flex;gap:6px;align-items:stretch}
+  .memo-write-row .add{flex:1 1 0;min-height:42px;border-radius:13px;background:var(--navy);color:#fff;
+                       font-weight:900;font-size:clamp(13px,1.7vw,16px);letter-spacing:-.02em}
+  .memo-write-row .cp{flex:0 0 auto;padding:0 13px;min-height:42px;border-radius:13px;background:var(--cream);
+                      color:#6E6A58;font-weight:900;font-size:clamp(12px,1.55vw,14px);letter-spacing:-.02em}
+  .memo-write-row button:active{transform:translateY(1px)}
+  .mem-list{list-style:none;margin:0;padding:0 2px 0 0;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+            display:flex;flex-direction:column;gap:7px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .mem-item{display:flex;align-items:flex-start;gap:8px;background:var(--cream);border-radius:14px;padding:8px 10px;
+            border:1.6px solid transparent;transition:background .15s,border-color .15s}
+  .mem-item.done{background:#F1F8EF;border-color:#DCEBD8}
+  .mem-check{flex:0 0 auto;width:22px;height:22px;margin-top:1px;border-radius:50%;border:2px solid #D8D2B8;background:#fff;
+             display:grid;place-items:center;font-size:11px;font-weight:900;color:#fff;transition:background .15s,border-color .15s}
+  .mem-item.done .mem-check{background:var(--green);border-color:var(--green)}
+  .mem-body{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px;text-align:left;
+            background:none;border:0;padding:0;font:inherit;cursor:pointer}
+  .mem-text{font-size:clamp(13.5px,1.8vw,16.5px);font-weight:800;color:#2C2A22;line-height:1.4;letter-spacing:-.02em;
+            white-space:pre-line;word-break:break-word}
+  .mem-item.done .mem-text{color:#6C7A66;text-decoration:line-through;text-decoration-color:#8FB98B;text-decoration-thickness:2px}
+  .mem-meta{font-size:10.5px;font-weight:800;color:#98927A;letter-spacing:-.02em}
+  .mem-x{flex:0 0 auto;width:24px;height:24px;border-radius:8px;background:#FBEAE7;color:#C0392B;
+         font-size:11px;font-weight:900;display:grid;place-items:center}
+  .mem-x:active{background:#F6D9D4}
+  .mem-empty{margin:auto;padding:22px 6px;text-align:center;font-size:13px;font-weight:800;color:var(--muted);line-height:1.6}
+  #memoEditInput{width:100%;border:2px solid var(--line);border-radius:14px;padding:12px 13px;background:#fff;
+                 font:inherit;font-weight:700;font-size:clamp(14px,1.9vw,18px);line-height:1.45;letter-spacing:-.02em;
+                 color:var(--ink);resize:vertical;min-height:118px;outline:none;transition:border-color .15s}
+  #memoEditInput:focus{border-color:var(--navy)}
   /* 헤더 ✅ 완료됨 — 📝·🔒 와 같은 크기·모양의 둥근 버튼 */
   .done-btn{position:relative;flex:0 0 auto;width:32px;height:32px;border-radius:12px;display:grid;place-items:center;
             background:rgba(255,255,255,.55);font-size:14px;line-height:1;color:var(--navy);
@@ -340,23 +376,6 @@
              background:var(--cream);border:1.5px solid #EFD96B;font-size:14px;line-height:1;color:var(--navy);
              transition:background .18s,border-color .18s}
   .nudge-btn:active{background:#FBEFB8;border-color:#E7CB3C;transform:translateY(1px)}
-  .memo-cnt{position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;
-            background:#E8603C;color:#fff;font-size:9px;font-weight:900;line-height:16px;text-align:center;
-            border:1.5px solid var(--yellow)}
-  #memoInput{width:100%;border:2px solid var(--line);border-radius:14px;padding:12px 13px;background:#fff;
-             font:inherit;font-weight:700;font-size:clamp(14px,1.9vw,18px);letter-spacing:-.02em;color:var(--ink);
-             line-height:1.45;resize:vertical;min-height:96px;outline:none;transition:border-color .15s}
-  #memoInput:focus{border-color:var(--navy)}
-  .btn-add{width:100%;min-height:46px;border-radius:14px;background:#F5F1E2;color:var(--navy);
-           font-weight:900;font-size:clamp(13px,1.7vw,16px);letter-spacing:-.02em}
-  .btn-add:active{transform:translateY(1px)}
-  .memo-list{display:flex;flex-direction:column;gap:7px}
-  .memo-row{display:flex;align-items:flex-start;gap:8px;background:var(--cream);border-radius:14px;padding:10px 11px}
-  .memo-row .mx{flex:1 1 auto;min-width:0;font-size:clamp(13px,1.7vw,16px);font-weight:800;color:#3A382E;
-                line-height:1.45;letter-spacing:-.02em;white-space:pre-line;word-break:break-word}
-  .memo-del{flex:0 0 auto;width:26px;height:26px;border-radius:9px;background:#FBEAE7;color:#C0392B;
-            font-size:12px;font-weight:900;display:grid;place-items:center}
-  .memo-empty{margin:14px auto;text-align:center;font-size:13px;font-weight:800;color:var(--muted);line-height:1.6}
   .acts .ghost{flex:0 0 auto;padding:0 16px;min-height:52px;border-radius:14px;background:var(--cream);
                color:#6E6A58;font-weight:900;font-size:clamp(13px,1.7vw,16px)}
   .acts .ghost.confirm{background:#C0392B;color:#fff}
@@ -725,18 +744,38 @@
       <i id="dot" class="dot" title="연결 중"></i>
       <button id="nudgeBtn" class="nudge-btn" type="button" aria-label="확인 요청 공유" title="확인 요청 공유">📣</button>
       <button id="doneBtn" class="done-btn" type="button" aria-label="완료됨" aria-haspopup="dialog">✅</button>
-      <button id="memoBtn" class="memo-btn" type="button" aria-label="수정 요청 메모">📝<span class="memo-cnt hidden" id="memoCnt">0</span></button>
       <button id="lockNow" class="lock-btn" type="button" aria-label="잠그기">🔒</button>
     </div>
   </header>
   <main id="board" class="board"></main>
   <section id="woPane" class="wo-pane hidden" aria-label="오늘 운동"></section>
+  <section id="memoPane" class="memo-pane hidden" aria-label="공동 메모">
+    <div class="card">
+      <div class="card-head">
+        <span class="who"><span class="avatar" aria-hidden="true">📝</span>
+          <span class="who-txt"><span class="name">공동 메모</span>
+            <span class="mem-sub" id="memoTabSub">둘 다 같이 보고 적어요</span></span></span>
+        <span class="memo-left" id="memoTabLeft">0개</span>
+      </div>
+      <div class="memo-write">
+        <textarea id="memoTabInput" rows="2" maxlength="300" placeholder="둘 다 볼 메모를 적어 주세요"
+                  enterkeyhint="done" aria-label="공동 메모 입력"></textarea>
+        <div class="memo-write-row">
+          <button type="button" id="memoTabAdd" class="add">＋ 메모 추가</button>
+          <button type="button" id="memoTabCopy" class="cp">📋 전체 복사</button>
+        </div>
+      </div>
+      <ul id="memoTabList" class="mem-list"></ul>
+    </div>
+  </section>
   <div class="add-dock">
     <button id="addBig" class="card-add" type="button" aria-label="할 일 추가">
       <span class="plus" aria-hidden="true">+</span> 할 일 추가
     </button>
   </div>
   <nav id="personTabs" class="person-tabs" role="tablist" aria-label="화면 고르기">
+    <button class="ptab" type="button" role="tab" data-tab-owner="memo" aria-selected="false" aria-controls="memoPane">
+      <span class="pe" aria-hidden="true">📝</span>메모</button>
     <button class="ptab" type="button" role="tab" data-tab-owner="workout" aria-selected="false" aria-controls="woPane">
       <span class="pe" aria-hidden="true">💪</span>운동</button>
     <button class="ptab" type="button" role="tab" data-tab-owner="seeun" aria-selected="false" aria-controls="board">
@@ -896,20 +935,19 @@
   </form>
 </div>
 
-<div id="memoSheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="memoTitle">
-  <div class="bd" data-mclose="1"></div>
-  <div class="panel memo-panel">
+<div id="memoEditSheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="memoEditTitle">
+  <div class="bd" data-meclose="1"></div>
+  <form id="memoEditForm" class="panel" autocomplete="off">
     <div class="grab"></div>
-    <h2 id="memoTitle">📝 두두에게 보낼 수정 요청</h2>
-    <textarea id="memoInput" rows="3" maxlength="300" placeholder="예: 완료됨 목록 글자가 조금 작아요"></textarea>
-    <button type="button" class="btn-add" id="memoAdd">＋ 메모 추가</button>
-    <div class="memo-list" id="memoList"></div>
-    <p class="hint">메모는 이 기기에만 저장되고, 앱을 닫아도 그대로 남아요</p>
+    <h2 id="memoEditTitle">📝 공동 메모</h2>
+    <textarea id="memoEditInput" rows="4" maxlength="300" aria-label="메모 내용"></textarea>
+    <p class="hint" id="memoEditMeta"></p>
     <div class="acts">
-      <button type="button" class="save" id="memoCopy">📋 전체 복사</button>
-      <button type="button" class="ghost" id="memoClear">🗑 비우기</button>
+      <button type="submit" class="save">저장</button>
+      <button type="button" class="ghost" id="memoEditCancel">취소</button>
     </div>
-  </div>
+    <button type="button" id="memoEditDel" class="btn-del">🗑 이 메모 삭제</button>
+  </form>
 </div>
 
 <div id="sortSheet" class="hidden" role="dialog" aria-modal="true" aria-labelledby="sortTitle">
@@ -940,7 +978,7 @@ if (!ROOM_RE.test(ROOM)) {
   ROOM = ROOM_RE.test(saved) ? saved : '';
 }
 
-const ST = { todos: {}, lastSeen: {}, say: {} };
+const ST = { todos: {}, lastSeen: {}, say: {}, memos: {} };
 let es = null, retry = 0, pollTimer = null, gotSnapshot = false;
 let drag = null;
 let openSwipeId = null;   /* 스와이프로 열어 둔 항목 — 다시 그려도 열린 채로 유지 */
@@ -986,14 +1024,21 @@ function toast(msg, cls) {
 function ownerIcon(owner) { return (OWNER[owner] || OWNER.seeun).emoji; }
 function iconFor(t) { return ownerIcon(ownerOf(t)); }
 function ownerOf(t) { return OWNER[t.owner] ? t.owner : 'seeun'; }
-/* 화면 순서 그룹 — 0: 오늘할일(맨 위) · 5: 오늘 완료한 일 · 11~17: 요일 지정(월=11 … 토=16, 일=17) ·
+/* 화면 순서 그룹 — 0: 오늘할일(맨 위) · 5: 오늘 완료한 일 · 10~16: 요일 지정(오늘 요일=10, 내일=11 … 6일 뒤=16) ·
    20: 일반 · 30: 🗓️ 이후(제일 밑) · 40: 지난 날 완료(목록에 안 보임, 완료됨 시트에서만)
-   그룹 번호가 곰 정렬 순서다. 요일 항목은 여러 요일 중 가장 앞선 요일(월→일 기준)로 그룹을 정하고,
+   그룹 번호가 곰 정렬 순서다. 요일 항목은 한국시간 오늘 요일에서 가장 먼저 다가오는 요일로 그룹을 정하고
    같은 그룹 안에서는 order 오름차순이라 ▲▼·드래그는 그룹(같은 요일) 안에서만 움직인다. */
+function dayOffsetOf(days) {
+  const arr = normDays(days);
+  if (!arr.length) return null;
+  const today = kstParts().dow;        /* 0=일 … 6=토 (한국시간) */
+  let min = 7;
+  arr.forEach(d => { const off = (d - today + 7) % 7; if (off < min) min = off; });
+  return min;                          /* 0=오늘 요일, 1=내일 … 6=6일 뒤 */
+}
 function dayRankOf(days) {
-  const d = normDays(days)[0];
-  if (d == null) return 0;
-  return d === 0 ? 7 : d;          /* 일요일(0)은 한 주의 끝(7)으로 */
+  const off = dayOffsetOf(days);
+  return off == null ? 0 : off;
 }
 function rankOf(t) {
   if (!t) return 20;
@@ -1004,7 +1049,7 @@ function rankOf(t) {
   return days.length ? 10 + dayRankOf(days) : 20;
 }
 function sortTodos(arr) {
-  /* 오늘할일 → 오늘 완료 → 요일(월~일) → 일반 → 이후 — 그룹 안에서는 order 오름차순(그리고 만든 순서) */
+  /* 오늘할일 → 오늘 완료 → 요일(오늘 기준 다가오는 순서) → 일반 → 이후 — 그룹 안에서는 order 오름차순(그리고 만든 순서) */
   return arr.slice().sort((a, b) => {
     const ar = rankOf(a), br = rankOf(b);
     if (ar !== br) return ar - br;
@@ -1629,24 +1674,25 @@ function paintTabs() {
 }
 function paintAddDock() {
   const wo = TAB === 'workout';
+  const memo = TAB === 'memo';
   const dock = $('.add-dock');
-  if (dock) dock.classList.toggle('hidden', wo);   /* 운동 탭에서는 + 할 일 추가를 감춘다 */
+  if (dock) dock.classList.toggle('hidden', wo || memo);   /* 운동·메모 탭에서는 + 할 일 추가를 감춘다 */
   const dbtn = $('#doneBtn');
-  if (dbtn) dbtn.classList.toggle('hidden', wo);   /* 완료됨 버튼도 할 일 화면에서만 */
+  if (dbtn) dbtn.classList.toggle('hidden', wo);   /* 완료됨 버튼은 할 일 화면에서만 */
   const b = $('#addBig'); if (!b) return;
   const info = OWNER[TAB] || OWNER.seeun;
   b.setAttribute('aria-label', info.name + ' 할 일 추가');
   b.dataset.owner = OWNER[TAB] ? TAB : 'seeun';
 }
 function setTab(owner) {
-  if (owner !== 'workout' && !OWNER[owner]) return;
+  if (owner !== 'workout' && owner !== 'memo' && !OWNER[owner]) return;
   const changed = TAB !== owner;
   TAB = owner;
   closeAllSwipes();
   render();
   if (owner === 'workout') woTick();
   if (changed) {
-    const bd = owner === 'workout' ? $('#woPane') : $('#board');
+    const bd = owner === 'workout' ? $('#woPane') : owner === 'memo' ? $('#memoPane') : $('#board');
     if (bd) {
       bd.classList.remove('tabsw');
       void bd.offsetWidth;      /* 같은 애니메이션이 다시 돌게 */
@@ -1659,12 +1705,19 @@ function setTab(owner) {
 function render() {
   if (drag && drag.active) { render.pending = true; return; }
   render.pending = false;
-  if (TAB === 'workout') {
+  if (TAB === 'memo') {
     $('#board').classList.add('hidden');
+    $('#woPane').classList.add('hidden');
+    $('#memoPane').classList.remove('hidden');
+    paintMemoTab();
+  } else if (TAB === 'workout') {
+    $('#board').classList.add('hidden');
+    $('#memoPane').classList.add('hidden');
     $('#woPane').classList.remove('hidden');
     woPaint();
   } else {
     $('#woPane').classList.add('hidden');
+    $('#memoPane').classList.add('hidden');
     $('#board').classList.remove('hidden');
     $('#board').innerHTML = cardHtml(TAB);
   }
@@ -1719,7 +1772,7 @@ function closeDone() {
 }
 function syncSheetFlag() {
   const open = !$('#sheet').classList.contains('hidden') || !$('#doneSheet').classList.contains('hidden') ||
-               !$('#noteSheet').classList.contains('hidden') || !$('#memoSheet').classList.contains('hidden') ||
+               !$('#noteSheet').classList.contains('hidden') || !$('#memoEditSheet').classList.contains('hidden') ||
                !$('#pickSheet').classList.contains('hidden') || !$('#saySheet').classList.contains('hidden') ||
                !$('#sortSheet').classList.contains('hidden') || !$('#woReset').classList.contains('hidden');
   document.body.classList.toggle('sheet-open', open);
@@ -1820,7 +1873,7 @@ let sheetSelfBack = false;     /* 정리를 위해 우리가 부른 history.back
 function anySheetOpen() {
   return !$('#sheet').classList.contains('hidden') ||
          !$('#noteSheet').classList.contains('hidden') ||
-         !$('#memoSheet').classList.contains('hidden') ||
+         !$('#memoEditSheet').classList.contains('hidden') ||
          !$('#pickSheet').classList.contains('hidden') ||
          !$('#saySheet').classList.contains('hidden') ||
          !$('#sortSheet').classList.contains('hidden') ||
@@ -1852,7 +1905,7 @@ function settleSheetHistory() {
 function closeTopSheet() {
   /* 위에 올라온 것부터 닫는다 — 순서 편집기 위에 열린 메모·수정 시트가 먼저, 편집기는 마지막 */
   if (!$('#noteSheet').classList.contains('hidden')) closeNote();
-  else if (!$('#memoSheet').classList.contains('hidden')) closeMemo();
+  else if (!$('#memoEditSheet').classList.contains('hidden')) closeMemoEdit();
   else if (sortOpen()) closeSort();
   else if (sayOpen()) closeSay();
   else if (pickOpen()) closePick();
@@ -1981,9 +2034,11 @@ function connect() {
       ST.todos = (m.data && m.data.todos) || {};
       ST.lastSeen = (m.data && m.data.lastSeen) || {};
       ST.say = (m.data && m.data.say) || {};
+      ST.memos = (m.data && m.data.memos) || {};
       gotSnapshot = true;
       seenSelfGuard();
       applyRepeatResets();
+      migrateLegacyMemos();
     } else setAt(m.path, m.data);
     retry = 0; setLive('live'); stopPolling(); scheduleRender();
   });
@@ -2009,8 +2064,10 @@ function setAt(path, data) {
     ST.todos = (data && data.todos) || {};
     ST.lastSeen = (data && data.lastSeen) || {};
     ST.say = (data && data.say) || {};
+    ST.memos = (data && data.memos) || {};
     seenSelfGuard();
     applyRepeatResets();
+    migrateLegacyMemos();
     return;
   }
   let obj = ST;
@@ -2035,11 +2092,13 @@ async function syncNow(quiet) {
     ST.todos = d.todos || {};
     ST.lastSeen = d.lastSeen || {};
     ST.say = d.say || {};
+    ST.memos = d.memos || {};
     gotSnapshot = true;
     seenSelfGuard();
     if (!es) setLive('live');
     render();
     applyRepeatResets();
+    migrateLegacyMemos();
     stopPolling();
   } catch (e) {
     if (!quiet) toast('연결을 확인해 주세요');
@@ -2928,39 +2987,233 @@ async function commitSort() {
   }
 }
 
-/* ============ 📝 수정 요청 메모 (이 기기에만 저장) ============
-   고치고 싶은 곳을 그때그때 적어 두고, [전체 복사]로 피클 채팅에 붙여넣을 수 있게 한다. */
+/* ============ 📝 공동 메모 (방 공유) ============
+   rooms/{room}/memos/{id} = { text, at, by, done?, doneAt?, editedAt? }
+   두 사람이 같은 메모를 실시간으로 보고 적는다. 예전에 이 기기에만 저장해 두었던
+   수정 요청 메모(bubulife.memos.v1)는 처음 한 번만 공동 메모로 옮겨 잃지 않게 한다. */
 const MEMO_KEY = 'bubulife.memos.v1';
-let MEMOS = loadMemos();
-function loadMemos() {
+const MEMO_SHARED_KEY = 'bubulife.memos.shared.v1';
+let memoSynced = false;         /* 예전 메모 옮기기를 했는지 */
+let memoEditId = null;          /* 지금 열어 둔 공동 메모 */
+let memoDelTimer = null;
+
+function legacyMemos() {
   try {
     const a = JSON.parse(localStorage.getItem(MEMO_KEY) || '[]');
     return Array.isArray(a) ? a.filter(x => x && x.text) : [];
   } catch (e) { return []; }
 }
-function saveMemos() {
-  try { localStorage.setItem(MEMO_KEY, JSON.stringify(MEMOS)); } catch (e) {}
-  paintMemoBadge();
+function sharedMemos() {
+  return objEntries(ST.memos).map(([id, m]) => ({ id, ...m }))
+    .filter(m => m && String(m.text == null ? '' : m.text).trim())
+    /* 확인한 메모는 밑으로, 새로 적은 메모가 위로 */
+    .sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0) || (b.at || 0) - (a.at || 0));
 }
-function paintMemoBadge() {
-  const b = $('#memoBtn'), c = $('#memoCnt');
-  if (!b || !c) return;
-  const n = MEMOS.length;
-  b.classList.toggle('has', n > 0);
-  c.textContent = n > 9 ? '9+' : String(n);
-  c.classList.toggle('hidden', n === 0);
-  b.setAttribute('aria-label', n ? '수정 요청 메모 ' + n + '개' : '수정 요청 메모');
+function memoMetaText(m) {
+  const who = OWNER[m.by] ? OWNER[m.by].emoji + ' ' + OWNER[m.by].name : '💛 우리 둘';
+  const ts = Number(m.at || 0);
+  let when = '';
+  if (ts) {
+    const d = new Date(ts), now = new Date();
+    const hm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    if (Date.now() - ts < 60 * 1000) when = '방금';
+    else if (sameYmd(d, now)) when = '오늘 ' + hm;
+    else if (sameYmd(d, new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1))) when = '어제 ' + hm;
+    else when = (d.getMonth() + 1) + '/' + d.getDate() + ' ' + hm;
+  }
+  return when ? who + ' · ' + when : who;
 }
-function memoRows() {
-  if (!MEMOS.length) return '<p class="memo-empty">아직 적어 둔 요청이 없어요<br>고치고 싶은 곳을 그때그때 적어 두세요</p>';
-  return MEMOS.map(m =>
-    '<div class="memo-row"><span class="mx">' + esc(m.text) + '</span>' +
-    '<button type="button" class="memo-del" data-mdel="' + esc(m.id) + '" aria-label="삭제">✕</button></div>').join('');
+function memoRowHtml(m) {
+  const id = esc(m.id);
+  return '<li class="mem-item' + (m.done ? ' done' : '') + '" data-memo="' + id + '">' +
+    '<button type="button" class="mem-check" data-mdone="' + id + '" aria-pressed="' + (m.done ? 'true' : 'false') + '" ' +
+      'aria-label="' + (m.done ? '확인 취소' : '확인 완료') + '">' + (m.done ? '✓' : '') + '</button>' +
+    '<button type="button" class="mem-body" data-medit="' + id + '" aria-label="메모 고치기">' +
+      '<span class="mem-text">' + esc(m.text) + '</span>' +
+      '<span class="mem-meta">' + esc(memoMetaText(m)) + '</span>' +
+    '</button>' +
+    '<button type="button" class="mem-x" data-mdel="' + id + '" aria-label="이 메모 삭제">✕</button>' +
+  '</li>';
 }
-function paintMemoList() {
-  const box = $('#memoList');
-  if (box) box.innerHTML = memoRows();
+function paintMemoTab() {
+  const list = $('#memoTabList');
+  if (!list) return;
+  const ms = sharedMemos();
+  list.innerHTML = ms.length ? ms.map(memoRowHtml).join('')
+    : '<li class="mem-empty">아직 같이 적은 메모가 없어요<br>둘 다 볼 메모를 위에 적어 보세요</li>';
+  const left = ms.filter(m => !m.done).length;
+  const l = $('#memoTabLeft');
+  if (l) l.textContent = ms.length ? (left ? left + '개 남음' : '모두 확인 ✓') : '0개';
+  const sub = $('#memoTabSub');
+  if (sub) sub.textContent = '두 사람이 같이 보고 적어요';
 }
+function memoTabVisible() {
+  const pane = $('#memoPane');
+  return !!(pane && !pane.classList.contains('hidden'));
+}
+function autoGrowMemoInput(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+async function addSharedMemo() {
+  const inp = $('#memoTabInput');
+  if (!inp) return;
+  const text = inp.value.trim();
+  if (!text) { inp.focus(); toast('메모를 적어 주세요'); return; }
+  const id = 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const memo = { text: text, at: Date.now(), by: ME || '' };
+  ST.memos = ST.memos || {};
+  ST.memos[id] = memo;
+  inp.value = '';
+  inp.style.height = '';
+  paintMemoTab();
+  const list = $('#memoTabList'); if (list) list.scrollTop = 0;
+  try {
+    await put('memos/' + id, memo);      /* 두 사람 화면에 바로 보인다 */
+  } catch (e) {
+    delete ST.memos[id]; paintMemoTab();
+    inp.value = text; autoGrowMemoInput(inp);
+    toast('저장하지 못했어요');
+  }
+}
+
+async function toggleMemoDone(id) {
+  const m = (ST.memos || {})[id];
+  if (!m) return;
+  const had = !!m.done, hadAt = m.doneAt;
+  if (had) { delete m.done; delete m.doneAt; }
+  else { m.done = true; m.doneAt = Date.now(); }
+  paintMemoTab();
+  try {
+    await patch('memos/' + id, had ? { done: null, doneAt: null } : { done: true, doneAt: m.doneAt });
+  } catch (e) {
+    if (had) { m.done = true; m.doneAt = hadAt; } else { delete m.done; delete m.doneAt; }
+    paintMemoTab(); toast('저장하지 못했어요');
+  }
+}
+
+async function removeSharedMemo(id) {
+  const m = (ST.memos || {})[id];
+  if (!m) return;
+  delete ST.memos[id];
+  paintMemoTab();
+  try {
+    await del('memos/' + id);
+  } catch (e) {
+    ST.memos[id] = m; paintMemoTab(); toast('삭제하지 못했어요');
+  }
+}
+
+function openMemoEdit(id) {
+  const m = (ST.memos || {})[id];
+  if (!m) return;
+  memoEditId = id;
+  $('#memoEditInput').value = String(m.text == null ? '' : m.text);
+  $('#memoEditMeta').textContent = memoMetaText(m) + ' · 탭하면 고칠 수 있어요';
+  resetMemoEditDel();
+  $('#memoEditSheet').classList.remove('hidden');
+  syncSheetFlag();
+  pushSheetHistory();
+}
+function closeMemoEdit() {
+  $('#memoEditSheet').classList.add('hidden');
+  syncSheetFlag();
+  settleSheetHistory();
+  $('#memoEditInput').blur();
+  resetMemoEditDel();
+  memoEditId = null;
+}
+function resetMemoEditDel() {
+  const b = $('#memoEditDel');
+  if (!b) return;
+  b.classList.remove('confirm');
+  b.textContent = '🗑 이 메모 삭제';
+  clearTimeout(memoDelTimer); memoDelTimer = null;
+}
+function armMemoEditDel() {
+  const b = $('#memoEditDel');
+  if (!b) return;
+  if (b.classList.contains('confirm')) {
+    const id = memoEditId;
+    resetMemoEditDel();
+    closeMemoEdit();
+    if (id) removeSharedMemo(id);
+    return;
+  }
+  b.classList.add('confirm');
+  b.textContent = '한 번 더 누르면 삭제돼요';
+  clearTimeout(memoDelTimer);
+  memoDelTimer = setTimeout(resetMemoEditDel, 3500);
+}
+async function saveMemoEdit(e) {
+  if (e) e.preventDefault();
+  const id = memoEditId;
+  const m = (ST.memos || {})[id];
+  if (!m) { closeMemoEdit(); return; }
+  const text = $('#memoEditInput').value.trim();
+  if (!text) { $('#memoEditInput').focus(); toast('메모를 적어 주세요'); return; }
+  const before = { text: m.text, editedAt: m.editedAt, by: m.by };
+  if (text === String(m.text == null ? '' : m.text)) { closeMemoEdit(); return; }   /* 그대로면 저장하지 않는다 */
+  m.text = text;
+  m.editedAt = Date.now();
+  const body = { text: text, editedAt: m.editedAt };
+  if (!m.by && ME) { m.by = ME; body.by = ME; }
+  closeMemoEdit();
+  paintMemoTab();
+  try {
+    await patch('memos/' + id, body);
+  } catch (err) {
+    Object.assign(m, before);
+    if (before.by == null) delete m.by;
+    if (before.editedAt == null) delete m.editedAt;
+    paintMemoTab(); toast('저장하지 못했어요');
+  }
+}
+async function copySharedMemos() {
+  const ms = sharedMemos();
+  if (!ms.length) { toast('복사할 메모가 없어요'); return; }
+  const text = '부부 할일 공동 메모:\n' + ms.map(m => (m.done ? '☑ ' : '- ') + m.text).join('\n');
+  try {
+    await copyText(text);
+    toast('메모를 복사했어요! 카톡이나 피클에 붙여넣기 해 주세요', 'long');
+  } catch (e) {
+    toast('복사하지 못했어요 — 메모를 길게 눌러 복사해 주세요', 'long');
+  }
+}
+
+/* 예전 이 기기 메모 → 공동 메모 (처음 한 번, 같은 글은 건너뛰기) */
+async function migrateLegacyMemos() {
+  if (memoSynced || !ROOM) return;
+  memoSynced = true;
+  if (localStorage.getItem(MEMO_SHARED_KEY) === '1') return;
+  const old = legacyMemos();
+  if (!old.length) {
+    try { localStorage.setItem(MEMO_SHARED_KEY, '1'); } catch (e) {}
+    return;
+  }
+  const have = new Set(sharedMemos().map(m => String(m.text || '').trim()));
+  let moved = 0;
+  for (const m of old) {
+    const t = String(m.text || '').trim();
+    if (!t || have.has(t)) continue;
+    const id = 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const body = { text: t, at: Number(m.at) || Date.now(), by: ME || '', migrated: true };
+    try {
+      await put('memos/' + id, body);
+      ST.memos = ST.memos || {};
+      ST.memos[id] = body;
+      moved++;
+    } catch (e) {
+      memoSynced = false;      /* 실패하면 다음에 다시 */
+      return;
+    }
+  }
+  try { localStorage.setItem(MEMO_SHARED_KEY, '1'); } catch (e) {}
+  if (moved) { paintMemoTab(); scheduleRender(); }
+}
+
 async function copyText(t) {
   if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(t); return; }
   const ta = document.createElement('textarea');
@@ -3014,39 +3267,6 @@ async function shareNudge() {
     toast('문구를 복사하지 못했어요 — 주소창의 링크를 복사해 주세요');
   }
 }
-function openMemo() {
-  paintMemoList();
-  resetMemoClear();
-  $('#memoInput').value = '';
-  $('#memoSheet').classList.remove('hidden');
-  syncSheetFlag();
-  pushSheetHistory();
-}
-function closeMemo() {
-  $('#memoSheet').classList.add('hidden');
-  syncSheetFlag();
-  settleSheetHistory();
-  $('#memoInput').blur();
-  resetMemoClear();
-}
-function addMemo() {
-  const inp = $('#memoInput');
-  const v = inp.value.trim();
-  if (!v) { toast('요청 내용을 적어 주세요'); inp.focus(); return; }
-  MEMOS.push({ id: newId() + 'm', text: v, at: Date.now() });
-  saveMemos();
-  inp.value = '';
-  paintMemoList();
-  inp.focus();
-}
-let memoClearTimer = null;
-function resetMemoClear() {
-  const b = $('#memoClear'); if (!b) return;
-  b.classList.remove('confirm');
-  b.textContent = '🗑 비우기';
-  clearTimeout(memoClearTimer); memoClearTimer = null;
-}
-
 /* ============ 이벤트 ============ */
 function initApp() {
   const board = $('#board');
@@ -3199,7 +3419,7 @@ function initApp() {
     if (e.key === 'Enter') { e.preventDefault(); saveTodo(); }
   });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closePick(); closeSay(); closeSheet(); closeDone(); closeNote(); closeMemo(); closeSort(); closeWoReset(); }
+    if (e.key === 'Escape') { closePick(); closeSay(); closeSheet(); closeDone(); closeNote(); closeMemoEdit(); closeSort(); closeWoReset(); }
   });
 
   /* ⇅ 큰 화면 순서 편집 */
@@ -3248,41 +3468,36 @@ function initApp() {
     clearSay(owner, before, before != null);
   });
 
-  /* 📝 수정 요청 메모 */
-  $('#memoBtn').addEventListener('click', openMemo);
-  $('#memoSheet').addEventListener('click', e => { if (e.target.dataset.mclose === '1') closeMemo(); });
-  $('#memoAdd').addEventListener('click', addMemo);
-  $('#memoInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); addMemo(); }
+  /* 📝 공동 메모 탭 */
+  const memoAdd = $('#memoTabAdd');
+  if (memoAdd) memoAdd.addEventListener('click', addSharedMemo);
+  const memoInp = $('#memoTabInput');
+  if (memoInp) {
+    memoInp.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); addSharedMemo(); }
+    });
+    memoInp.addEventListener('input', () => autoGrowMemoInput(memoInp));
+  }
+  const memoCopyBtn = $('#memoTabCopy');
+  if (memoCopyBtn) memoCopyBtn.addEventListener('click', copySharedMemos);
+  const memoListBox = $('#memoTabList');
+  if (memoListBox) memoListBox.addEventListener('click', e => {
+    const t = e.target;
+    const mdel = t.closest('[data-mdel]');
+    if (mdel) { e.preventDefault(); e.stopPropagation(); removeSharedMemo(mdel.dataset.mdel); return; }
+    const mdone = t.closest('[data-mdone]');
+    if (mdone) { e.preventDefault(); e.stopPropagation(); toggleMemoDone(mdone.dataset.mdone); return; }
+    const medit = t.closest('[data-medit]');
+    if (medit) { e.preventDefault(); openMemoEdit(medit.dataset.medit); return; }
   });
-  $('#memoList').addEventListener('click', e => {
-    const b = e.target.closest('[data-mdel]'); if (!b) return;
-    MEMOS = MEMOS.filter(x => x.id !== b.dataset.mdel);
-    saveMemos();
-    paintMemoList();
-  });
-  $('#memoCopy').addEventListener('click', async () => {
-    if (!MEMOS.length) { toast('복사할 메모가 없어요'); return; }
-    const text = '부부 할일 수정 요청:\n' + MEMOS.map(m => '- ' + m.text).join('\n');
-    try { await copyText(text); }
-    catch (err) { toast('복사하지 못했어요 — 메모를 길게 눌러 복사해 주세요'); }
-  });
-  $('#memoClear').addEventListener('click', e => {
-    if (!MEMOS.length) { toast('비울 메모가 없어요'); return; }
-    const btn = e.currentTarget;
-    if (!btn.classList.contains('confirm')) {
-      btn.classList.add('confirm');
-      btn.textContent = '정말 비울까요?';
-      clearTimeout(memoClearTimer);
-      memoClearTimer = setTimeout(resetMemoClear, 4000);
-      return;
-    }
-    MEMOS = [];
-    saveMemos();
-    paintMemoList();
-    resetMemoClear();
-  });
-  paintMemoBadge();
+  const memoEditForm = $('#memoEditForm');
+  if (memoEditForm) memoEditForm.addEventListener('submit', saveMemoEdit);
+  const memoEditCancelBtn = $('#memoEditCancel');
+  if (memoEditCancelBtn) memoEditCancelBtn.addEventListener('click', closeMemoEdit);
+  const memoEditDelBtn = $('#memoEditDel');
+  if (memoEditDelBtn) memoEditDelBtn.addEventListener('click', armMemoEditDel);
+  const memoEditSheet = $('#memoEditSheet');
+  if (memoEditSheet) memoEditSheet.addEventListener('click', e => { if (e.target.dataset.meclose === '1') closeMemoEdit(); });
 
   $('#roomGo').addEventListener('click', joinRoom);
   $('#roomInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); joinRoom(); } });
