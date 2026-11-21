@@ -1895,7 +1895,6 @@ async function saveNote(e) {
   closeNote(); render();
   try {
     await patch('todos/' + id, body);
-    toast('저장했어요');
   } catch (err) {
     Object.assign(t, before); render(); toast('저장하지 못했어요');
   }
