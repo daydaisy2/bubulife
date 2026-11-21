@@ -658,6 +658,7 @@
   .srow .shan,.srow .shan *{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
   .sort-list{overscroll-behavior:contain;-webkit-overflow-scrolling:auto;touch-action:pan-y}
   .srow .shan:active{background:#F1EBCE;color:#6A6650}
+  .srow .shan.off{opacity:.35;cursor:default}
   /* 끄는 동안: 무거운 그림자·전환·필터를 끄고 합성 레이어 이동만 남긴다 */
   .srow.drag{box-shadow:0 8px 18px rgba(60,50,0,.18);z-index:60;transition:none;background:#FFFDF2;
              opacity:.98;will-change:transform}
@@ -3132,6 +3133,8 @@ function startTrack(x, y, target, source) {
 function beginDrag() {
   if (!drag || drag.active) return;
   clearTimeout(drag.timer);
+  /* 📅 일정에서 만든 할 일(일정 날짜 순 그룹)은 자리가 날짜로 정해져 있어 끌어도 그대로다 — 끌지 않는다 */
+  if (rankOf(ST.todos[drag.id]) === 18) { drag = null; return; }
   if (drag.wasOpen) { closeSwipe(drag.row); drag.wasOpen = false; }
   drag.active = true;
   drag.row.classList.add('dragging');
@@ -3356,8 +3359,10 @@ function sortRowHtml(id, i, n) {
   /* ▲▼ 는 같은 그룹(오늘할일 / 같은 요일 / 일반 / 이후) 안에서만 — 경계에서는 비활성 */
   const prev = i > 0 ? ST.todos[sortIds[i - 1]] : null;
   const next = i < n - 1 ? ST.todos[sortIds[i + 1]] : null;
-  const canUp = !!(prev && rankOf(prev) === rankOf(t));
-  const canDown = !!(next && rankOf(next) === rankOf(t));
+  /* 📅 일정에서 만든 할 일은 일정 날짜가 자리를 정한다 — ▲▼·끌기 없이 날짜 순서 그대로 */
+  const fixed = t.linkedEventId && t.eventDate && !t.done && !t.today && !t.later;
+  const canUp = !fixed && !!(prev && rankOf(prev) === rankOf(t));
+  const canDown = !fixed && !!(next && rankOf(next) === rankOf(t));
   return '<li class="srow" data-id="' + esc(id) + '">' +
     '<span class="sno">' + (i + 1) + '</span>' +
     icoHtml(t, 'sico') + chipHtml(t, 'sdb') +
@@ -3369,7 +3374,7 @@ function sortRowHtml(id, i, n) {
       '<button type="button" class="sbtn" data-move="up" aria-label="위로 옮기기"' + (canUp ? '' : ' disabled') + '>▲</button>' +
       '<button type="button" class="sbtn" data-move="down" aria-label="아래로 옮기기"' + (canDown ? '' : ' disabled') + '>▼</button>' +
     '</span>' +
-    '<span class="shan" data-handle="1" role="button" tabindex="-1" aria-label="끌어서 순서 바꾸기">⋮⋮</span>' +
+    '<span class="shan' + (fixed ? ' off' : '') + '"' + (fixed ? ' aria-hidden="true"' : ' data-handle="1" role="button" tabindex="-1" aria-label="끌어서 순서 바꾸기"') + '>⋮⋮</span>' +
   '</li>';
 }
 function paintSort() {
