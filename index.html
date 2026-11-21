@@ -356,6 +356,16 @@
   .cal-today-btn{flex:0 0 auto;height:32px;padding:0 13px;border-radius:999px;background:transparent;color:var(--navy);
                  font-size:12px;font-weight:900;letter-spacing:-.02em;border:1.5px solid #E3D79A}
   .cal-today-btn:active{background:var(--cream)}
+  /* 🔄 즉시 동기화 — `오늘` 버튼 옆 작은 원형 버튼. 누르면 아이콘이 돌고, 끝나면 ✓ 가 1초 스쳤다 돌아온다 */
+  .cal-sync{flex:0 0 auto;width:32px;height:32px;border-radius:50%;background:transparent;color:var(--navy);
+            border:1.5px solid #E3D79A;font-size:14px;line-height:1;display:grid;place-items:center;padding:0;
+            transition:background .14s,border-color .14s,color .14s}
+  .cal-sync:active{background:var(--cream)}
+  .cal-sync .cs-ico{display:block;font-size:14px;line-height:1}
+  .cal-sync.busy{background:var(--cream);border-color:#EBD98A}
+  .cal-sync.busy .cs-ico{animation:calSpin .8s linear infinite}
+  .cal-sync.ok{color:#2E7D4F;background:#DFF2DD;border-color:#BFE3C9}
+  @keyframes calSpin{to{transform:rotate(360deg)}}
   .cal-week{flex:0 0 auto;display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;
             touch-action:pan-y}
   .cal-wd{text-align:center;font-size:10.5px;font-weight:900;color:#9A9478;letter-spacing:-.02em}
@@ -930,6 +940,7 @@
         <span class="cal-title" id="calTitle">2026년 11월</span>
         <button type="button" id="calNext" class="cal-nav" aria-label="다음달">▶</button>
         <button type="button" id="calToday" class="cal-today-btn">오늘</button>
+        <button type="button" id="calSync" class="cal-sync" aria-label="지금 동기화 — 구글 캘린더에서 바로 가져오기" title="지금 동기화"><span class="cs-ico" aria-hidden="true">🔄</span></button>
       </div>
       <div class="cal-week" aria-hidden="true">
         <span class="cal-wd sun">일</span><span class="cal-wd">월</span><span class="cal-wd">화</span>
@@ -3930,6 +3941,76 @@ function calGoToday() {
   CAL.sel = t; CAL.ym = t.slice(0, 7);
   calPaint();
 }
+
+/* ===== 🔄 즉시 동기화 — 지금 바로 구글 캘린더 → 부부 할일 =====
+   방 설정(config/gcalSyncUrl)의 Google Apps Script 웹 앱을 한 번 부르면 스크립트가 그 자리에서
+   구글 `부부 할일` 캘린더를 읽어 방의 events 를 맞춰 준다. 앱은 부른 뒤 Firebase events 를 다시 읽어
+   달력을 최신으로 그린다(config 가 없는 방은 다시 읽기만 한다).
+   · Apps Script 는 302 로 googleusercontent 에 넘겨 응답을 읽지 못하게(CORS) 막는 경우가 있어
+     mode:'no-cors' 로 보낸다 — 화면은 응답을 못 읽어도 스크립트는 그대로 실행된다.
+   · 그래서 스크립트가 다 쓸 때까지 조금 기다렸다 한 번 더 읽는다(바로 · 1.5초 · 3.3초).
+   · 성공 토스트는 띄우지 않는다(세은 님 요청, v39) — 회전이 멈추고 ✓ 가 1초만 스쳤다 돌아온다.
+   · 공개 소스에는 방의 URL 을 적지 않는다. 비공개 방 설정에서만 읽는다. */
+const CAL_SYNC_KEY = '261213';      /* 스크립트 doGet 의 key — 방에 config/gcalSyncKey 가 있으면 그걸 쓴다 */
+let calSyncBusy = false, calSyncCfg = null, calSyncOkTimer = 0;
+function calSyncWait(ms) { return new Promise(r => setTimeout(r, ms)); }
+function calSyncConfig() {
+  if (calSyncCfg) return Promise.resolve(calSyncCfg);
+  return fetch(nodeUrl('config'), { cache: 'no-store' })
+    .then(r => (r.ok ? r.json() : {}))
+    .catch(() => ({}))
+    .then(c => { calSyncCfg = c || {}; return calSyncCfg; });   /* 실패는 기억하지 않는다 */
+}
+function calSyncPing(url, key) {
+  const target = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'key=' + encodeURIComponent(key);
+  return fetch(target, { mode: 'no-cors', cache: 'no-store', redirect: 'follow' })
+    .then(() => true, () => false);
+}
+function calSyncReload() {
+  /* 방 전체가 아니라 events 한 갈래만 가볍게 다시 읽는다(할 일·메모는 건드리지 않음) */
+  return fetch(nodeUrl('events'), { cache: 'no-store' })
+    .then(r => (r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))))
+    .then(d => { ST.events = d || {}; render(); })
+    .catch(() => {});
+}
+function calSyncRun() {
+  if (calSyncBusy) return Promise.resolve();
+  const btn = $('#calSync'); if (!btn) return Promise.resolve();
+  const ico = btn.querySelector('.cs-ico');
+  calSyncBusy = true;
+  clearTimeout(calSyncOkTimer);
+  btn.classList.remove('ok');
+  btn.classList.add('busy');
+  btn.setAttribute('aria-busy', 'true');
+  if (ico) ico.textContent = '🔄';
+  let ok = true;
+  calSyncConfig()
+    .then(cfg => {
+      const url = String((cfg && cfg.gcalSyncUrl) || '').trim();
+      const key = String((cfg && cfg.gcalSyncKey) || '').trim() || CAL_SYNC_KEY;
+      if (!url) return calSyncReload();           /* 스크립트가 없는 방 — Firebase 만 다시 읽는다 */
+      return calSyncPing(url, key).then(sent => {
+        if (!sent) ok = false;
+        return calSyncReload();
+      }).then(() => calSyncWait(1500)).then(calSyncReload)
+        .then(() => calSyncWait(1800)).then(calSyncReload);
+    })
+    .catch(() => { ok = false; })
+    .then(() => {
+      calSyncBusy = false;
+      btn.classList.remove('busy');
+      btn.removeAttribute('aria-busy');
+      if (ok) {
+        btn.classList.add('ok');
+        if (ico) ico.textContent = '✓';
+        calSyncOkTimer = setTimeout(() => {
+          btn.classList.remove('ok');
+          if (ico) ico.textContent = '🔄';
+        }, 1000);
+      }
+    });
+  return Promise.resolve();
+}
 function calSelect(ymd) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(ymd || '')) return;
   CAL.sel = ymd;
@@ -4457,6 +4538,7 @@ function initApp() {
   const calPrev = $('#calPrev'); if (calPrev) calPrev.addEventListener('click', () => calMove(-1));
   const calNext = $('#calNext'); if (calNext) calNext.addEventListener('click', () => calMove(1));
   const calTodayBtn = $('#calToday'); if (calTodayBtn) calTodayBtn.addEventListener('click', calGoToday);
+  const calSyncBtn = $('#calSync'); if (calSyncBtn) calSyncBtn.addEventListener('click', calSyncRun);
   const calAddBtn = $('#calAdd'); if (calAddBtn) calAddBtn.addEventListener('click', openEventAdd);
   const calGridBox = $('#calGrid');
   /* 📅 좌우 스와이프로 이전 달·다음 달 — 요일 줄과 날짜 칸에서만 시작한다 */
