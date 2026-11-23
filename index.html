@@ -1794,7 +1794,7 @@ function budPaneHtml() {
     '</div>' +
     '<p class="bud-lbl">남은 예산</p>' +
     (bud == null
-      ? '<p class="bud-left unset" id="budLeft">예산 미설정</p>'
+      ? '<p class="bud-left unset" id="budLeft">예산을 정해 주세요</p>'
       : '<p class="bud-left' + (over ? ' over' : '') + '" id="budLeft">' + (left < 0 ? '-' : '') +
         budFmt(left) + '<span class="won">원</span></p>') +
     '<div class="bud-bar-row">' +
@@ -1952,7 +1952,9 @@ function openExpense(id) {
   $('#expTitle').textContent = e ? '지출 수정' : '＋ 지출 추가';
   $('#expTitleInput').value = e ? e.title : '';
   $('#expAmount').value = e ? String(e.amount) : '';
-  $('#expDate').value = e ? e.date : kstParts().ymd;
+  /* 기본 날짜는 오늘 — 지난 달·다음 달을 보고 있으면 그 달 1일로 시작한다(넣은 지출이 안 보이는 일이 없게) */
+  const todayYmd = kstParts().ymd;
+  $('#expDate').value = e ? e.date : (BUD_YM && BUD_YM !== todayYmd.slice(0, 7) ? BUD_YM + '-01' : todayYmd);
   expWho = e ? e.who : (ME || 'both');
   expCat = e ? e.cat : BUD_CATS[0];
   $('#newCatRow').classList.add('hidden');
@@ -1990,6 +1992,7 @@ async function saveExpense(ev) {
   });
   ST.budget.expenses = ST.budget.expenses || {};
   ST.budget.expenses[id] = val;
+  if (BUD_YM !== date.slice(0, 7)) { BUD_YM = date.slice(0, 7); budShowAll = false; }   /* 넣은 지출이 보이는 달로 */
   closeExpense();
   budPaint();
   try { await put('budget/expenses/' + id, val); }
