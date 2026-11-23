@@ -124,6 +124,7 @@
           text-align:left;white-space:nowrap;overflow:hidden;
           transition:background .16s}
   .saybar .bub{flex:0 0 auto;font-size:1em;line-height:1;opacity:.95}
+  .saybar .bub.face{font-size:1.1em;line-height:1;opacity:1}
   .saybar .sy{overflow:hidden;text-overflow:ellipsis;min-width:0}
   .saybar .sy.ph{color:#9DBA7C;font-weight:700}
   .saybar.has{background:#DCF3C3;color:#2A4520}
@@ -1056,7 +1057,7 @@
     <div class="grab"></div>
     <h2 id="sayTitle">💬 한마디</h2>
     <div class="field">
-      <span class="ico" id="sayIcon" aria-hidden="true">👩🏻</span>
+      <span class="ico" id="sayIcon" aria-hidden="true">👨🏻</span>
       <input id="sayInput" type="text" maxlength="60" placeholder="한마디 남겨 보세요" enterkeyhint="done">
     </div>
     <p class="hint">상대 화면에도 바로 보여요</p>
@@ -2475,10 +2476,14 @@ function sayText(owner) {
   if (typeof s === 'object') return String(s.text == null ? '' : s.text).trim();
   return '';
 }
+/* 한마디 아이콘은 받는 사람이 아니라 '쓰는 사람' 기준이다.
+   세은 탭의 `세은에게 한마디` 는 찬규가 남기는 자리라 👨🏻, 찬규 탭의 `찬규에게 한마디` 는 세은이 남기는 자리라 👩🏻. */
+function sayWriterOf(owner) { return owner === 'seeun' ? 'chankyu' : 'seeun'; }
+function sayWriterIcon(owner) { return ownerIcon(sayWriterOf(owner)); }
 function sayBar(owner) {
   const text = sayText(owner);
   const name = OWNER[owner].name;
-  const inner = '<span class="bub" aria-hidden="true">💬</span>' +
+  const inner = '<span class="bub face" aria-hidden="true">' + sayWriterIcon(owner) + '</span>' +
     (text ? '<span class="sy">' + esc(text) + '</span>'
           : '<span class="sy ph">' + esc(name) + '에게 한마디...</span>');
   return '<button class="saybar' + (text ? ' has' : '') + '" type="button" data-say="' + owner + '" ' +
@@ -2687,7 +2692,7 @@ function openSay(owner) {
   if (!OWNER[owner] || owner === 'both') return;   /* 한마디는 사람에게만 */
   sayOwner = owner;
   $('#sayTitle').textContent = '💬 ' + OWNER[owner].name + '에게 한마디';
-  $('#sayIcon').textContent = ownerIcon(owner);
+  $('#sayIcon').textContent = sayWriterIcon(owner);
   $('#sayInput').placeholder = OWNER[owner].name + '에게 한마디...';
   $('#sayInput').value = sayText(owner);
   resetSayClear();
