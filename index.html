@@ -2056,7 +2056,8 @@ function openBudgetSheet() {
   $('#budgetSheet').classList.remove('hidden');
   syncSheetFlag();
   pushSheetHistory();
-  setTimeout(() => { try { $('#budgetInput').focus(); } catch (e) {} }, 60);
+  /* 예산 설정도 수정 시트라 자동 포커스를 주지 않는다 — 금액 칸을 직접 탭할 때만 키보드가 올라온다 */
+  try { $('#budgetInput').blur(); } catch (e) {}
 }
 function closeBudgetSheet() {
   $('#budgetSheet').classList.add('hidden');
@@ -2203,6 +2204,7 @@ function expPanelPaint() {
   $('#eePanelBody').innerHTML = expPanel === 'keypad' ? expKeypadHtml()
                             : expPanel === 'date' ? expDateHtml()
                             : expGridHtml(expPanel);
+  /* ✏️ 편집을 눌러 이름을 바로 고치는 자리라 여기서는 포커스를 준다(사용자가 직접 누른 동작) */
   const inp = $('#eeEditInput');
   if (inp) setTimeout(() => { try { inp.focus(); inp.select(); } catch (e) {} }, 40);
   expPanelFit();
@@ -2842,7 +2844,8 @@ function openNote(id) {
   syncSheetFlag();
   pushSheetHistory();
   /* 메모 입력란에는 자동 포커스를 주지 않는다(모바일에서 키보드가 화면을 가림).
-     메모칸을 직접 탭할 때만 키보드가 올라온다. */
+     시트를 연 탭이 남기는 호환 마우스 이벤트까지 끊고(onTouchEnd), 메모칸을 직접 탭할 때만
+     키보드가 올라온다. */
   $('#noteInput').blur();
   $('#noteText').blur();
 }
@@ -3294,6 +3297,9 @@ const DRAG_CANCEL_X = 6;  /* 옆으로 이만큼만 움직여도 롱프레스(�
 const SWIPE_LOCK = 0.4;   /* 액션 폭의 이 비율 넘게 밀면 열린 채로 고정 */
 let gestureSwiped = false; /* 방금 손가락 제스처가 스와이프였는지 — 뒤따르는 click 을 막는 데 쓴다 */
 let swallowClick = false;  /* 탭으로 시트를 연 직후 따라오는 click 이 시트 배경을 누르지 않게 */
+/* 메모·수정 시트를 연 그 탭이 남기는 호환 마우스 이벤트(mousedown → 입력칸 포커스)로
+   모바일 키보드가 저절로 올라오지 않게 막는 시한. 새로 손대면 곧바로 풀린다. */
+let sheetTapGuardUntil = 0;
 
 function rowFrom(target) { return target && target.closest ? target.closest('.row') : null; }
 
@@ -3431,7 +3437,7 @@ function moveTrack(x, y, ev) {
   paintDrag(y);
 }
 function upTrack() {
-  const d = drag; if (!d) return;
+  const d = drag; if (!d) return false;
   if (d.swipe) {                     /* 스와이프 마무리: 충분히 밀었으면 열린 채로 */
     const open = d.offset < -d.actsW * SWIPE_LOCK;
     d.row.classList.remove('swiping');
@@ -3440,19 +3446,21 @@ function upTrack() {
     openSwipeId = open ? d.id : null;
     drag = null;
     if (open && navigator.vibrate) { try { navigator.vibrate(6); } catch (err) {} }
-    return;
+    return false;
   }
   const tapped = !d.active && !d.moved;
   const wasOpen = d.wasOpen;
   const onCheck = d.onCheck;
   endTrack(true);
   if (tapped) {
-    if (onCheck) return;              /* 완료 체크 탭은 체크 버튼의 click 이 처리한다 */
+    if (onCheck) return false;        /* 완료 체크 탭은 체크 버튼의 click 이 처리한다 */
     swallowClick = true;              /* 탭 뒤 따라오는 click 이 방금 열린 시트 배경을 누르지 않게 */
-    if (wasOpen) { closeSwipe(d.row); return; }   /* 열린 줄을 탭하면 닫기만 */
+    if (wasOpen) { closeSwipe(d.row); return false; }   /* 열린 줄을 탭하면 닫기만 */
     closeAllSwipes();
     openNote(d.id);                   /* 한 번 탭 → 바로 메모 · 수정 시트 */
+    return true;                      /* 시트를 연 탭 — 뒤따르는 호환 마우스 이벤트를 끊는 데 쓴다 */
   }
+  return false;
 }
 function endTrack(commit) {
   const d = drag; if (!d) return;
@@ -3512,6 +3520,7 @@ function onTouchStart(e) {
   if (!e.touches || e.touches.length !== 1) { if (drag && drag.source === 'touch') cancelTrack(); return; }
   gestureSwiped = false;
   swallowClick = false;
+  sheetTapGuardUntil = 0;        /* 새로 손대면 시트 자동 포커스 차단은 곧바로 풀린다 */
   const t = e.touches[0];
   startTrack(t.clientX, t.clientY, e.target, 'touch');
 }
@@ -3523,7 +3532,16 @@ function onTouchMove(e) {
 function onTouchEnd(e) {
   if (!drag || drag.source !== 'touch') return;
   if (e.touches && e.touches.length > 0) return;
-  upTrack();
+  const openedSheet = upTrack();
+  /* 메모·수정 시트는 손을 뗀 순간(touchend)에 올라온다. 그 탭에 이어 붙는 호환 마우스
+     이벤트(mousedown → 클릭)는 그때 손가락 아래에 있게 된 시트 입력칸에 닿아
+     안드로이드 크롬이 입력칸을 골라 버리고, 메모칸을 건드리지 않았는데도 키보드가 올라왔다.
+     시트를 연 탭만 click 계열을 끊어, 입력칸은 손으로 직접 탭할 때만 포커스를 받게 한다. */
+  if (openedSheet) {
+    sheetTapGuardUntil = performance.now() + 700;
+    swallowClick = false;            /* click 자체를 끊으니 삼킬 것도 없다 — 다음 진짜 탭이 먹히지 않게 */
+    if (e.cancelable) e.preventDefault();
+  }
 }
 function onTouchCancel(e) {
   if (!drag || drag.source !== 'touch') return;
@@ -4417,10 +4435,24 @@ function initApp() {
     e.preventDefault(); e.stopPropagation();
   }, true);
 
+  /* 이중 안전장치 — touchend 를 끊지 못하는 환경(일부 안드로이드 웹뷰·제스처 취소)에서도
+     시트를 연 탭이 시트 입력칸에 포커스를 남기지 않게 한다. */
+  document.addEventListener('mousedown', e => {
+    if (performance.now() >= sheetTapGuardUntil) return;
+    const el = e.target;
+    if (el && el.closest && el.closest('.sheet') && el.matches('input, textarea')) e.preventDefault();
+  }, true);
+  document.addEventListener('focusin', e => {
+    if (performance.now() >= sheetTapGuardUntil) return;
+    const el = e.target;
+    if (el && el.closest && el.closest('.sheet') && el.matches('input, textarea')) { try { el.blur(); } catch (err) {} }
+  }, true);
+
   /* 손가락: touch-action:pan-y 와 직접 만든 touch 핸들러로 스크롤·뒤로가기에 뺏기지 않게 */
   board.addEventListener('touchstart', onTouchStart, { passive: true });
   document.addEventListener('touchmove', onTouchMove, { passive: false });
-  document.addEventListener('touchend', onTouchEnd, { passive: true });
+  /* 시트를 연 탭의 click 계열을 끊어야 해서 passive:false (아래 onTouchEnd) */
+  document.addEventListener('touchend', onTouchEnd, { passive: false });
   document.addEventListener('touchcancel', onTouchCancel, { passive: true });
 
   $('#seenBox').addEventListener('click', e => { e.preventDefault(); openPick(); });
