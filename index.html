@@ -4698,7 +4698,8 @@ function initApp() {
     if (e.key === 'Enter') { e.preventDefault(); saveTodo(); }
   });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closePick(); closeSay(); closeSheet(); closeDone(); closeNote(); closeEvent(); closeSort(); closeWoReset(); }
+    /* v57 에서 운동 탭이 빠지며 사라진 closeWoReset() 호출은 지웠다 — Escape 마다 콘솔 오류가 났다 */
+    if (e.key === 'Escape') { closePick(); closeSay(); closeSheet(); closeDone(); closeNote(); closeEvent(); closeSort(); }
   });
 
   /* ⇅ 큰 화면 순서 편집 */
