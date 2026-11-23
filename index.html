@@ -224,7 +224,7 @@
   .card-add:active{transform:translateY(2px);box-shadow:0 0 0 #E9C92C, 0 2px 6px rgba(120,95,0,.14)}
   .card-add:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
 
-  /* ---------- 하단 고정 4탭 (📅 일정 / 💪 운동 / 👩🏻 세은 / 👨🏻 찬규) ---------- */
+  /* ---------- 하단 고정 4탭 (📅 일정 / 👩🏻 세은 / 👨🏻 찬규 / 💰 예산·지출) ---------- */
   .person-tabs{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:7px;
                padding:7px;border-radius:22px 22px 0 0;
                background:rgba(255,255,255,.8);backdrop-filter:blur(10px);
@@ -241,7 +241,11 @@
   /* 탭을 바꿀 때 카드가 살짝 올라오며 바뀐다 */
   @keyframes tabIn{from{opacity:.45;transform:translateY(7px)}to{opacity:1;transform:none}}
   .board.tabsw > .card{animation:tabIn .2s cubic-bezier(.2,.8,.2,1)}
-  .wo-pane.tabsw > .wo-sum,.wo-pane.tabsw > .wo-card{animation:tabIn .2s cubic-bezier(.2,.8,.2,1)}
+  .bud-pane.tabsw > .bud-card{animation:tabIn .2s cubic-bezier(.2,.8,.2,1)}
+  .ptab.budget{font-size:clamp(12px,1.75vw,16.5px);gap:.2em;white-space:nowrap}
+  .ptab.budget .pe{font-size:1.15em}
+  @media (max-width:360px){ .ptab.budget{font-size:11.5px} }
+  @media (max-width:335px){ .ptab.budget .pe{display:none} }
 
   /* ---------- sheet (공통) ---------- */
   .sheet{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center}
@@ -691,152 +695,120 @@
     .sort-head .shint{font-size:10px}
   }
 
-  /* ---------- 💪 운동 탭 (세은 운동을 그대로 합쳤다) ---------- */
-  .wo-pane{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
-           -webkit-overflow-scrolling:touch;scrollbar-width:thin;
-           display:flex;flex-direction:column;gap:10px;padding:0 2px 6px}
-  .wo-pane::-webkit-scrollbar{width:6px}
-  .wo-pane::-webkit-scrollbar-thumb{background:#E7E1CB;border-radius:999px}
-  .wo-sum{flex:0 0 auto;background:#fff;border-radius:20px;padding:14px 15px 13px;
-          box-shadow:0 12px 26px -22px rgba(80,64,0,.55)}
-  .wo-sum-top{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
-  .wo-cnt{display:flex;align-items:baseline;gap:5px;font-size:13px;font-weight:800;color:var(--muted)}
-  .wo-cnt b{font-size:26px;font-weight:900;letter-spacing:-.045em;color:var(--navy);
-            font-variant-numeric:tabular-nums;line-height:1.05}
-  .wo-pct{font-size:20px;font-weight:900;letter-spacing:-.03em;color:var(--navy);
-          font-variant-numeric:tabular-nums}
-  .wo-sum.full .wo-pct{color:var(--green)}
-  .wo-bar{height:12px;border-radius:999px;background:#EFE8CF;overflow:hidden;margin-top:9px}
-  .wo-bar > i{display:block;height:100%;width:0;border-radius:999px;background:var(--navy);
-              transition:width .5s cubic-bezier(.22,1,.36,1)}
-  .wo-sum.full .wo-bar > i{background:var(--green)}
-  .wo-foot-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
-  .wo-date{margin:0;min-width:0;font-size:11.5px;font-weight:700;color:#9A94AE;letter-spacing:-.02em;
-           white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .wo-reset{flex:0 0 auto;height:28px;padding:0 11px;border-radius:999px;background:var(--cream);
-            color:#6E6A58;font-size:11px;font-weight:900;letter-spacing:-.03em;white-space:nowrap;
-            border:1.5px solid #EFE8CF;transition:background .14s}
-  .wo-reset:active{background:#F1EBCE}
-  .wo-card{flex:0 0 auto;background:#fff;border-radius:20px;padding:12px 12px 13px;
-           box-shadow:0 12px 26px -22px rgba(80,64,0,.5)}
-  .wo-head{display:flex;align-items:center;gap:8px}
-  .wo-ico{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
-          font-size:15px;line-height:1;background:var(--cream)}
-  .wo-tit{min-width:0}
-  .wo-name{margin:0;font-size:15px;font-weight:900;letter-spacing:-.035em;line-height:1.2;
-           color:var(--ink);word-break:keep-all}
-  .wo-meta{display:block;margin-top:1px;font-size:11px;font-weight:700;color:#9A94AE;word-break:keep-all}
-  .wo-n{margin-left:auto;flex:0 0 auto;font-size:13px;font-weight:900;color:var(--navy);
-        font-variant-numeric:tabular-nums}
-  .wo-card.full .wo-n{color:var(--green)}
-  .wo-cbar{height:8px;border-radius:999px;background:#EFE8CF;overflow:hidden;margin-top:9px}
-  .wo-cbar > i{display:block;height:100%;width:0;border-radius:999px;background:var(--navy);
-               transition:width .45s cubic-bezier(.22,1,.36,1)}
-  .wo-card.full .wo-cbar > i{background:var(--green)}
-  .wo-rows{margin-top:9px;display:flex;flex-direction:column;gap:6px}
-  .wo-row{display:flex;align-items:center;gap:8px;background:var(--cream);border-radius:13px;
-          padding:6px 7px;transition:background .24s}
-  .wo-row.done{background:var(--mint)}
-  .wo-thumb{flex:0 0 auto;position:relative;display:block;width:66px;height:39px;border-radius:9px;
-            overflow:hidden;background:#E7DFC2;text-decoration:none}
-  .wo-thumb img{display:block;width:100%;height:100%;object-fit:cover}
-  .wo-thumb .wo-play{position:absolute;inset:0;display:grid;place-items:center;background:rgba(24,20,45,.16)}
-  .wo-thumb .wo-play::after{content:"";width:0;height:0;border-style:solid;
-            border-width:6px 0 6px 10px;border-color:transparent transparent transparent #fff;
-            filter:drop-shadow(0 1px 2px rgba(0,0,0,.55))}
-  .wo-thumb.emoji{display:grid;place-items:center;font-size:20px;line-height:1;background:#F6EFDA}
-  .wo-hit{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:8px;padding:2px;
-          border-radius:10px;background:none;text-align:left;touch-action:manipulation}
-  .wo-hit:active{opacity:.65}
-  .wo-body{flex:1 1 auto;min-width:0;display:block}
-  .wo-t{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
-        font-size:13.5px;font-weight:800;line-height:1.3;letter-spacing:-.025em;color:var(--ink);
-        word-break:keep-all}
-  .wo-s{display:block;margin-top:1px;font-size:11px;font-weight:600;line-height:1.35;
-        color:#6E6A85;word-break:keep-all}
-  .wo-row.done .wo-t{color:var(--green-text);text-decoration:line-through;
-        text-decoration-color:#7FBE97;text-decoration-thickness:2px}
-  .wo-row.done .wo-s{color:#69A37F}
-  .wo-chk{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
-          background:#fff;border:2px solid #DED5B2;transition:background .18s,border-color .18s}
-  .wo-chk svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:3.4;stroke-linecap:round;
-              stroke-linejoin:round;opacity:0;transition:opacity .15s}
-  .wo-row.done .wo-chk{background:#2F8F52;border-color:#2F8F52}
-  .wo-row.done .wo-chk svg{opacity:1}
-  .wo-q{margin:2px 0 0;font-size:13px;font-weight:700;color:var(--muted);line-height:1.55;
-        text-align:center;letter-spacing:-.02em}
+  /* ---------- 💰 예산·지출 탭 ---------- */
+  .bud-pane{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+            -webkit-overflow-scrolling:touch;scrollbar-width:thin;
+            display:flex;flex-direction:column;gap:10px;padding:0 2px 6px}
+  .bud-pane::-webkit-scrollbar{width:6px}
+  .bud-pane::-webkit-scrollbar-thumb{background:#E7E1CB;border-radius:999px}
+  .bud-card{flex:0 0 auto;background:#fff;border-radius:20px;padding:15px 16px 14px;
+            box-shadow:0 12px 26px -22px rgba(80,64,0,.55)}
+  .bud-top{display:flex;align-items:center;gap:3px}
+  .bud-nav{flex:0 0 auto;width:30px;height:30px;border-radius:50%;background:transparent;color:var(--navy);
+           font-size:12px;font-weight:900;display:grid;place-items:center;line-height:1}
+  .bud-nav:active{background:var(--cream)}
+  .bud-month{flex:0 0 auto;font-size:clamp(15px,2.1vw,19px);font-weight:900;letter-spacing:-.04em;color:var(--ink);
+             white-space:nowrap;font-variant-numeric:tabular-nums}
+  .bud-set{margin-left:auto;flex:0 0 auto;height:32px;padding:0 11px;border-radius:999px;background:#fff;
+           border:1.5px solid #E3D79A;color:var(--navy);font-size:11.5px;font-weight:900;letter-spacing:-.03em;
+           white-space:nowrap;display:flex;align-items:center;gap:.25em}
+  .bud-set:active{background:var(--cream)}
+  .bud-lbl{margin:12px 0 0;font-size:12.5px;font-weight:800;color:var(--muted);letter-spacing:-.02em}
+  .bud-left{margin:1px 0 0;font-size:clamp(27px,7.6vw,36px);font-weight:900;letter-spacing:-.05em;color:var(--navy);
+            font-variant-numeric:tabular-nums;line-height:1.12;word-break:keep-all}
+  .bud-left.over{color:#C0392B}
+  .bud-left .won{font-size:.56em;font-weight:900;margin-left:2px;letter-spacing:-.02em}
+  .bud-left.unset{font-size:clamp(21px,5.6vw,27px);color:#9A94AE;letter-spacing:-.04em}
+  .bud-bar-row{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .bud-bar{flex:1 1 auto;height:14px;border-radius:999px;background:#EFE8CF;overflow:hidden}
+  .bud-bar > i{display:block;height:100%;width:0;border-radius:999px;background:var(--navy);
+               transition:width .5s cubic-bezier(.22,1,.36,1)}
+  .bud-bar.over > i{background:#E0603C}
+  .bud-pct{flex:0 0 auto;font-size:16px;font-weight:900;color:var(--navy);font-variant-numeric:tabular-nums;
+           letter-spacing:-.03em}
+  .bud-pct.over{color:#C0392B}
+  .bud-sum{margin:9px 0 0;font-size:12.5px;font-weight:800;color:var(--muted);letter-spacing:-.02em;word-break:keep-all}
+  .bud-sum b{color:#4A4426;font-weight:900;font-variant-numeric:tabular-nums}
+  .bud-hint{margin:9px 0 0;font-size:11.5px;font-weight:800;color:#A9A48D;letter-spacing:-.02em;line-height:1.5}
+  /* ＋ 지출 추가 */
+  .bud-add{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:.3em;
+           min-height:54px;border-radius:18px;border:2px solid rgba(255,255,255,.85);
+           background:rgba(255,255,255,.28);color:var(--navy);
+           font-size:clamp(15px,2.1vw,19px);font-weight:900;letter-spacing:-.02em;
+           box-shadow:0 10px 22px -18px rgba(80,64,0,.5)}
+  .bud-add:active{background:rgba(255,255,255,.45)}
+  .bud-add .plus{font-size:1.1em;line-height:1;font-weight:900}
+  /* 카테고리 요약 칩 */
+  .bud-cats{flex:0 0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .bud-cat{display:flex;align-items:center;gap:7px;min-width:0;background:#fff;border-radius:16px;
+           padding:8px 9px;text-align:left;border:2px solid transparent;
+           box-shadow:0 10px 22px -20px rgba(80,64,0,.6);transition:border-color .14s,transform .1s}
+  .bud-cat.on{border-color:var(--navy)}
+  .bud-cat:active{transform:translateY(1px)}
+  .bud-cat .ci{flex:0 0 auto;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
+               font-size:14px;line-height:1;background:var(--cream)}
+  .bud-cat .cn{min-width:0;display:block}
+  .bud-cat .cl{display:block;font-size:10.5px;font-weight:800;color:var(--muted);letter-spacing:-.02em;
+               white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bud-cat .cv{display:block;font-size:clamp(12px,1.65vw,14px);font-weight:900;color:var(--ink);
+               letter-spacing:-.03em;font-variant-numeric:tabular-nums;white-space:nowrap}
+  /* 지출 내역 */
+  .bud-list{flex:0 0 auto;background:#fff;border-radius:20px;padding:0 0 6px;
+            box-shadow:0 12px 26px -22px rgba(80,64,0,.5)}
+  .bud-lh{display:flex;align-items:center;gap:7px;padding:12px 16px 9px}
+  .bud-lh h2{margin:0;font-size:clamp(14px,1.9vw,17px);font-weight:900;letter-spacing:-.035em;color:var(--ink)}
+  .bud-chip-x{flex:0 0 auto;height:24px;padding:0 9px;border-radius:999px;background:#231F78;color:#FBE049;
+              font-size:10.5px;font-weight:900;letter-spacing:-.03em;display:flex;align-items:center;gap:.2em}
+  .bud-more{margin-left:auto;flex:0 0 auto;height:26px;padding:0 9px;border-radius:999px;background:var(--cream);
+            color:#6E6A58;font-size:11px;font-weight:900;letter-spacing:-.03em}
+  .bud-more:active{background:#F1EBCE}
+  .bud-row{display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:9px 16px;
+           border-top:1px solid #F5F1E0;transition:background .14s}
+  .bud-row:active{background:var(--cream)}
+  .bud-d{flex:0 0 auto;width:34px;font-size:11.5px;font-weight:800;color:#A9A48D;letter-spacing:-.02em;
+         font-variant-numeric:tabular-nums;line-height:1.25}
+  .bud-mid{flex:1 1 auto;min-width:0;display:block}
+  .bud-x{display:block;font-size:clamp(13.5px,1.85vw,16px);font-weight:800;color:var(--ink);letter-spacing:-.025em;
+         white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bud-who{display:inline-flex;align-items:center;gap:3px;margin-top:3px;padding:1px 7px 1px 5px;border-radius:999px;
+           font-size:10px;font-weight:900;letter-spacing:-.02em;background:#F2EEDC;color:#6E6A58}
+  .bud-who.seeun{background:#FDE7E9;color:#B4565F}
+  .bud-who.chankyu{background:#E4EEFB;color:#4B6FA8}
+  .bud-who.both{background:#FCF0C6;color:#8A6D18}
+  .bud-amt{flex:0 0 auto;font-size:clamp(13.5px,1.85vw,16px);font-weight:900;color:var(--ink);letter-spacing:-.03em;
+           font-variant-numeric:tabular-nums;white-space:nowrap}
+  .bud-empty{padding:2px 16px 12px;font-size:12.5px;font-weight:800;color:#A8A28A;letter-spacing:-.02em;line-height:1.55}
+  .bud-empty b{display:block;font-size:14px;color:#C9C3A9;font-weight:900;letter-spacing:-.02em;margin-bottom:2px}
+  /* 고치기 시트 */
+  .bud-field{flex:1 1 auto;min-width:0;width:100%;border:0;background:none;padding:13px 0;font:inherit;
+             font-weight:800;font-size:clamp(15px,2vw,19px);letter-spacing:-.02em;color:var(--ink);outline:none;
+             -webkit-appearance:none;appearance:none}
+  .bud-field::placeholder{color:#CFC9B0;font-weight:800}
+  .bud-field.amt{text-align:right;font-variant-numeric:tabular-nums;color:var(--navy);font-size:clamp(17px,2.3vw,21px)}
+  .bud-won{flex:0 0 auto;font-size:12px;font-weight:900;color:#9A94AE}
+  .bud-cat-chips{display:flex;flex-wrap:wrap;gap:6px}
+  .bc-chip{height:36px;padding:0 12px;border-radius:12px;border:1.5px solid #E7E1C8;background:#fff;color:#8C8672;
+           font-size:clamp(11.5px,1.6vw,13.5px);font-weight:900;letter-spacing:-.03em;white-space:nowrap;
+           transition:background .14s,color .14s,border-color .14s}
+  .bc-chip.on{background:#231F78;border-color:#231F78;color:#FBE049;box-shadow:0 2px 8px rgba(35,31,120,.2)}
+  .bc-chip:active{transform:scale(.98)}
+  .bc-chip.add{border-style:dashed;color:#A08A46}
+  .bud-newcat{display:flex;gap:7px;align-items:center}
+  #newCatInput{flex:1 1 auto;min-width:0;border:1.5px solid #E7E1C8;border-radius:12px;padding:9px 12px;
+               font:inherit;font-weight:800;font-size:clamp(13px,1.7vw,15px);color:var(--ink);outline:none}
+  #newCatInput:focus{border-color:var(--navy)}
+  .bud-newcat .go{flex:0 0 auto;height:38px;padding:0 14px;border-radius:12px;background:var(--navy);color:#fff;
+                  font-size:12.5px;font-weight:900;letter-spacing:-.02em}
+  .bud-month-badge{display:inline-flex;align-items:center;gap:.3em;align-self:flex-start;padding:4px 11px;border-radius:999px;
+                   background:var(--cream);color:#7C765C;font-size:12px;font-weight:900;letter-spacing:-.02em}
   @media (max-width:360px){
-    .person-tabs{gap:6px}
-    .wo-thumb{width:58px;height:34px}
-    .wo-t{font-size:13px}
+    .bud-cat{padding:7px 8px;gap:5px}
+    .bud-cat .ci{width:24px;height:24px;font-size:12px}
+    .bud-row{padding:8px 13px}
+    .bud-lh{padding:11px 13px 8px}
+    .bud-card{padding:13px 13px 12px}
+    .bud-empty{padding:2px 13px 10px}
   }
-
-  /* ---------- ⚖️ 오늘 몸무게 (v48) — 왼쪽 입력 · 오른쪽 꺾은선 ---------- */
-  .wt-card{flex:0 0 auto;background:#fff;border-radius:20px;padding:13px 14px 12px;
-           box-shadow:0 12px 26px -22px rgba(80,64,0,.5)}
-  .wt-head{display:flex;align-items:center;gap:8px}
-  .wt-tit{min-width:0;flex:1 1 auto}
-  .wt-nav{flex:0 0 auto;display:flex;align-items:center;gap:4px}
-  .wt-arrow{flex:0 0 auto;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;
-            background:var(--cream);color:#6E6A58;font-size:10.5px;font-weight:900;line-height:1;
-            border:1.5px solid #EFE8CF;transition:background .14s}
-  .wt-arrow:active{background:#F1EBCE}
-  .wt-arrow:disabled{opacity:.32}
-  .wt-dwrap{position:relative;display:inline-flex;flex:0 0 auto}
-  .wt-date{height:28px;padding:0 10px;border-radius:9px;background:var(--cream);
-           border:1.5px solid #EFE8CF;color:#4A4426;font-size:11px;font-weight:900;
-           letter-spacing:-.03em;white-space:nowrap;font-variant-numeric:tabular-nums}
-  .wt-date.today{background:var(--navy);border-color:var(--navy);color:#fff}
-  .wt-dinput{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;
-             opacity:0;cursor:pointer;-webkit-appearance:none;appearance:none}
-  /* 본문 — 좁은 왼쪽(입력·저장) + 넓은 오른쪽(그래프) */
-  .wt-body{display:grid;grid-template-columns:clamp(88px,24vw,112px) minmax(0,1fr);gap:9px;
-           margin-top:9px;align-items:stretch}
-  .wt-left{display:flex;flex-direction:column;justify-content:center;gap:6px;min-width:0}
-  .wt-field{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:3px;height:42px;padding:0 8px;
-            border-radius:12px;background:var(--cream);border:1.5px solid var(--cream-line);
-            transition:background .14s,border-color .14s}
-  .wt-field:focus-within{background:#fff;border-color:var(--navy)}
-  .wt-in{flex:1 1 auto;display:block;min-width:0;width:100%;height:100%;border:0;background:none;
-         padding:2px 0 0;text-align:center;
-         font:inherit;font-size:clamp(18px,2.6vw,23px);font-weight:900;letter-spacing:-.04em;
-         line-height:1;
-         color:var(--navy);font-variant-numeric:tabular-nums;
-         -webkit-appearance:none;appearance:none}
-  .wt-in::placeholder{color:#CFC9B0;font-weight:800}
-  .wt-in:focus{outline:none}
-  .wt-kg{flex:0 0 auto;font-size:10px;font-weight:900;line-height:1;color:#9A94AE;transform:translateY(1px)}
-  .wt-save{flex:0 0 auto;height:29px;border-radius:9px;background:var(--navy);color:#fff;
-           font-size:11.5px;font-weight:900;letter-spacing:-.03em;transition:background .16s,color .16s}
-  .wt-save:active{background:#151253}
-  .wt-save.ok{background:var(--green)}
-  .wt-save.del{background:var(--cream);color:#B4482C;box-shadow:inset 0 0 0 1.5px #F0CEC4}
-  .wt-save.del.confirm{background:#E45B3C;color:#fff;box-shadow:none}
-  .wt-diff{align-self:center;max-width:100%;padding:2px 7px;border-radius:999px;background:var(--cream);
-           color:#7C765C;font-size:9.5px;font-weight:900;letter-spacing:-.02em;
-           font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .wt-diff.down{background:var(--mint);color:var(--green-text)}
-  .wt-diff.up{background:#FDE5DE;color:#B4482C}
-  .wt-right{position:relative;min-width:0;display:flex;align-items:stretch;
-            height:clamp(94px,25vw,112px)}
-  .wt-chart{display:block;width:100%;height:100%;overflow:visible;touch-action:manipulation}
-  .wt-chart .axis{stroke:#EDE7D2;stroke-width:1;stroke-dasharray:3 4}
-  .wt-chart .area{fill:var(--navy);opacity:.07}
-  .wt-chart .ln{fill:none;stroke:var(--navy);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-  .wt-chart .pt{fill:#fff;stroke:var(--navy);stroke-width:2;transition:r .12s}
-  .wt-chart .pt.on{fill:var(--navy);stroke:var(--navy);stroke-width:2}
-  .wt-chart .halo{fill:var(--navy);opacity:.14}
-  .wt-chart .pt{pointer-events:none}
-  .wt-chart .vl{font-weight:900;letter-spacing:-.03em;fill:#6E6A58;
-                paint-order:stroke;stroke:#fff;stroke-width:2.6px;stroke-linejoin:round;pointer-events:none}
-  .wt-chart .vl.on{fill:var(--navy)}
-  .wt-chart .xd{font-weight:800;fill:#A9A48D;letter-spacing:-.02em;pointer-events:none}
-  .wt-chart .xd.on{fill:var(--navy);font-weight:900}
-  .wt-chart rect.hit{fill:transparent;cursor:pointer}
-  .wt-ph{flex:1 1 auto;display:grid;place-content:center;text-align:center;
-         border:1.5px dashed #EDE7D1;border-radius:13px;background:#FFFDF6;
-         font-size:9.5px;font-weight:800;color:#B3AD94;letter-spacing:-.02em;line-height:1.6}
-  .wt-ph b{display:block;font-size:13px;color:#D8D2BA;font-weight:900;letter-spacing:-.02em}
 
   /* ---------- 입장 잠금 ---------- */
   body.locked{overflow:hidden}
@@ -922,7 +894,7 @@
     </div>
   </header>
   <main id="board" class="board"></main>
-  <section id="woPane" class="wo-pane hidden" aria-label="오늘 운동"></section>
+  <section id="budPane" class="bud-pane hidden" aria-label="예산·지출"></section>
   <section id="calPane" class="cal-pane hidden" aria-label="공동 달력(일정)">
     <div class="card cal-card">
       <div class="cal-head">
@@ -953,12 +925,12 @@
   <nav id="personTabs" class="person-tabs" role="tablist" aria-label="화면 고르기">
     <button class="ptab" type="button" role="tab" data-tab-owner="cal" aria-selected="false" aria-controls="calPane">
       <span class="pe" aria-hidden="true">📅</span>일정</button>
-    <button class="ptab" type="button" role="tab" data-tab-owner="workout" aria-selected="false" aria-controls="woPane">
-      <span class="pe" aria-hidden="true">💪</span>운동</button>
     <button class="ptab" type="button" role="tab" data-tab-owner="seeun" aria-selected="false" aria-controls="board">
       <span class="pe" aria-hidden="true">👩🏻</span>세은</button>
     <button class="ptab" type="button" role="tab" data-tab-owner="chankyu" aria-selected="false" aria-controls="board">
       <span class="pe" aria-hidden="true">👨🏻</span>찬규</button>
+    <button class="ptab budget" type="button" role="tab" data-tab-owner="budget" aria-selected="false" aria-controls="budPane">
+      <span class="pe" aria-hidden="true">💰</span>예산·지출</button>
   </nav>
 </div>
 
@@ -1006,17 +978,58 @@
   </div>
 </div>
 
-<div id="woReset" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="woResetTitle">
-  <div class="bd" data-wrclose="1"></div>
-  <div class="panel">
+<div id="budgetSheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="budgetTitle">
+  <div class="bd" data-bgclose="1"></div>
+  <form id="budgetForm" class="panel" autocomplete="off">
     <div class="grab"></div>
-    <h2 id="woResetTitle">↻ 오늘 운동 리셋</h2>
-    <p class="wo-q">오늘 체크한 운동을 모두 지우고 처음부터 시작해요.<br>지난 날 기록은 그대로 남아요.</p>
-    <div class="acts">
-      <button type="button" class="save" id="woResetYes">리셋</button>
-      <button type="button" class="ghost" id="woResetNo">취소</button>
+    <h2 id="budgetTitle">⚙️ 예산 설정</h2>
+    <p class="bud-month-badge" id="budgetMonth">2026년 11월</p>
+    <div class="field">
+      <span class="ico" aria-hidden="true">💰</span>
+      <input id="budgetInput" class="bud-field amt" type="text" inputmode="numeric" placeholder="0" maxlength="11" aria-label="이 달 총 예산">
+      <span class="bud-won" aria-hidden="true">원</span>
     </div>
-  </div>
+    <p class="hint">비워 두면 예산 없이 지출만 기록해요</p>
+    <div class="acts">
+      <button type="submit" class="save">저장</button>
+      <button type="button" class="ghost" id="budgetCancel">취소</button>
+    </div>
+  </form>
+</div>
+
+<div id="expSheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="expTitle">
+  <div class="bd" data-exclose="1"></div>
+  <form id="expForm" class="panel" autocomplete="off">
+    <div class="grab"></div>
+    <h2 id="expTitle">＋ 지출 추가</h2>
+    <div class="field">
+      <span class="ico" aria-hidden="true">✏️</span>
+      <input id="expTitleInput" class="bud-field" type="text" maxlength="40" placeholder="무엇에 썼나요?">
+    </div>
+    <div class="field">
+      <span class="ico" aria-hidden="true">💸</span>
+      <input id="expAmount" class="bud-field amt" type="text" inputmode="numeric" placeholder="0" maxlength="10" aria-label="금액">
+      <span class="bud-won" aria-hidden="true">원</span>
+    </div>
+    <div class="field">
+      <span class="ico" aria-hidden="true">📆</span>
+      <input id="expDate" class="bud-field" type="date" aria-label="날짜">
+    </div>
+    <div class="bud-cat-chips" id="expCats" role="group" aria-label="카테고리"></div>
+    <div class="bud-newcat hidden" id="newCatRow">
+      <input id="newCatInput" type="text" maxlength="8" placeholder="새 카테고리 (예: 반려동물)">
+      <button type="button" class="go" id="newCatAdd">추가</button>
+    </div>
+    <div class="seg" id="expWhoSeg">
+      <button type="button" data-who="seeun">👩🏻 세은</button>
+      <button type="button" data-who="chankyu">👨🏻 찬규</button>
+      <button type="button" data-who="both" class="on">👫 공동</button>
+    </div>
+    <div class="acts">
+      <button type="submit" class="save">저장</button>
+    </div>
+    <button type="button" id="expDel" class="btn-del hidden">🗑 이 지출 삭제</button>
+  </form>
 </div>
 
 <div id="sheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
@@ -1188,7 +1201,8 @@ if (!ROOM_RE.test(ROOM)) {
   ROOM = ROOM_RE.test(saved) ? saved : '';
 }
 
-const ST = { todos: {}, lastSeen: {}, say: {}, memos: {}, events: {}, weights: {}, shopping: {} };
+const ST = { todos: {}, lastSeen: {}, say: {}, memos: {}, events: {}, weights: {}, shopping: {},
+             budget: { budgets: {}, expenses: {} } };
 let es = null, retry = 0, pollTimer = null, gotSnapshot = false;
 let drag = null;
 let openSwipeId = null;   /* 스와이프로 열어 둔 항목 — 다시 그려도 열린 채로 유지 */
@@ -1692,585 +1706,316 @@ function restoreTodos(snap) {
   Object.assign(ST.todos, snap || {});
 }
 
-/* ============ 💪 운동 탭 — 세은 운동(daydaisy2/workout-quest)을 그대로 합쳤다 ============
-   체크 기록은 원래 앱과 같은 키에 그대로 남는다(같은 주소 daydaisy2.github.io 라서 이어진다).
-   운동 탭은 #woPane 에 한 번만 그리고, 할 일 화면(#board)과는 서로 가린다. */
-const WO_KEY = 'seeuni.workout-quest.v1';
-const WO_WEEK = ['일', '월', '화', '수', '목', '금', '토'];
-const WO_GROUPS = [
-  {
-    id: 'r1', emoji: '💪', name: '1세트', meta: '3개 · 약 35분',
-    items: [
-      { id: 'arm-1900', img: 'bubu', title: '팔뚝살 폭파 운동', sub: '땅끄부부 · 8분 35초',
-        url: 'https://www.youtube.com/watch?v=ZDIIg4kvY-c' },
-      { id: 'arm-1920', img: 'jiny', title: '출렁이는 팔뚝살, 1달만 이 루틴 하세요', sub: '비타민신지니 · 15분 35초',
-        url: 'https://www.youtube.com/watch?v=T-bVqdhqW2U' },
-      { id: 'arm-2020', img: 'somi', title: '논스탑 팔 & 직각어깨 덤벨운동', sub: '소미핏 · 10분 21초',
-        url: 'https://www.youtube.com/watch?v=hgqSlNH_NYo' }
-    ]
-  },
-  {
-    id: 'r2', emoji: '🔥', name: '2세트', meta: '3개 · 약 36분',
-    items: [
-      { id: 'arm-2000', img: 'hana5', title: '매일 5분만 해서 팔뚝살빼자!', sub: '강하나 · 7분 16초',
-        url: 'https://www.youtube.com/watch?v=eRpPqnmb0PM' },
-      { id: 'arm-2040', img: 'mizi', title: '일자 팔뚝 만들기 8분 운동', sub: 'MIZI · 8분 23초',
-        url: 'https://www.youtube.com/watch?v=KZdQdzcrMOg' },
-      { id: 'arm-2100', img: 'jieun', title: '팔뚝 사정없이 돌려깎기 (1세트만!)', sub: '이지은 · 20분 08초',
-        url: 'https://www.youtube.com/watch?v=KblqlOYag5M' }
-    ]
-  },
-  {
-    id: 'r3', emoji: '✨', name: '3세트', meta: '3개 · 약 34분',
-    items: [
-      { id: 'arm-1940', img: 'ppiyak', title: '팔뚝살 다 빠져도 책임 못 짐', sub: '삐약스핏 · 8분 25초',
-        url: 'https://www.youtube.com/watch?v=Zw44144Pscw' },
-      { id: 'arm-2120', img: 'bbang', title: '민소매 라인 만드는 10분 팔운동', sub: '빵느 · 13분 43초',
-        url: 'https://www.youtube.com/watch?v=-qiWY6d3ncw' },
-      { id: 'arm-2140', img: 'afit_up', title: '폼롤러 순환관리 스트레칭 · 상체편', sub: '에이핏 · 12분 05초',
-        url: 'https://www.youtube.com/watch?v=uxwcGYeZUFY' }
-    ]
-  },
-  {
-    id: 'r4', emoji: '🌙', name: '스트레칭', meta: '2개 · 하체까지',
-    items: [
-      { id: 'stretch-lb1', img: 'hana_lb', title: '하체 스트레칭 · Thinner Legs', sub: '강하나 · 11분 36초',
-        url: 'https://www.youtube.com/watch?v=LZWORB39zQk' },
-      { id: 'stretch-lb2', img: 'afit_lb', title: '폼롤러 하체 마사지 & 스트레칭', sub: '에이핏 · 14분 23초',
-        url: 'https://www.youtube.com/watch?v=kOYd2oFOojc' }
-    ]
-  },
-  {
-    id: 'care', emoji: '💆', name: '마무리 케어', meta: '1개 · 오늘도 수고했어요',
-    items: [
-      { id: 'care-mask', care: 1, ico: '💆', title: '마스크팩 & 립밤',
-        sub: '팩 올리고 립밤 듬뿍 · 자기 전 마무리', url: '' }
-    ]
-  }
-];
-const WO_ALL = [];
-const WO_BY_ID = {};
-WO_GROUPS.forEach(g => g.items.forEach(it => { WO_ALL.push(it); WO_BY_ID[it.id] = it; }));
-const WO_TOTAL = WO_ALL.length;
+/* ============ 💰 예산·지출 탭 ============
+   저장은 방(rooms/{room}/budget/)에 남긴다.
+   · budget/budgets/{YYYY-MM} = { amount, updatedAt }        달마다 정한 총 예산
+   · budget/expenses/{id}     = { date, title, amount, cat, who, createdAt, updatedAt }
+   지출은 사람(seeun/chankyu/both)과 카테고리(기본 식비·생활·고정·기타 + 직접 추가)로 나뉜다.
+   운동 체크(seeuni.workout-quest.v1)·몸무게(weights)·할 일·일정 데이터는 읽지도 쓰지도 않는다. */
+const BUD_CATS = ['식비', '생활', '고정', '기타'];
+const BUD_ICON = { '식비': '🍽️', '생활': '🏠', '고정': '📅', '기타': '✨' };
+const BUD_WHO = {
+  seeun:   { name: '세은', emoji: '👩🏻' },
+  chankyu: { name: '찬규', emoji: '👨🏻' },
+  both:    { name: '공동', emoji: '👫' }
+};
+let BUD_YM = '';          /* 지금 보는 달 — 기본은 한국 이번 달 */
+let budFilter = '';       /* 카테고리 칩으로 고른 필터 — '' 이면 전체 */
+let budShowAll = false;   /* 지출 내역 '더보기' */
+let budHtml = '';         /* 마지막으로 그린 판 — 바뀐 게 없으면 DOM 을 건드리지 않는다 */
+let expEditId = null;     /* 고치는 중인 지출 id (null 이면 새 지출) */
+let expWho = 'both', expCat = '식비';
+let expDelArm = false, expDelT = null;
 
-let WOST = { date: '', checks: {}, history: [], celebrated: '' };
-let woBuilt = false;
-let woRaw = '';          /* 마지막으로 읽거나 쓴 원문 — 다른 화면(세은 운동 앱)에서 바뀌었는지 비교용 */
+function normBudget(b) {
+  return { budgets: (b && b.budgets) || {}, expenses: (b && b.expenses) || {} };
+}
+function budYmNow() { return kstParts().ymd.slice(0, 7); }
+function budYmLabel(ym) { const p = String(ym).split('-'); return (+p[0]) + '년 ' + (+p[1]) + '월'; }
+function budYmShift(n) {
+  const p = String(BUD_YM || budYmNow()).split('-');
+  const d = new Date(Date.UTC(+p[0], +p[1] - 1 + n, 1));
+  return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0');
+}
+function budBudgetOf(ym) {
+  const b = (ST.budget && ST.budget.budgets) ? ST.budget.budgets[ym] : null;
+  if (b == null) return null;
+  const n = Number(typeof b === 'number' ? b : (b.amount != null ? b.amount : b));
+  return isFinite(n) && n > 0 ? Math.round(n) : null;
+}
+function budExpensesAll() {
+  const e = (ST.budget && ST.budget.expenses) || {};
+  return Object.keys(e).filter(k => {
+    const v = e[k];
+    return v && typeof v === 'object' && /^\d{4}-\d{2}-\d{2}$/.test(String(v.date || ''));
+  }).map(id => {
+    const v = e[id];
+    return {
+      id: id, date: String(v.date),
+      title: String(v.title == null ? '' : v.title),
+      amount: Math.max(0, Math.round(Number(v.amount) || 0)),
+      cat: String(v.cat || '기타'),
+      who: BUD_WHO[v.who] ? v.who : 'both',
+      createdAt: Number(v.createdAt) || 0
+    };
+  });
+}
+function budMonthList(ym) {
+  return budExpensesAll().filter(e => e.date.slice(0, 7) === ym)
+    .sort((a, b) => a.date === b.date ? b.createdAt - a.createdAt : (a.date < b.date ? 1 : -1));
+}
+function budCatSums(ym) {
+  const out = {};
+  budMonthList(ym).forEach(e => { out[e.cat] = (out[e.cat] || 0) + e.amount; });
+  return out;
+}
+function budFmt(n) { return String(Math.round(Math.abs(Number(n) || 0))).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function budMd(date) { const p = String(date).split('-'); return (+p[1]) + '/' + p[2]; }
+function budIcon(cat) { return BUD_ICON[cat] || '💸'; }
+/* 칩에는 62만처럼 짧게 */
+function budShort(n) {
+  return n >= 10000 ? Math.round(n / 10000) + '만' : budFmt(n);
+}
 
-function woPad(n) { return (n < 10 ? '0' : '') + n; }
-function woToday() {
-  const d = new Date();
-  return d.getFullYear() + '-' + woPad(d.getMonth() + 1) + '-' + woPad(d.getDate());
-}
-function woLoad() {
-  WOST = { date: woToday(), checks: {}, history: [], celebrated: '' };
-  let raw = null;
-  try { raw = localStorage.getItem(WO_KEY); } catch (e) { raw = null; }
-  woRaw = raw || '';
-  if (!raw) return;
-  let d = null;
-  try { d = JSON.parse(raw); } catch (e) { return; }
-  if (!d || typeof d !== 'object') return;
-  if (typeof d.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d.date)) WOST.date = d.date;
-  if (d.checks && typeof d.checks === 'object' && !Array.isArray(d.checks)) {
-    Object.keys(d.checks).forEach(k => { if (WO_BY_ID[k] && d.checks[k]) WOST.checks[k] = 1; });
-  }
-  if (Array.isArray(d.history)) {
-    WOST.history = d.history.filter(h => h && /^\d{4}-\d{2}-\d{2}$/.test(String(h.date || '')))
-      .map(h => ({ date: String(h.date), pct: Math.max(0, Math.min(100, Math.round(Number(h.pct) || 0))),
-                   done: Math.max(0, parseInt(h.done, 10) || 0) }))
-      .sort((a, b) => (a.date < b.date ? -1 : 1)).slice(-7);
-  }
-  if (typeof d.celebrated === 'string') WOST.celebrated = d.celebrated;
-}
-function woSave() {
-  woRaw = JSON.stringify(WOST);
-  try { localStorage.setItem(WO_KEY, woRaw); } catch (e) {}
-}
-function woGroupDone(g) { let n = 0; g.items.forEach(it => { if (WOST.checks[it.id]) n++; }); return n; }
-function woStats() {
-  let done = 0;
-  WO_ALL.forEach(it => { if (WOST.checks[it.id]) done++; });
-  return { done: done, total: WO_TOTAL, pct: Math.min(100, Math.round(done / WO_TOTAL * 100)) };
-}
-function woRowHtml(it) {
-  const media = it.img
-    ? '<a class="wo-thumb" href="' + it.url + '" target="_blank" rel="noopener noreferrer"' +
-      ' aria-label="' + esc(it.title) + ' 유튜브에서 열기">' +
-      '<img src="./wo/' + it.img + '.jpg" alt="" loading="lazy" decoding="async">' +
-      '<span class="wo-play" aria-hidden="true"></span></a>'
-    : '<span class="wo-thumb emoji" aria-hidden="true">' + (it.ico || '💆') + '</span>';
-  return '<div class="wo-row" data-wo-id="' + it.id + '">' + media +
-    '<button class="wo-hit" type="button" data-wo-hit="' + it.id + '" aria-pressed="false">' +
-      '<span class="wo-body"><span class="wo-t">' + esc(it.title) + '</span>' +
-      '<span class="wo-s">' + esc(it.sub) + '</span></span>' +
-      '<span class="wo-chk" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4.8 12.7l4.7 4.7L19.4 6.5"/></svg></span>' +
-    '</button></div>';
-}
-function woBuild() {
-  const pane = $('#woPane'); if (!pane) return;
-  pane.innerHTML =
-    wtCardHtml() +
-    '<div class="wo-sum" id="woSum">' +
-      '<div class="wo-sum-top">' +
-        '<span class="wo-cnt"><b id="woDone">0</b>/<span id="woTotal">' + WO_TOTAL + '</span> 완료</span>' +
-        '<span class="wo-pct" id="woPct">0%</span>' +
-      '</div>' +
-      '<div class="wo-bar"><i id="woBarFill"></i></div>' +
-      '<div class="wo-foot-row">' +
-        '<p class="wo-date" id="woDate">오늘의 운동</p>' +
-        '<button class="wo-reset" type="button" id="woResetOpen">↻ 오늘 리셋</button>' +
-      '</div>' +
+function budPaneHtml() {
+  const ym = BUD_YM || budYmNow();
+  const bud = budBudgetOf(ym);
+  const spent = budMonthList(ym).reduce((s, e) => s + e.amount, 0);
+  const left = bud == null ? null : bud - spent;
+  const pct = bud == null ? 0 : Math.round(spent / bud * 100);
+  const over = bud != null && spent > bud;
+
+  let h = '<section class="bud-card" id="budCard" aria-label="월 예산">' +
+    '<div class="bud-top">' +
+      '<button class="bud-nav" type="button" id="budPrev" aria-label="지난달">◀</button>' +
+      '<span class="bud-month" id="budMonth">' + budYmLabel(ym) + ' 예산</span>' +
+      '<button class="bud-nav" type="button" id="budNext" aria-label="다음달">▶</button>' +
+      '<button class="bud-set" type="button" id="budSetBtn">⚙️ 예산 설정</button>' +
     '</div>' +
-    WO_GROUPS.map(g =>
-      '<section class="wo-card" data-wo-group="' + g.id + '">' +
-        '<div class="wo-head">' +
-          '<span class="wo-ico" aria-hidden="true">' + g.emoji + '</span>' +
-          '<div class="wo-tit"><h2 class="wo-name">' + esc(g.name) + '</h2>' +
-            '<span class="wo-meta">' + esc(g.meta) + '</span></div>' +
-          '<span class="wo-n" data-wo-count="' + g.id + '">0/' + g.items.length + '</span>' +
-        '</div>' +
-        '<div class="wo-cbar"><i data-wo-bar="' + g.id + '"></i></div>' +
-        '<div class="wo-rows">' + g.items.map(woRowHtml).join('') + '</div>' +
-      '</section>').join('');
-  woBuilt = true;
-}
-function woPaint() {
-  if (!woBuilt) woBuild();
-  const st = woStats();
-  const sum = $('#woSum');
-  const dn = $('#woDone'), tt = $('#woTotal'), pc = $('#woPct'), bf = $('#woBarFill');
-  if (dn) dn.textContent = String(st.done);
-  if (tt) tt.textContent = String(st.total);
-  if (pc) pc.textContent = st.pct + '%';
-  if (bf) bf.style.width = st.pct + '%';
-  if (sum) sum.classList.toggle('full', st.done === st.total);
-  WO_GROUPS.forEach(g => {
-    const n = woGroupDone(g);
-    const cnt = $('[data-wo-count="' + g.id + '"]');
-    if (cnt) cnt.textContent = n + '/' + g.items.length;
-    const bar = $('[data-wo-bar="' + g.id + '"]');
-    if (bar) bar.style.width = Math.round(n / g.items.length * 100) + '%';
-    const card = $('[data-wo-group="' + g.id + '"]');
-    if (card) card.classList.toggle('full', n === g.items.length);
+    '<p class="bud-lbl">남은 예산</p>' +
+    (bud == null
+      ? '<p class="bud-left unset" id="budLeft">예산 미설정</p>'
+      : '<p class="bud-left' + (over ? ' over' : '') + '" id="budLeft">' + (left < 0 ? '-' : '') +
+        budFmt(left) + '<span class="won">원</span></p>') +
+    '<div class="bud-bar-row">' +
+      '<div class="bud-bar' + (over ? ' over' : '') + '" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' +
+        Math.min(pct, 100) + '"><i style="width:' + Math.min(Math.max(pct, 0), 100) + '%"></i></div>' +
+      '<span class="bud-pct' + (over ? ' over' : '') + '" id="budPct">' + (bud == null ? '–' : pct + '%') + '</span>' +
+    '</div>' +
+    '<p class="bud-sum">총 예산 <b>' + (bud == null ? '미설정' : budFmt(bud) + '원') + '</b> · 지출 <b>' +
+      budFmt(spent) + '원</b></p>' +
+    (bud == null ? '<p class="bud-hint">⚙️ 예산 설정에서 이 달 총 예산을 정하면 남은 예산과 사용률이 보여요</p>'
+                 : (over ? '<p class="bud-hint">이 달 예산을 ' + budFmt(spent - bud) + '원 넘었어요</p>' : '')) +
+  '</section>' +
+  '<button class="bud-add" type="button" id="budAdd"><span class="plus" aria-hidden="true">＋</span> 지출 추가</button>';
+
+  /* 카테고리 칩 */
+  const sums = budCatSums(ym);
+  const cats = Object.keys(sums).sort((a, b) => {
+    const ia = BUD_CATS.indexOf(a), ib = BUD_CATS.indexOf(b);
+    if (ia >= 0 && ib >= 0) return ia - ib;
+    if (ia >= 0) return -1;
+    if (ib >= 0) return 1;
+    return sums[b] - sums[a];
   });
-  WO_ALL.forEach(it => {
-    const row = $('[data-wo-id="' + it.id + '"]'); if (!row) return;
-    const on = !!WOST.checks[it.id];
-    row.classList.toggle('done', on);
-    const btn = row.querySelector('.wo-hit');
-    if (btn) btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-  });
-  const d = new Date();
-  const line = $('#woDate');
-  if (line) line.textContent = (d.getMonth() + 1) + '월 ' + d.getDate() + '일 ' + WO_WEEK[d.getDay()] +
-    '요일 · 운동 ' + WO_TOTAL + '개';
-  /* 오늘 다 채우면 한 번만 표시(축하 토스트는 띄우지 않는다) */
-  if (st.done === st.total && WOST.celebrated !== WOST.date) {
-    WOST.celebrated = WOST.date;
-    woSave();
-  } else if (st.done < st.total && WOST.celebrated === WOST.date) {
-    WOST.celebrated = '';
-    woSave();
+  if (cats.length) {
+    h += '<div class="bud-cats" role="group" aria-label="카테고리별 지출">' + cats.map(c =>
+      '<button class="bud-cat' + (budFilter === c ? ' on' : '') + '" type="button" data-bcat="' + esc(c) + '"' +
+        ' aria-pressed="' + (budFilter === c ? 'true' : 'false') + '">' +
+        '<span class="ci" aria-hidden="true">' + budIcon(c) + '</span>' +
+        '<span class="cn"><span class="cl">' + esc(c) + '</span><span class="cv">' + budShort(sums[c]) + '</span></span>' +
+      '</button>').join('') + '</div>';
   }
-  wtPaint();
-  return st;
-}
-function woToggle(id) {
-  if (!WO_BY_ID[id]) return;
-  const on = !WOST.checks[id];
-  if (on) WOST.checks[id] = 1; else delete WOST.checks[id];
-  woSave();
-  woPaint();
-  if (navigator.vibrate) { try { navigator.vibrate(on ? 14 : [8, 26, 8]); } catch (e) {} }
-}
-/* 날짜가 바뀌면 오늘 운동을 새로 시작(지난 날은 7일 기록만 남김) */
-function woRollover() {
-  const key = woToday();
-  if (WOST.date === key) return false;
-  if (WOST.date) {
-    const st = woStats();
-    WOST.history = WOST.history.filter(h => h.date !== WOST.date);
-    WOST.history.push({ date: WOST.date, pct: st.pct, done: st.done });
-    WOST.history.sort((a, b) => (a.date < b.date ? -1 : 1));
-    if (WOST.history.length > 7) WOST.history = WOST.history.slice(-7);
+
+  /* 지출 내역 */
+  const all = budMonthList(ym);
+  const list = budFilter ? all.filter(e => e.cat === budFilter) : all;
+  const shown = budShowAll ? list : list.slice(0, 5);
+  h += '<section class="bud-list" aria-label="지출 내역">' +
+    '<div class="bud-lh"><h2>최근 지출 내역</h2>' +
+      (budFilter ? '<button class="bud-chip-x" type="button" id="budFilterClear">' + esc(budFilter) + ' ✕</button>' : '') +
+      (list.length > 5 ? '<button class="bud-more" type="button" id="budMore">' + (budShowAll ? '접기' : '더보기 ›') + '</button>' : '') +
+    '</div>';
+  if (!shown.length) {
+    h += '<p class="bud-empty">' + (budFilter ? '<b>' + esc(budFilter) + '</b>이 달 지출이 아직 없어요'
+                                            : '<b>아직 지출이 없어요</b>＋ 지출 추가로 오늘 쓴 돈을 적어 두세요') + '</p>';
+  } else {
+    h += shown.map(e =>
+      '<button class="bud-row" type="button" data-exp="' + esc(e.id) + '">' +
+        '<span class="bud-d">' + budMd(e.date) + '</span>' +
+        '<span class="bud-mid"><span class="bud-x">' + esc(e.title || '지출') + '</span>' +
+          '<span class="bud-who ' + e.who + '">' + BUD_WHO[e.who].emoji + ' ' + BUD_WHO[e.who].name + '</span></span>' +
+        '<span class="bud-amt">-' + budFmt(e.amount) + '원</span>' +
+      '</button>').join('');
   }
-  WOST.date = key;
-  WOST.checks = {};
-  WOST.celebrated = '';
-  woSave();
-  return true;
+  h += '</section>';
+  return h;
 }
-function woTick() {
-  if (!woBuilt) return;
-  let cur = '';
-  try { cur = localStorage.getItem(WO_KEY) || ''; } catch (e) {}
-  if (cur !== woRaw) woLoad();     /* 세은 운동 앱 등 다른 화면에서 체크했으면 다시 읽어 맞춘다 */
-  if (woRollover()) { woPaint(); return; }
-  woPaint();
+function budPaint() {
+  const pane = $('#budPane');
+  if (!pane) return;
+  if (!BUD_YM) BUD_YM = budYmNow();
+  const html = budPaneHtml();
+  if (html !== budHtml) { pane.innerHTML = html; budHtml = html; }
 }
-function woResetOpen() { return !$('#woReset').classList.contains('hidden'); }
-function openWoReset() {
-  $('#woReset').classList.remove('hidden');
+function budTick() {
+  if (!BUD_YM) BUD_YM = budYmNow();
+  if (TAB === 'budget') budPaint();
+}
+function initBud() {
+  BUD_YM = budYmNow();
+  budPaint();
+}
+function budMonthStep(n) {
+  BUD_YM = budYmShift(n);
+  budShowAll = false;
+  budPaint();
+}
+
+/* ---------- ⚙️ 예산 설정 ---------- */
+function openBudgetSheet() {
+  const ym = BUD_YM || budYmNow();
+  $('#budgetMonth').textContent = budYmLabel(ym);
+  const b = budBudgetOf(ym);
+  $('#budgetInput').value = b == null ? '' : String(b);
+  $('#budgetSheet').classList.remove('hidden');
   syncSheetFlag();
   pushSheetHistory();
+  setTimeout(() => { try { $('#budgetInput').focus(); } catch (e) {} }, 60);
 }
-function closeWoReset() {
-  $('#woReset').classList.add('hidden');
+function closeBudgetSheet() {
+  $('#budgetSheet').classList.add('hidden');
   syncSheetFlag();
   settleSheetHistory();
 }
-function woResetNow() {
-  closeWoReset();
-  WOST.checks = {};
-  WOST.celebrated = '';
-  woSave();
-  woPaint();
-}
-function initWo() {
-  woLoad();
-  woBuild();
-  woRollover();
-  woPaint();
-}
-
-/* ============ ⚖️ 오늘 몸무게 — 왼쪽 입력 · 오른쪽 꺾은선 (v48) ============
-   운동 탭 맨 위 카드. 저장은 방(rooms/{room}/weights/{YYYY-MM-DD})에
-   { weight: 52.3, updatedAt: 169... } 모양으로 남긴다.
-   장비를 바꾸거나 캐시를 지워도 기록이 남게 하려고 기기(localStorage)에는 두지 않는다.
-   카드는 좌(입력·저장)·우(최근 기록 꺾은선) 두 칸 — 아래 목록은 두지 않는다. */
-const WT_MIN = 20, WT_MAX = 300;    /* 오타(0.5, 500)를 거르는 넉넉한 범위 */
-const WT_PTS = 7;                   /* 그래프에 그릴 최근 기록 수 */
-let wtDate = '';        /* 카드에서 고른 날짜 — 기본은 한국 오늘 */
-let wtSticky = false;   /* true = 손으로 고른 지난 날, false = 오늘을 따라간다 */
-let wtDelArm = false;   /* 저장 칸이 '지우기' 확인을 기다리는 중 */
-let wtDelT = null, wtSaveT = null;
-
-function wtTodayYmd() { return kstParts().ymd; }
-function wtYmdAdd(ymd, n) {
-  const p = String(ymd || wtTodayYmd()).split('-');
-  const d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2]) + n * 86400000);
-  const y = d.getUTCFullYear(), m = d.getUTCMonth() + 1, dd = d.getUTCDate();
-  return y + '-' + (m < 10 ? '0' + m : m) + '-' + (dd < 10 ? '0' + dd : dd);
-}
-function wtDowOf(ymd) {
-  const p = String(ymd).split('-');
-  return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])).getUTCDay();
-}
-function wtLabel(ymd) {   /* 11.21(토) */
-  const p = String(ymd).split('-');
-  return (+p[1]) + '.' + p[2] + '(' + WO_WEEK[wtDowOf(ymd)] + ')';
-}
-/* 방에 쌓인 값 읽기 — 숫자로 와도, {weight} 로 와도 같은 무게로 본다 */
-function wtWeightAt(ymd) {
-  const v = (ST.weights || {})[ymd];
-  if (v == null) return null;
-  const n = typeof v === 'number' ? v : Number(v && v.weight);
-  return isFinite(n) && n >= WT_MIN && n <= WT_MAX ? Math.round(n * 10) / 10 : null;
-}
-function wtDates() {   /* 기록이 있는 날짜 — 최근이 앞 */
-  return Object.keys(ST.weights || {})
-    .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d) && wtWeightAt(d) != null)
-    .sort((a, b) => (a < b ? 1 : -1));
-}
-/* 그 날보다 앞선 가장 가까운 기록 — 직전 대비를 재는 기준 */
-function wtPrevOf(ymd) {
-  const ds = Object.keys(ST.weights || {})
-    .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d) && d < ymd && wtWeightAt(d) != null)
-    .sort();
-  if (!ds.length) return null;
-  const d = ds[ds.length - 1];
-  return { date: d, weight: wtWeightAt(d) };
-}
-function wtCardHtml() {
-  return '<section class="wt-card" id="wtCard" aria-label="몸무게 기록">' +
-    '<div class="wt-head">' +
-      '<span class="wo-ico" aria-hidden="true">⚖️</span>' +
-      '<div class="wt-tit"><h2 class="wo-name">오늘 몸무게</h2>' +
-        '<span class="wo-meta" id="wtSub">매일 한 번 재고 적어 두기</span></div>' +
-      '<div class="wt-nav">' +
-        '<button class="wt-arrow" type="button" id="wtPrev" aria-label="이전 날">◀</button>' +
-        '<span class="wt-dwrap">' +
-          '<button class="wt-date" type="button" id="wtDateBtn" aria-label="날짜 고르기">오늘</button>' +
-          '<input type="date" class="wt-dinput" id="wtDateInput" aria-label="몸무게 기록 날짜">' +
-        '</span>' +
-        '<button class="wt-arrow" type="button" id="wtNext" aria-label="다음 날">▶</button>' +
-      '</div>' +
-    '</div>' +
-    '<div class="wt-body">' +
-      '<div class="wt-left">' +
-        '<span class="wt-field">' +
-          '<input class="wt-in" id="wtInput" type="text" inputmode="decimal" placeholder="00.0"' +
-            ' autocomplete="off" spellcheck="false" maxlength="6" aria-label="몸무게 입력">' +
-          '<span class="wt-kg" aria-hidden="true">kg</span>' +
-        '</span>' +
-        '<span class="wt-diff hidden" id="wtDiff"></span>' +
-        '<button class="wt-save" type="button" id="wtSave">저장</button>' +
-      '</div>' +
-      '<div class="wt-right" id="wtChartBox"></div>' +
-    '</div>' +
-  '</section>';
-}
-/* 그래프에 그릴 날짜 — 최근 WT_PTS개를 날짜 오름차순으로.
-   카드에서 고른 날이 그보다 앞이면 그 날까지 보여 준다(고른 점이 늘 그래프 안에 있게). */
-function wtChartDates() {
-  const today = wtTodayYmd();
-  const all = Object.keys(ST.weights || {})
-    .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d) && d <= today && wtWeightAt(d) != null)
-    .sort();
-  if (!all.length) return all;
-  let end = all.length - 1;
-  const k = wtDate ? all.indexOf(wtDate) : -1;
-  if (k >= 0 && k < all.length - WT_PTS) end = k;
-  return all.slice(Math.max(0, end - WT_PTS + 1), end + 1);
-}
-/* 오른쪽 칸 — 점·선·아래 연한 채움. 점(날짜 칸)을 누르면 그 날로 이동한다 */
-function wtChartHtml() {
-  const box = $('#wtChartBox');
-  const ds = wtChartDates();
-  if (!ds.length) {
-    return '<div class="wt-ph"><b>⚖️</b>기록을 남기면<br>여기에 그래프가 그려져요</div>';
+async function saveBudget(e) {
+  if (e) e.preventDefault();
+  const ym = BUD_YM || budYmNow();
+  const raw = String($('#budgetInput').value || '').replace(/[^0-9]/g, '');
+  const n = raw ? parseInt(raw, 10) : 0;
+  const before = (ST.budget.budgets || {})[ym];
+  if (!n) {
+    closeBudgetSheet();
+    if (before == null) return;
+    delete ST.budget.budgets[ym];
+    budPaint();
+    try { await del('budget/budgets/' + ym); }
+    catch (err) { ST.budget.budgets[ym] = before; budPaint(); toast('저장하지 못했어요'); }
+    return;
   }
-  const W = Math.max(140, Math.round((box && box.clientWidth) || 206));
-  const H = Math.max(86, Math.round((box && box.clientHeight) || 104));
-  const n = ds.length;
-  const vals = ds.map(d => wtWeightAt(d));
-  let lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
-  /* 위아래로 조금 여유를 둬서 점이 테두리에 붙지 않게(1~2kg 차이도 읽히게) */
-  if (hi - lo < 0.6) { const mid = (hi + lo) / 2; lo = mid - 0.3; hi = mid + 0.3; }
-  const padY = (hi - lo) * 0.18;
-  lo -= padY; hi += padY;
-  const padX = 14, padT = 15, padB = 16;
-  const top = padT, base = H - padB;
-  const xOf = i => n === 1 ? W / 2 : padX + (W - padX * 2) * i / (n - 1);
-  const yOf = v => base - (v - lo) / (hi - lo) * (base - top);
-  const xs = ds.map((_, i) => xOf(i));
-  const ys = vals.map(yOf);
-  const sel = ds.indexOf(wtDate);
+  if (n > 1000000000) { toast('금액이 너무 커요'); return; }
+  const val = { amount: n, updatedAt: Date.now() };
+  ST.budget.budgets[ym] = val;
+  closeBudgetSheet();
+  budPaint();
+  try { await put('budget/budgets/' + ym, val); }
+  catch (err) {
+    if (before != null) ST.budget.budgets[ym] = before; else delete ST.budget.budgets[ym];
+    budPaint(); toast('저장하지 못했어요');
+  }
+}
 
-  const line = n > 1 ? '<path class="ln" d="' +
-    xs.map((x, i) => (i ? 'L' : 'M') + x.toFixed(1) + ' ' + ys[i].toFixed(1)).join(' ') + '"></path>' : '';
-  const area = n > 1 ? '<path class="area" d="M' + xs[0].toFixed(1) + ' ' + base.toFixed(1) + ' ' +
-    xs.map((x, i) => 'L' + x.toFixed(1) + ' ' + ys[i].toFixed(1)).join(' ') +
-    ' L' + xs[n - 1].toFixed(1) + ' ' + base.toFixed(1) + ' Z"></path>' : '';
-  /* 기록이 하나뿐이면 그 높이에 가는 수평선을 그어 준다(점이 허공에 뜬 것처럼 보이지 않게) */
-  const flat = n === 1 ? '<line class="axis" x1="' + padX + '" y1="' + ys[0].toFixed(1) +
-    '" x2="' + (W - padX) + '" y2="' + ys[0].toFixed(1) + '"></line>' : '';
-  const halo = sel >= 0 && n > 1
-    ? '<circle class="halo" cx="' + xs[sel].toFixed(1) + '" cy="' + ys[sel].toFixed(1) + '" r="8.5"></circle>' : '';
-  const pts = ds.map((d, i) => '<circle class="pt' + (i === sel ? ' on' : '') + '" cx="' + xs[i].toFixed(1) +
-    '" cy="' + ys[i].toFixed(1) + '" r="' + (i === sel ? 4.4 : 3.1) +
-    '" stroke-width="' + (i === sel ? 2.2 : 1.9) + '"></circle>').join('');
-
-  /* 점 위 몸무게 숫자 — 고른 점·마지막 점부터 자리를 잡고, 겹치면 그 숫자는 생략 */
-  const fsV = n <= 3 ? 9.8 : n <= 5 ? 8.9 : 8.3;
-  const order = [];
-  if (sel >= 0) order.push(sel);
-  if (order.indexOf(n - 1) < 0) order.push(n - 1);
-  for (let i = 0; i < n; i++) if (order.indexOf(i) < 0) order.push(i);
-  const placed = [], labTxt = {};
-  order.forEach(i => {
-    const txt = vals[i].toFixed(1);
-    const w = txt.length * fsV * 0.63 + 3, h = fsV + 1.4;
-    const x = Math.min(Math.max(xs[i] - w / 2, 1), W - 1 - w);
-    let y = ys[i] - 7 - h;
-    const clash = yy => placed.some(b => x < b[2] && x + w > b[0] && yy < b[3] && yy + h > b[1]);
-    if (clash(y) || y < 0) y = ys[i] + 5;
-    if (clash(y)) return;
-    placed.push([x, y, x + w, y + h]);
-    labTxt[i] = '<text class="vl' + (i === sel ? ' on' : '') + '" x="' + xs[i].toFixed(1) + '" y="' +
-      (y + fsV * 0.94).toFixed(1) + '" font-size="' + fsV + '" text-anchor="middle">' + txt + '</text>';
+/* ---------- ＋ 지출 추가 / 수정 ---------- */
+function budCustomCats() {
+  const out = [];
+  budExpensesAll().forEach(e => {
+    if (BUD_CATS.indexOf(e.cat) < 0 && out.indexOf(e.cat) < 0) out.push(e.cat);
   });
-  const labs = ds.map((_, i) => labTxt[i] || '').join('');
-
-  /* 아래 날짜 — 7개까지는 다 보이고, 넘칠 만큼 좁으면 하나 걸러 */
-  const fsX = 8;
-  const slot = n > 1 ? (W - padX * 2) / (n - 1) : W;
-  const every = slot < 21 ? 2 : 1;
-  const xd = ds.map((d, i) => {
-    if (n > 1 && every === 2 && i !== n - 1 && i !== sel && i % 2) return '';
-    const p = String(d).split('-');
-    const txt = (+p[1]) + '.' + p[2];
-    const x = Math.min(Math.max(xs[i], 10), W - 10);
-    return '<text class="xd' + (i === sel ? ' on' : '') + '" x="' + x.toFixed(1) + '" y="' +
-      (base + 11).toFixed(1) + '" font-size="' + fsX + '" text-anchor="middle">' + txt + '</text>';
-  }).join('');
-
-  /* 누르는 칸 — 점을 정확히 누르지 않아도 그 날로 간다 */
-  const hits = ds.map((d, i) => {
-    const left = i === 0 ? 0 : (xs[i - 1] + xs[i]) / 2;
-    const right = i === n - 1 ? W : (xs[i] + xs[i + 1]) / 2;
-    return '<rect class="hit" x="' + left.toFixed(1) + '" y="0" width="' + Math.max(7, right - left).toFixed(1) +
-      '" height="' + H + '" data-wtpt="' + d + '"></rect>';
-  }).join('');
-
-  return '<svg class="wt-chart" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" ' +
-    'role="img" aria-label="최근 몸무게 꺾은선 그래프 — ' + n + '일 기록">' +
-    '<line class="axis" x1="' + padX + '" y1="' + base.toFixed(1) + '" x2="' + (W - padX) + '" y2="' + base.toFixed(1) + '"></line>' +
-    flat + area + line + halo + pts + labs + xd + hits + '</svg>';
+  return out;
 }
-/* 저장 칸 문구 — 입력이 비어 있고 그 날 기록이 있으면 '지우기' */
-function wtSyncSave() {
-  const btn = $('#wtSave');
-  if (!btn) return;
-  if (btn.classList.contains('ok')) return;
-  const inp = $('#wtInput');
-  const empty = !String((inp && inp.value) || '').trim();
-  const has = wtWeightAt(wtDate) != null;
-  const del = empty && has;
-  if (wtDelArm) {
-    if (btn.className !== 'wt-save del confirm') btn.className = 'wt-save del confirm';
-    if (btn.textContent !== '지우기?') btn.textContent = '지우기?';
-    btn.setAttribute('aria-label', wtLabel(wtDate) + ' 몸무게 기록 지우기');
+function paintExpCats() {
+  const box = $('#expCats');
+  if (!box) return;
+  const all = BUD_CATS.concat(budCustomCats());
+  box.innerHTML = all.map(c =>
+    '<button class="bc-chip' + (expCat === c ? ' on' : '') + '" type="button" data-bcat="' + esc(c) + '"' +
+      ' aria-pressed="' + (expCat === c ? 'true' : 'false') + '">' + budIcon(c) + ' ' + esc(c) + '</button>').join('') +
+    '<button class="bc-chip add" type="button" id="newCatOpen">＋ 직접 입력</button>';
+}
+function paintExpWho() {
+  $$('#expWhoSeg [data-who]').forEach(b => {
+    const on = b.dataset.who === expWho;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+function resetExpDel() {
+  const b = $('#expDel');
+  if (!b) return;
+  b.classList.remove('confirm');
+  b.textContent = '🗑 이 지출 삭제';
+  clearTimeout(expDelT); expDelT = null;
+}
+function openExpense(id) {
+  const e = id ? budExpensesAll().find(x => x.id === id) : null;
+  expEditId = e ? e.id : null;
+  $('#expTitle').textContent = e ? '지출 수정' : '＋ 지출 추가';
+  $('#expTitleInput').value = e ? e.title : '';
+  $('#expAmount').value = e ? String(e.amount) : '';
+  $('#expDate').value = e ? e.date : kstParts().ymd;
+  expWho = e ? e.who : (ME || 'both');
+  expCat = e ? e.cat : BUD_CATS[0];
+  $('#newCatRow').classList.add('hidden');
+  $('#newCatInput').value = '';
+  paintExpCats(); paintExpWho();
+  resetExpDel();
+  $('#expDel').classList.toggle('hidden', !e);
+  $('#expSheet').classList.remove('hidden');
+  syncSheetFlag();
+  pushSheetHistory();
+  setTimeout(() => { try { $('#expTitleInput').focus(); } catch (err) {} }, 60);
+}
+function closeExpense() {
+  $('#expSheet').classList.add('hidden');
+  expEditId = null;
+  resetExpDel();
+  syncSheetFlag();
+  settleSheetHistory();
+}
+async function saveExpense(ev) {
+  if (ev) ev.preventDefault();
+  const title = String($('#expTitleInput').value || '').trim();
+  const amount = parseInt(String($('#expAmount').value || '').replace(/[^0-9]/g, '') || '0', 10);
+  const date = String($('#expDate').value || '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { toast('날짜를 골라 주세요'); return; }
+  if (!title) { toast('무엇에 썼는지 적어 주세요'); try { $('#expTitleInput').focus(); } catch (e) {} return; }
+  if (!amount) { toast('금액을 적어 주세요'); try { $('#expAmount').focus(); } catch (e) {} return; }
+  if (amount > 100000000) { toast('금액이 너무 커요'); return; }
+  const id = expEditId || ('e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5));
+  const before = expEditId ? (ST.budget.expenses || {})[expEditId] : null;
+  const now = Date.now();
+  const val = Object.assign({}, before || {}, {
+    date: date, title: title, amount: amount, cat: expCat, who: expWho,
+    createdAt: (before && before.createdAt) || now, updatedAt: now
+  });
+  ST.budget.expenses = ST.budget.expenses || {};
+  ST.budget.expenses[id] = val;
+  closeExpense();
+  budPaint();
+  try { await put('budget/expenses/' + id, val); }
+  catch (err) {
+    if (before) ST.budget.expenses[id] = before; else delete ST.budget.expenses[id];
+    budPaint(); toast('저장하지 못했어요');
+  }
+}
+async function armExpDel() {
+  if (!expEditId) return;
+  const b = $('#expDel');
+  if (!b.classList.contains('confirm')) {
+    b.classList.add('confirm');
+    b.textContent = '정말 지울까요?';
+    clearTimeout(expDelT);
+    expDelT = setTimeout(resetExpDel, 4000);
     return;
   }
-  const cls = 'wt-save' + (del ? ' del' : '');
-  if (btn.className !== cls) btn.className = cls;
-  const txt = del ? '지우기' : '저장';
-  if (btn.textContent !== txt) btn.textContent = txt;
-  btn.setAttribute('aria-label', del ? wtLabel(wtDate) + ' 몸무게 기록 지우기' : wtLabel(wtDate) + ' 몸무게 저장');
-}
-function wtPaint() {
-  if (!$('#wtCard')) return;
-  const today = wtTodayYmd();
-  if (!wtDate || !wtSticky || wtDate > today) wtDate = today;
-  const cur = wtWeightAt(wtDate);
-  const prev = wtPrevOf(wtDate);
-
-  const dif = $('#wtDiff');
-  if (dif) {
-    let cls = 'wt-diff hidden', txt = '';
-    if (cur != null && prev) {
-      const dd = Math.round((cur - prev.weight) * 10) / 10;
-      cls = 'wt-diff' + (dd < 0 ? ' down' : dd > 0 ? ' up' : '');
-      txt = '직전 ' + (dd > 0 ? '+' : '') + dd.toFixed(1);
-    } else if (cur != null) {
-      cls = 'wt-diff'; txt = '첫 기록';
-    }
-    if (dif.className !== cls) dif.className = cls;
-    if (dif.textContent !== txt) dif.textContent = txt;
-    dif.setAttribute('title', prev && cur != null ? '직전 기록(' + wtLabel(prev.date) + ') 대비 ' +
-      (cur - prev.weight > 0 ? '+' : '') + (Math.round((cur - prev.weight) * 10) / 10).toFixed(1) + 'kg' : '');
-  }
-  const db = $('#wtDateBtn');
-  if (db) {
-    const isToday = wtDate === today;
-    const txt = isToday ? '오늘' : wtLabel(wtDate);
-    if (db.textContent !== txt) db.textContent = txt;
-    db.classList.toggle('today', isToday);
-  }
-  const di = $('#wtDateInput');
-  if (di) {
-    /* 날짜칸을 고르는 중(포커스)에는 건드리지 않는다 — 다시 그리기가 고른 값을 되돌리면 안 된다 */
-    if (document.activeElement !== di && di.value !== wtDate) di.value = wtDate;
-    if (di.max !== today) di.max = today;
-  }
-  const sub = $('#wtSub');
-  if (sub) {
-    const p = wtDate.split('-');
-    const txt = (wtDate === today ? '오늘 · ' : '') + (+p[1]) + '월 ' + (+p[2]) + '일 ' +
-      WO_WEEK[wtDowOf(wtDate)] + '요일';
-    if (sub.textContent !== txt) sub.textContent = txt;
-  }
-  const nx = $('#wtNext');
-  if (nx) nx.disabled = wtDate >= today;
-  const inp = $('#wtInput');
-  if (inp && document.activeElement !== inp) {
-    const txt = cur == null ? '' : cur.toFixed(1);
-    if (inp.value !== txt) inp.value = txt;
-  }
-  const box = $('#wtChartBox');
-  if (box) box.innerHTML = wtChartHtml();
-  wtSyncSave();
-}
-function wtPick(d) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(d || ''))) return;
-  const today = wtTodayYmd();
-  if (d > today) d = today;
-  wtDate = d;
-  wtSticky = (d !== today);
-  wtDelArm = false;
-  clearTimeout(wtDelT);
-  wtPaint();
-}
-function wtStep(n) {
-  const d = wtYmdAdd(wtDate || wtTodayYmd(), n);
-  if (d > wtTodayYmd()) return;
-  wtPick(d);
-}
-function wtArmDelete() {
-  wtDelArm = true;
-  clearTimeout(wtDelT);
-  wtSyncSave();
-  wtDelT = setTimeout(() => { wtDelArm = false; wtSyncSave(); }, 4000);
-}
-async function wtSaveNow() {
-  const inp = $('#wtInput');
-  if (!inp) return;
-  const date = wtDate || wtTodayYmd();
-  const raw = String(inp.value || '').trim().replace(',', '.');
-  /* 빈 값으로 저장 = 그 날 기록 지우기 — 한 번 더 눌러 확인한다 */
-  if (!raw) {
-    if (wtWeightAt(date) != null) {
-      if (!wtDelArm) { wtArmDelete(); return; }
-      await wtDeleteNow(date);
-      return;
-    }
-    toast('몸무게를 숫자로 적어 주세요');
-    try { inp.focus(); } catch (e) {}
-    return;
-  }
-  const n = Number(raw);
-  if (!isFinite(n) || n < WT_MIN || n > WT_MAX) {
-    toast('몸무게를 숫자로 적어 주세요');
-    try { inp.focus(); } catch (e) {}
-    return;
-  }
-  const w = Math.round(n * 10) / 10;
-  wtDelArm = false;
-  clearTimeout(wtDelT);
-  ST.weights = ST.weights || {};
-  const before = ST.weights[date] || null;
-  ST.weights[date] = { weight: w, updatedAt: Date.now() };
-  wtPaint();
-  inp.value = w.toFixed(1);
-  wtSyncSave();
-  const btn = $('#wtSave');
-  const say = () => { if (btn) { btn.classList.remove('ok'); wtSyncSave(); } };
-  try {
-    await put('weights/' + date, ST.weights[date]);
-  } catch (e) {
-    if (before) ST.weights[date] = before; else delete ST.weights[date];
-    wtPaint();
-    inp.value = before ? Number(before.weight).toFixed(1) : '';
-    wtSyncSave();
-    say();
-    toast('저장하지 못했어요');
-    return;
-  }
-  if (btn) {
-    btn.className = 'wt-save ok';
-    btn.textContent = '✓ 저장';
-    clearTimeout(wtSaveT);
-    wtSaveT = setTimeout(say, 1200);
-  }
-  if (navigator.vibrate) { try { navigator.vibrate(14); } catch (e) {} }
-}
-async function wtDeleteNow(date) {
-  clearTimeout(wtDelT);
-  wtDelArm = false;
-  const before = (ST.weights || {})[date];
+  const id = expEditId;
+  const before = (ST.budget.expenses || {})[id];
+  closeExpense();
   if (!before) return;
-  delete ST.weights[date];
-  wtPaint();
-  try {
-    await del('weights/' + date);
-  } catch (e) {
-    ST.weights = ST.weights || {};
-    ST.weights[date] = before;
-    wtPaint();
-    toast('지우지 못했어요');
-  }
+  delete ST.budget.expenses[id];
+  budPaint();
+  try { await del('budget/expenses/' + id); }
+  catch (err) { ST.budget.expenses[id] = before; budPaint(); toast('지우지 못했어요'); }
 }
 
 /* ============ 마지막 접속 시간 ============ */
@@ -2407,26 +2152,26 @@ function paintTabs() {
   });
 }
 function paintAddDock() {
-  const wo = TAB === 'workout';
   const cal = TAB === 'cal';
+  const bud = TAB === 'budget';
   const dock = $('.add-dock');
-  if (dock) dock.classList.toggle('hidden', wo || cal);   /* 운동·일정 탭에서는 + 할 일 추가를 감춘다 */
+  if (dock) dock.classList.toggle('hidden', cal || bud);   /* 일정·예산 탭에서는 +할 일 추가를 감춘다 */
   const dbtn = $('#doneBtn');
-  if (dbtn) dbtn.classList.toggle('hidden', wo);   /* 완료됨 버튼은 할 일 화면에서만 */
+  if (dbtn) dbtn.classList.toggle('hidden', bud);   /* 완료됨 버튼은 할 일 화면에서만 */
   const b = $('#addBig'); if (!b) return;
   const info = OWNER[TAB] || OWNER.seeun;
   b.setAttribute('aria-label', info.name + ' 할 일 추가');
   b.dataset.owner = OWNER[TAB] ? TAB : 'seeun';
 }
 function setTab(owner) {
-  if (owner === 'both' || (owner !== 'workout' && owner !== 'cal' && !OWNER[owner])) return;
+  if (owner === 'both' || (owner !== 'budget' && owner !== 'cal' && !OWNER[owner])) return;
   const changed = TAB !== owner;
   TAB = owner;
   closeAllSwipes();
   render();
-  if (owner === 'workout') woTick();
+  if (owner === 'budget') budTick();
   if (changed) {
-    const bd = owner === 'workout' ? $('#woPane') : owner === 'cal' ? $('#calPane') : $('#board');
+    const bd = owner === 'budget' ? $('#budPane') : owner === 'cal' ? $('#calPane') : $('#board');
     if (bd) {
       bd.classList.remove('tabsw');
       void bd.offsetWidth;      /* 같은 애니메이션이 다시 돌게 */
@@ -2437,7 +2182,7 @@ function setTab(owner) {
   }
 }
 /* 다시 그려도 보던 자리를 지킨다 — 스크롤되는 칸의 위치를 저장했다가 되돌린다 */
-const SCROLL_SEL = ['.rows', '.cal-events', '#woPane', '#doneList', '.sheet .panel'];
+const SCROLL_SEL = ['.rows', '.cal-events', '#budPane', '#doneList', '.sheet .panel'];
 function saveScrolls() {
   const out = [];
   SCROLL_SEL.forEach(sel => { const el = $(sel); if (el && el.scrollTop > 0) out.push([sel, el.scrollTop]); });
@@ -2458,16 +2203,16 @@ function render() {
   const savedScrolls = saveScrolls();
   if (TAB === 'cal') {
     $('#board').classList.add('hidden');
-    $('#woPane').classList.add('hidden');
+    $('#budPane').classList.add('hidden');
     $('#calPane').classList.remove('hidden');
     calPaint();
-  } else if (TAB === 'workout') {
+  } else if (TAB === 'budget') {
     $('#board').classList.add('hidden');
     $('#calPane').classList.add('hidden');
-    $('#woPane').classList.remove('hidden');
-    woPaint();
+    $('#budPane').classList.remove('hidden');
+    budPaint();
   } else {
-    $('#woPane').classList.add('hidden');
+    $('#budPane').classList.add('hidden');
     $('#calPane').classList.add('hidden');
     $('#board').classList.remove('hidden');
     const html = cardHtml(TAB);
@@ -2531,7 +2276,8 @@ function syncSheetFlag() {
                !$('#noteSheet').classList.contains('hidden') ||
                !$('#eventSheet').classList.contains('hidden') ||
                !$('#pickSheet').classList.contains('hidden') || !$('#saySheet').classList.contains('hidden') ||
-               !$('#sortSheet').classList.contains('hidden') || !$('#woReset').classList.contains('hidden');
+               !$('#sortSheet').classList.contains('hidden') ||
+               !$('#budgetSheet').classList.contains('hidden') || !$('#expSheet').classList.contains('hidden');
   document.body.classList.toggle('sheet-open', open);
 }
 
@@ -2634,7 +2380,8 @@ function anySheetOpen() {
          !$('#pickSheet').classList.contains('hidden') ||
          !$('#saySheet').classList.contains('hidden') ||
          !$('#sortSheet').classList.contains('hidden') ||
-         !$('#woReset').classList.contains('hidden') ||
+         !$('#budgetSheet').classList.contains('hidden') ||
+         !$('#expSheet').classList.contains('hidden') ||
          !$('#doneSheet').classList.contains('hidden');
 }
 function pushSheetHistory() {
@@ -2666,7 +2413,8 @@ function closeTopSheet() {
   else if (sortOpen()) closeSort();
   else if (sayOpen()) closeSay();
   else if (pickOpen()) closePick();
-  else if (woResetOpen()) closeWoReset();
+  else if (!$('#budgetSheet').classList.contains('hidden')) closeBudgetSheet();
+  else if (!$('#expSheet').classList.contains('hidden')) closeExpense();
   else if (!$('#sheet').classList.contains('hidden')) closeSheet();
   else if (!$('#doneSheet').classList.contains('hidden')) closeDone();
 }
@@ -2807,6 +2555,7 @@ function connect() {
       ST.events = (m.data && m.data.events) || {};
       ST.weights = (m.data && m.data.weights) || {};
       ST.shopping = (m.data && m.data.shopping) || {};
+      ST.budget = normBudget(m.data && m.data.budget);
       gotSnapshot = true;
       seenSelfGuard();
       applyRepeatResets();
@@ -2848,6 +2597,7 @@ function setAt(path, data) {
     ST.events = (data && data.events) || {};
     ST.weights = (data && data.weights) || {};
     ST.shopping = (data && data.shopping) || {};
+    ST.budget = normBudget(data && data.budget);
     seenSelfGuard();
     applyRepeatResets();
     return;
@@ -2878,6 +2628,7 @@ async function syncNow(quiet) {
     ST.events = d.events || {};
     ST.weights = d.weights || {};
     ST.shopping = d.shopping || {};
+    ST.budget = normBudget(d.budget);
     gotSnapshot = true;
     seenSelfGuard();
     if (!es) setLive('live');
@@ -2980,7 +2731,7 @@ function resetDelBtn() {
   clearTimeout(delTimer); delTimer = null;
 }
 function openAdd(owner) {
-  if (owner === 'workout' || !OWNER[owner]) owner = ME || lastOwner || 'seeun';
+  if (!OWNER[owner]) owner = ME || lastOwner || 'seeun';
   draft = { id: null, owner: OWNER[owner] ? owner : 'seeun' };
   addRepeatDays = [];
   addRepeatMode = 'once';        /* 새 할 일은 기본이 📌 이번만 */
@@ -3059,7 +2810,7 @@ function addTodoMeta() {
   if (days.indexOf(dow) >= 0) { meta.today = true; meta.lastTodayAutoDate = ymd; }
   return meta;
 }
-/* 지금 보고 있는 사람 탭(일정·운동 탭이면 이 기기 사람) — 같이(both) 새 항목의 자리를 잴 때 쓴다.
+/* 지금 보고 있는 사람 탭(일정·예산 탭이면 이 기기 사람) — 같이(both) 새 항목의 자리를 잴 때 쓴다.
    both 항목만 모아 자리를 제면 두 사람 목록에서 엉뚱한 곳으로 튀므로, 지금 눈에 보이는 사람 목록 기준으로 넣는다. */
 function basePerson() {
   if (OWNER[TAB] && TAB !== 'both') return TAB;
@@ -4284,51 +4035,86 @@ function initApp() {
   const addBig = $('#addBig');
   if (addBig) addBig.addEventListener('click', () => { closeAllSwipes(); openAdd(TAB); });
 
-  /* 💪 운동 탭 — 체크 토글과 오늘 리셋 + ⚖️ 몸무게 카드 */
-  const woPane = $('#woPane');
-  if (woPane) woPane.addEventListener('click', e => {
-    const hit = e.target.closest('[data-wo-hit]');
-    if (hit) { e.preventDefault(); woToggle(hit.dataset.woHit); return; }
-    if (e.target.closest('#woResetOpen')) { e.preventDefault(); openWoReset(); return; }
-    /* ⚖️ 오늘 몸무게 */
-    if (e.target.closest('#wtPrev')) { e.preventDefault(); wtStep(-1); return; }
-    if (e.target.closest('#wtNext')) { e.preventDefault(); wtStep(1); return; }
-    if (e.target.closest('#wtSave')) { e.preventDefault(); wtSaveNow(); return; }
-    /* 그래프의 점(날짜 칸)을 누르면 그 날 기록으로 — 입력칸이 그 날 값으로 바뀐다 */
-    const wpt = e.target.closest('[data-wtpt]');
-    if (wpt) { e.preventDefault(); wtPick(wpt.dataset.wtpt); return; }
+  /* 💰 예산·지출 탭 — 달 넘기기·예산 설정·지출 추가/수정/삭제 */
+  const budPane = $('#budPane');
+  if (budPane) budPane.addEventListener('click', e => {
+    if (e.target.closest('#budPrev')) { e.preventDefault(); budMonthStep(-1); return; }
+    if (e.target.closest('#budNext')) { e.preventDefault(); budMonthStep(1); return; }
+    if (e.target.closest('#budSetBtn')) { e.preventDefault(); openBudgetSheet(); return; }
+    if (e.target.closest('#budAdd')) { e.preventDefault(); openExpense(null); return; }
+    if (e.target.closest('#budMore')) { e.preventDefault(); budShowAll = !budShowAll; budPaint(); return; }
+    if (e.target.closest('#budFilterClear')) { e.preventDefault(); budFilter = ''; budPaint(); return; }
+    const cat = e.target.closest('[data-bcat]');
+    if (cat) {
+      e.preventDefault();
+      budFilter = (budFilter === cat.dataset.bcat) ? '' : cat.dataset.bcat;
+      budShowAll = false;
+      budPaint();
+      return;
+    }
+    const row = e.target.closest('[data-exp]');
+    if (row) { e.preventDefault(); openExpense(row.dataset.exp); return; }
   });
-  if (woPane) {
-    /* 날짜 고르기(휴대폰 기본 달력) — 값이 비어 돌아오면 지금 고른 날짜로 되돌린다 */
-    woPane.addEventListener('change', e => {
-      if (!e.target || e.target.id !== 'wtDateInput') return;
-      const v = e.target.value;
-      if (v) wtPick(v);
-      else wtPaint();
-    });
-    /* 몸무게 칸은 숫자와 소수점 하나만 — 소수점은 첫째 자리까지 */
-    woPane.addEventListener('input', e => {
-      const el = e.target;
-      if (!el || el.id !== 'wtInput') return;
-      let v = String(el.value || '').replace(/[^0-9.]/g, '');
-      const i = v.indexOf('.');
-      if (i >= 0) v = v.slice(0, i + 1) + v.slice(i + 1).replace(/\./g, '').slice(0, 1);
-      if (v.length > 6) v = v.slice(0, 6);
-      if (v !== el.value) el.value = v;
-      /* 칸을 비우면 저장 칸이 '지우기'로 바뀐다 (빈 값 저장 = 그 날 기록 지우기) */
-      wtDelArm = false;
-      clearTimeout(wtDelT);
-      wtSyncSave();
-    });
-    woPane.addEventListener('keydown', e => {
-      if (e.target && e.target.id === 'wtInput' && e.key === 'Enter') { e.preventDefault(); wtSaveNow(); }
-    });
-  }
-  $('#woResetYes').addEventListener('click', woResetNow);
-  $('#woResetNo').addEventListener('click', closeWoReset);
-  $('#woReset').addEventListener('click', e => { if (e.target.dataset.wrclose === '1') closeWoReset(); });
-  /* 세은 운동 앱(다른 탭·창)에서 체크하면 이 화면도 바로 따라간다 */
-  window.addEventListener('storage', e => { if (e && e.key === WO_KEY) woTick(); });
+  const budgetForm = $('#budgetForm');
+  if (budgetForm) budgetForm.addEventListener('submit', saveBudget);
+  const budgetCancel = $('#budgetCancel');
+  if (budgetCancel) budgetCancel.addEventListener('click', closeBudgetSheet);
+  const budgetSheet = $('#budgetSheet');
+  if (budgetSheet) budgetSheet.addEventListener('click', e => { if (e.target.dataset.bgclose === '1') closeBudgetSheet(); });
+  /* 예산 칸은 숫자만 */
+  const budgetInput = $('#budgetInput');
+  if (budgetInput) budgetInput.addEventListener('input', e => {
+    const v = String(e.target.value || '').replace(/[^0-9]/g, '').slice(0, 11);
+    if (v !== e.target.value) e.target.value = v;
+  });
+
+  const expForm = $('#expForm');
+  if (expForm) expForm.addEventListener('submit', saveExpense);
+  const expSheet = $('#expSheet');
+  if (expSheet) expSheet.addEventListener('click', e => { if (e.target.dataset.exclose === '1') closeExpense(); });
+  const expCats = $('#expCats');
+  if (expCats) expCats.addEventListener('click', e => {
+    if (e.target.closest('#newCatOpen')) {
+      e.preventDefault();
+      $('#newCatRow').classList.remove('hidden');
+      try { $('#newCatInput').focus(); } catch (err) {}
+      return;
+    }
+    const chip = e.target.closest('[data-bcat]');
+    if (!chip) return;
+    e.preventDefault();
+    expCat = chip.dataset.bcat;
+    paintExpCats();
+  });
+  const newCatAdd = $('#newCatAdd');
+  if (newCatAdd) newCatAdd.addEventListener('click', () => {
+    const v = String($('#newCatInput').value || '').trim().replace(/\s+/g, ' ').slice(0, 8);
+    if (!v) { toast('새 카테고리 이름을 적어 주세요'); try { $('#newCatInput').focus(); } catch (e) {} return; }
+    expCat = v;
+    $('#newCatInput').value = '';
+    $('#newCatRow').classList.add('hidden');
+    paintExpCats();
+  });
+  const newCatInput = $('#newCatInput');
+  if (newCatInput) newCatInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); if (newCatAdd) newCatAdd.click(); }
+  });
+  const expWhoSeg = $('#expWhoSeg');
+  if (expWhoSeg) expWhoSeg.addEventListener('click', e => {
+    const b = e.target.closest('[data-who]');
+    if (!b) return;
+    e.preventDefault();
+    expWho = b.dataset.who;
+    paintExpWho();
+  });
+  const expAmt = $('#expAmount');
+  if (expAmt) expAmt.addEventListener('input', e => {
+    const v = String(e.target.value || '').replace(/[^0-9]/g, '').slice(0, 10);
+    if (v !== e.target.value) e.target.value = v;
+  });
+  const expDelBtn = $('#expDel');
+  if (expDelBtn) expDelBtn.addEventListener('click', armExpDel);
+
   board.addEventListener('click', e => {
     /* 스와이프 제스처 뒤에 따라오는 click 은 누르지 않은 것으로 친다 */
     if (gestureSwiped) { gestureSwiped = false; e.preventDefault(); e.stopPropagation(); return; }
@@ -4578,7 +4364,7 @@ function initApp() {
   $('#roomInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); joinRoom(); } });
 
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) { if (!es) syncNow(true); render(); touchSeen(true); applyRepeatResets(); woTick(); }
+    if (!document.hidden) { if (!es) syncNow(true); render(); touchSeen(true); applyRepeatResets(); budTick(); }
   });
 
   registerSW();
@@ -4637,7 +4423,7 @@ function boot() {
   $('#gate').classList.add('hidden');
   $('#app').classList.remove('hidden');
   initApp();
-  initWo();
+  initBud();
   render();
   connect();
   setInterval(() => { if (!es) syncNow(true); }, 20000);
@@ -4651,7 +4437,7 @@ function boot() {
     paintSeen();
     if (boardYmd !== kstParts().ymd) { boardYmd = kstParts().ymd; render(); }  /* 자정을 넘기면 어제 완료한 일은 목록에서 빠진다 */
     applyRepeatResets();      /* 자정을 넘겨 앱을 켜 둔 채로도 반복 할 일이 올라오게 */
-    woTick();                 /* 운동 탭도 날짜가 바뀌면 새로 시작 */
+    budTick();                /* 달이 바뀌면 지금 보는 달을 오늘 달로 */
   }, 30000);
 }
 
