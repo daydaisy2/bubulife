@@ -224,7 +224,7 @@
   .card-add:active{transform:translateY(2px);box-shadow:0 0 0 #E9C92C, 0 2px 6px rgba(120,95,0,.14)}
   .card-add:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
 
-  /* ---------- 하단 고정 4탭 (📅 일정 / 👩🏻 세은 / 👨🏻 찬규 / 💰 예산·지출) ---------- */
+  /* ---------- 하단 고정 4탭 (📅 일정 / 💰 지출 / 👩🏻 세은 / 👨🏻 찬규) ---------- */
   .person-tabs{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:7px;
                padding:7px;border-radius:22px 22px 0 0;
                background:rgba(255,255,255,.8);backdrop-filter:blur(10px);
@@ -242,10 +242,6 @@
   @keyframes tabIn{from{opacity:.45;transform:translateY(7px)}to{opacity:1;transform:none}}
   .board.tabsw > .card{animation:tabIn .2s cubic-bezier(.2,.8,.2,1)}
   .bud-pane.tabsw > .bud-card{animation:tabIn .2s cubic-bezier(.2,.8,.2,1)}
-  .ptab.budget{font-size:clamp(12px,1.75vw,16.5px);gap:.2em;white-space:nowrap}
-  .ptab.budget .pe{font-size:1.15em}
-  @media (max-width:360px){ .ptab.budget{font-size:11.5px} }
-  @media (max-width:335px){ .ptab.budget .pe{display:none} }
 
   /* ---------- sheet (공통) ---------- */
   .sheet{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center}
@@ -925,12 +921,12 @@
   <nav id="personTabs" class="person-tabs" role="tablist" aria-label="화면 고르기">
     <button class="ptab" type="button" role="tab" data-tab-owner="cal" aria-selected="false" aria-controls="calPane">
       <span class="pe" aria-hidden="true">📅</span>일정</button>
+    <button class="ptab" type="button" role="tab" data-tab-owner="budget" aria-selected="false" aria-controls="budPane">
+      <span class="pe" aria-hidden="true">💰</span>지출</button>
     <button class="ptab" type="button" role="tab" data-tab-owner="seeun" aria-selected="false" aria-controls="board">
       <span class="pe" aria-hidden="true">👩🏻</span>세은</button>
     <button class="ptab" type="button" role="tab" data-tab-owner="chankyu" aria-selected="false" aria-controls="board">
       <span class="pe" aria-hidden="true">👨🏻</span>찬규</button>
-    <button class="ptab budget" type="button" role="tab" data-tab-owner="budget" aria-selected="false" aria-controls="budPane">
-      <span class="pe" aria-hidden="true">💰</span>예산·지출</button>
   </nav>
 </div>
 
