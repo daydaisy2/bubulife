@@ -1058,7 +1058,7 @@
     <h2 id="sayTitle">💬 한마디</h2>
     <div class="field">
       <span class="ico" id="sayIcon" aria-hidden="true">👨🏻</span>
-      <input id="sayInput" type="text" maxlength="60" placeholder="한마디 남겨 보세요" enterkeyhint="done">
+      <input id="sayInput" type="text" maxlength="60" placeholder="한마디 남겨 보세요" enterkeyhint="done" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
     <p class="hint">상대 화면에도 바로 보여요</p>
     <div class="acts">
@@ -1103,7 +1103,7 @@
     <p class="bud-month-badge" id="budgetMonth">2026년 11월</p>
     <div class="field">
       <span class="ico" aria-hidden="true">💰</span>
-      <input id="budgetInput" class="bud-field amt" type="text" inputmode="numeric" placeholder="0" maxlength="11" aria-label="이 달 총 예산">
+      <input id="budgetInput" class="bud-field amt" type="text" inputmode="numeric" placeholder="0" maxlength="11" aria-label="이 달 총 예산" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false">
       <span class="bud-won" aria-hidden="true">원</span>
     </div>
     <p class="hint">비워 두면 예산 없이 지출만 기록해요</p>
@@ -1155,11 +1155,11 @@
       </div>
       <div class="ee-row">
         <label class="ee-k" for="eeTitle">내용</label>
-        <input id="eeTitle" type="text" maxlength="60" placeholder="무엇에 썼나요?" enterkeyhint="next">
+        <input id="eeTitle" type="text" maxlength="60" placeholder="무엇에 썼나요?" enterkeyhint="next" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false">
       </div>
       <div class="ee-row">
         <label class="ee-k" for="eeMemo">메모</label>
-        <input id="eeMemo" type="text" maxlength="120" placeholder="메모 (선택)">
+        <input id="eeMemo" type="text" maxlength="120" placeholder="메모 (선택)" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false">
       </div>
     </div>
   </div>
@@ -1184,7 +1184,7 @@
     </div>
     <div class="field">
       <span class="ico" id="iconPreview" aria-hidden="true">👩🏻</span>
-      <input id="textInput" type="text" placeholder="할 일을 입력해 주세요" maxlength="80" enterkeyhint="done">
+      <input id="textInput" type="text" placeholder="할 일을 입력해 주세요" maxlength="80" enterkeyhint="done" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
     <p class="hint">담당자 아이콘이 그대로 붙어요</p>
     <div class="rep" id="addRep">
@@ -1231,9 +1231,9 @@
     </div>
     <div class="field">
       <span class="ico" id="noteIcon" aria-hidden="true">👩🏻</span>
-      <input id="noteText" type="text" maxlength="80" placeholder="할 일">
+      <input id="noteText" type="text" maxlength="80" placeholder="할 일" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
-    <textarea id="noteInput" rows="3" maxlength="200" placeholder="메모를 적어 주세요"></textarea>
+    <textarea id="noteInput" rows="3" maxlength="200" placeholder="메모를 적어 주세요" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
     <div class="rep" id="noteRep">
       <div class="rep-top">
         <h3>📅 요일 지정</h3>
@@ -1274,7 +1274,7 @@
     <div class="grab"></div>
     <h2 id="evHead">📅 일정</h2>
     <p class="hint" id="evDateHint" style="margin:-8px 0 0">11월 21일 (토)</p>
-    <div class="field"><span class="ico">✏️</span><input id="evName" type="text" maxlength="60" placeholder="일정 제목"></div>
+    <div class="field"><span class="ico">✏️</span><input id="evName" type="text" maxlength="60" placeholder="일정 제목" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
     <div class="ev-row">
       <div class="field"><span class="ico">🕒</span><input id="evTime" type="time" aria-label="시간(선택)"></div>
       <button type="button" id="evTimeClear" class="ev-sub">시간 없음</button>
@@ -1284,7 +1284,7 @@
       <button type="button" id="evEndClear" class="ev-sub">하루만</button>
     </div>
     <p class="hint ev-end-hint" id="evEndHint">하루 일정</p>
-    <textarea id="evNote" rows="2" maxlength="200" placeholder="메모 (선택)"></textarea>
+    <textarea id="evNote" rows="2" maxlength="200" placeholder="메모 (선택)" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
     <div class="ev-who" id="evWho">
       <h3>👤 누구 일정</h3>
       <div class="ev-who-chips" role="group" aria-label="누구 일정">
@@ -1332,6 +1332,44 @@ const OWNER = {
 };
 /* 사람 두 명 — 접속 시간·한마디·탭은 이 두 사람만 쓴다(같이(both)는 사람이 아니라 담당자 표시다). */
 const OWNER_ORDER = ['seeun', 'chankyu'];
+
+/* ============ 크롬 자동완성 드롭다운 막기 ============
+   안드로이드 크롬은 autocomplete="off" 를 무시하고, 전에 이 칸에 적었던 값(예: 공동·공동소비)을
+   흰색 드롭다운으로 키보드 위에 띄운다. autocomplete="one-time-code" 는 크롬이 자동완성 대상에서
+   빼는 값이라 off 와 달리 그 팝업이 실제로 뜨지 않는다.
+   화면을 그릴 때마다 새로 만드는 입력칸(✏️ 예산·항목 이름 등)까지 빠짐없이 덮도록
+   MutationObserver 로 새로 붙는 칸을 지켜보고, 포커스가 들어올 때 한 번 더 채운다. */
+const NOAUTOFILL_TYPES = /^(date|time|month|week|datetime-local|number|range|color|file|checkbox|radio|hidden|button|submit|reset|image)$/;
+function noAutofill(el) {
+  if (!el || (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA')) return;
+  /* 날짜·시간처럼 크롬이 자동완성 후보를 만들지 않는 칸은 그대로 둔다 */
+  if (el.tagName === 'INPUT' && NOAUTOFILL_TYPES.test((el.getAttribute('type') || 'text').toLowerCase())) {
+    el.setAttribute('autocomplete', 'off');
+    return;
+  }
+  el.setAttribute('autocomplete', 'one-time-code');
+  el.setAttribute('autocorrect', 'off');
+  el.setAttribute('autocapitalize', 'off');
+  el.setAttribute('spellcheck', 'false');
+  el.setAttribute('aria-autocomplete', 'none');
+  el.setAttribute('data-form-type', 'other');   /* 비밀번호 관리자·확장 자동완성도 끈다 */
+  el.setAttribute('data-lpignore', 'true');
+  el.setAttribute('data-1p-ignore', 'true');
+  if (el.hasAttribute('name')) el.removeAttribute('name');  /* 이름·예산 같은 이름표로 걸리지 않게 */
+}
+function noAutofillAll(root) {
+  const scope = root || document;
+  noAutofill(scope);
+  if (scope.querySelectorAll) scope.querySelectorAll('input, textarea').forEach(noAutofill);
+}
+noAutofillAll(document);
+new MutationObserver(records => {
+  records.forEach(r => {
+    if (!r.addedNodes || !r.addedNodes.length) return;
+    r.addedNodes.forEach(n => { if (n.nodeType === 1) noAutofillAll(n); });
+  });
+}).observe(document.body, { childList: true, subtree: true });
+document.addEventListener('focusin', e => noAutofill(e.target), true);
 
 
 const params = new URLSearchParams(location.search);
@@ -2236,7 +2274,8 @@ function expGridHtml(kind) {
   if (expEditBar && expEditBar.kind === kind) {
     h += '<div class="ee-editbar">' +
       '<input id="eeEditInput" type="text" maxlength="12" value="' + esc(expEditBar.value) + '"' +
-        ' placeholder="' + name + ' 이름" enterkeyhint="done" aria-label="' + name + ' 이름">' +
+        ' placeholder="' + name + ' 이름" enterkeyhint="done" aria-label="' + name + ' 이름"' +
+        ' autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false">' +
       '<button type="button" data-editok="1">저장</button>' +
       '<button type="button" class="cancel" data-editcancel="1">취소</button>' +
     '</div>';
