@@ -311,6 +311,14 @@
         display:grid;place-items:center;line-height:1;
         transition:background .14s,color .14s,border-color .14s,box-shadow .14s,transform .1s}
   .rday.on{background:#231F78;border-color:#231F78;color:#FBE049;box-shadow:0 3px 9px rgba(35,31,120,.22)}
+  /* 🌟 오늘 요일 — 고르지 않았을 때: 노란 테두리 + 옅은 노랑 바탕 + 위쪽 가운데 작은 노란 점 */
+  .rday.is-today{position:relative;border-color:#F4B400;background:#FFFBE6;color:#A88600}
+  .rday.is-today::after{content:"";position:absolute;top:3px;left:50%;width:5px;height:5px;
+                        border-radius:50%;background:#F4B400;transform:translateX(-50%)}
+  /* 오늘 요일이 진남색으로 골라져 있어도(단독·다른 요일과 함께) 오늘임이 남도록 테두리·점 유지 */
+  .rday.is-today.on{background:#231F78;border-color:#F4B400;color:#FBE049;
+                    box-shadow:0 0 0 1.5px #F4B400,0 3px 9px rgba(35,31,120,.22)}
+  .rday.is-today.on::after{background:var(--yellow)}
   .rday:active{transform:scale(.96)}
   .rep-quick{display:flex;gap:6px}
   .rq{flex:1 1 0;height:30px;border-radius:10px;background:#fff;border:1.5px solid #E7E1C8;
@@ -1630,10 +1638,16 @@ function paintRepeat(box, days, mode) {
     lb.classList.toggle('on', later);
     lb.setAttribute('aria-pressed', later ? 'true' : 'false');
   }
+  const todayDow = kstParts().dow;               /* 0=일 … 6=토 (한국시간) */
   $$('.rday', box).forEach(b => {
-    const on = d.indexOf(Number(b.dataset.day)) >= 0;
+    const n = Number(b.dataset.day);
+    const on = d.indexOf(n) >= 0;
+    const isToday = n === todayDow;
     b.classList.toggle('on', on);
+    b.classList.toggle('is-today', isToday);
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    const label = (DAY_NAME[n] || '') + '요일' + (isToday ? ' (오늘)' : '');
+    if (b.getAttribute('aria-label') !== label) b.setAttribute('aria-label', label);
   });
   $$('.rq', box).forEach(b => b.classList.toggle('on', sameDays(d, presetDays(b.dataset.rep))));
   /* ⭐ 오늘 버튼 — 이번만으로 오늘 요일이 골라져 있으면 켜 둔다 */
