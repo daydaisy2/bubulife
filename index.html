@@ -289,13 +289,22 @@
   .rlater.on .rlater-x{color:#6E6A58}
   .rlater:active{transform:scale(.99)}
   .rep.is-later .rday{opacity:.5}
-  .rep-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .rep-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:nowrap}
   .rep-top h3{margin:0;font-size:clamp(12.5px,1.65vw,15px);font-weight:900;
-              letter-spacing:-.03em;color:#4A4636}
+              letter-spacing:-.03em;color:#4A4636;white-space:nowrap;min-width:0}
+  .rep-tools{display:flex;align-items:center;gap:5px;flex:0 0 auto}
   .rep-off{flex:0 0 auto;height:24px;padding:0 9px;border-radius:999px;background:#fff;
            border:1.5px solid #E7E1C8;color:#8C8672;font-size:10.5px;font-weight:900;
            letter-spacing:-.03em;white-space:nowrap;transition:background .14s,color .14s}
   .rep-off:active{background:#F1EBCE}
+  /* ⭐ 오늘 — 이번만 + 오늘 요일을 한 번에 */
+  .rep-today{flex:0 0 auto;height:24px;padding:0 10px;border-radius:999px;background:var(--yellow);
+             border:1.5px solid #EBCF2E;color:#231F78;font-size:10.5px;font-weight:900;
+             letter-spacing:-.03em;white-space:nowrap;line-height:1;
+             transition:background .14s,color .14s,border-color .14s,box-shadow .14s}
+  .rep-today.on{background:#231F78;border-color:#231F78;color:var(--yellow);
+                box-shadow:0 2px 8px rgba(35,31,120,.22)}
+  .rep-today:active{transform:scale(.97)}
   .rep-days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
   .rday{height:clamp(38px,4.9vw,44px);border-radius:12px;border:1.6px solid #E7E1C8;background:#fff;
         color:#A9A48D;font-size:clamp(12.5px,1.65vw,15px);font-weight:900;letter-spacing:-.03em;
@@ -1190,7 +1199,10 @@
     <div class="rep" id="addRep">
       <div class="rep-top">
         <h3>📅 요일 지정</h3>
-        <button type="button" class="rep-off" data-rep-clear>요일 없음</button>
+        <div class="rep-tools">
+          <button type="button" class="rep-today" data-rep-today aria-pressed="false">오늘</button>
+          <button type="button" class="rep-off" data-rep-clear>요일 없음</button>
+        </div>
       </div>
       <div class="rep-mode" role="group" aria-label="요일 지정 방식">
         <button type="button" class="rmode on" data-rmode="once" aria-pressed="true">📌 이번만</button>
@@ -1237,7 +1249,10 @@
     <div class="rep" id="noteRep">
       <div class="rep-top">
         <h3>📅 요일 지정</h3>
-        <button type="button" class="rep-off" data-rep-clear>요일 없음</button>
+        <div class="rep-tools">
+          <button type="button" class="rep-today" data-rep-today aria-pressed="false">오늘</button>
+          <button type="button" class="rep-off" data-rep-clear>요일 없음</button>
+        </div>
       </div>
       <div class="rep-mode" role="group" aria-label="요일 지정 방식">
         <button type="button" class="rmode on" data-rmode="once" aria-pressed="true">📌 이번만</button>
@@ -1621,6 +1636,13 @@ function paintRepeat(box, days, mode) {
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
   $$('.rq', box).forEach(b => b.classList.toggle('on', sameDays(d, presetDays(b.dataset.rep))));
+  /* ⭐ 오늘 버튼 — 이번만으로 오늘 요일이 골라져 있으면 켜 둔다 */
+  const tb = $('[data-rep-today]', box);
+  if (tb) {
+    const on = once && d.indexOf(kstParts().dow) >= 0;
+    tb.classList.toggle('on', on);
+    tb.setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
   const sum = $('[data-rep-sum]', box);
   if (sum) {
     if (later) {
@@ -4721,6 +4743,10 @@ function initApp() {
         if (getMode() === mb.dataset.rmode) return;
         setMode(mb.dataset.rmode);
         repaint(); return;
+      }
+      /* ⭐ 오늘 — 이번만 + 오늘 요일 하나로 바로 지정(이후였으면 해제) */
+      if (el.closest('[data-rep-today]')) {
+        setMode('once'); setDays([kstParts().dow]); repaint(); return;
       }
       /* 요일·빠른 선택·요일 없음 — 이후였으면 고르는 순간 이번만으로 돌아온다 */
       const picker = el.closest('[data-day]') || el.closest('[data-rep]') || el.closest('[data-rep-clear]');
